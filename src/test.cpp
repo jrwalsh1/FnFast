@@ -58,10 +58,11 @@ int main()
    Line line1(Vertices::v1, Vertices::v2, mom1);
    Line line2(Vertices::v1, Vertices::v2, mom2);
    vector<Line> P22_lines = {line1, line2};
+   map<Vertices::VertexLabel, KernelBase*> vertexkernels {{Vertices::v1, &kernels}, {Vertices::v2, &kernels}};
 
    LinearPowerSpectrumAnalytic PL(1);
 
-   Diagram P22(P22_lines, &kernels, &PL);
+   Diagram P22(P22_lines, vertexkernels, &PL);
 
    return 0;
 } // end of main program
