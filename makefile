@@ -1,0 +1,17 @@
+CXX = g++
+CXXFLAGS = -O3 -Wall -std=c++11
+INCLUDE = -Iinclude
+LDFLAGS = 
+CUBA=/Users/jwalsh/Desktop/Research/HEP/Cuba-4.2/
+
+# rule for object files
+%.o: src/%.cpp
+	$(CXX) -c $(CXXFLAGS) $(INCLUDE) -I$(CUBA) $< -o $@ -L$(CUBA) -lcuba
+
+# executables
+test: test.o KernelBase.o SPTkernels.o Diagram.o Random.o Labels.o Momentum.o Propagator.o
+	mkdir -p bin
+	$(CXX) -o bin/$@ $^ $(CXXFLAGS) -L$(CUBA) -lcuba
+
+clean:
+	rm -f *.o
