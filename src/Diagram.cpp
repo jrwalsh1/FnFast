@@ -16,6 +16,8 @@
 //    Implementation of class Diagram
 //------------------------------------------------------------------------------
 
+#include <iostream>
+
 #include "Diagram.hpp"
 
 /*
@@ -24,7 +26,7 @@
  */
 
 //------------------------------------------------------------------------------
-Diagram::Diagram(vector<Line> lines, map<Vertices::VertexLabel, KernelBase*> kernels, LinearPowerSpectrumBase* PL) : _lines(lines), _kernels(kernels), _PL(PL)
+Diagram::Diagram(vector<Line> lines, unordered_map<Vertices::VertexLabel, KernelBase*> kernels, LinearPowerSpectrumBase* PL) : _lines(lines), _kernels(kernels), _PL(PL)
 {
    // iterate over lines, fill in other diagram objects
    _order = kTree;
@@ -41,7 +43,11 @@ Diagram::Diagram(vector<Line> lines, map<Vertices::VertexLabel, KernelBase*> ker
       // for the start and end vertices, add the momentum to the vertex factor list
       _vertexmomenta[_lines[i].start()].push_back(_lines[i].propagator());
       _vertexmomenta[_lines[i].end()].push_back(_lines[i].propagator().reverse());
+      // store the vertex pairs for each line
+      _vertexpairs.push_back(VertexPair(_lines[i].start(), _lines[i].end()));
    }
+   // calculate the symmetry factor
+   _symfac = symmetry_factor();
 }
 
 //------------------------------------------------------------------------------
@@ -54,7 +60,7 @@ double Diagram::value_base(DiagramMomenta mom)
    for (size_t i = 0; i < _lines.size(); i++) {
       value *= (*_PL)(_lines[i].propagator().p(mom).magnitude());
    }
-   // now do vertex factore
+   // now do vertex factors
    for (size_t i = 0; i < Vertices::vertexlabels.size(); i++) {
       Vertices::VertexLabel vertex = Vertices::vertexlabels[i];
       vector<ThreeVector> p;
@@ -117,4 +123,54 @@ double Diagram::value_IRreg(DiagramMomenta mom)
    // momentum configurations giving distinct diagram values,
    // and multiply each by the appropriate symmetry factor
    return 0;
+}
+
+//------------------------------------------------------------------------------
+double Diagram::symmetry_factor()
+{
+   // calculation of the (internal) symmetry factor
+   // this factor is defined as the number of diagrams with an equivalent topology
+   // that give the same value for any momentum routing.
+   // This function uses the Solon formula, prod_i N_i! / prod_{i,j} P_ij!
+   // where N_i is the number of lines from vertex i,
+   // and P_ij is the number of lines between vertices i and j
+
+   // count the number of lines for each vertex
+   unordered_map<Vertices::VertexLabel, int> vertexcounts;
+   for (size_t i = 0; i < Vertices::vertexlabels.size(); i++) { vertexcounts[Vertices::vertexlabels[i]] = 0; }
+   for (size_t i = 0; i < _vertexpairs.size(); i++) {
+      vertexcounts[_vertexpairs[i].vA]++;
+      vertexcounts[_vertexpairs[i].vB]++;
+   }
+   // calculate the numerator
+   int numerator = 1;
+   for (size_t i = 0; i < Vertices::vertexlabels.size(); i++) {
+      numerator *= factorial(vertexcounts[Vertices::vertexlabels[i]]);
+   }
+
+   // calculate the number of lines between each vertex pair
+   unordered_map<VertexPair, int> linecounts;
+   for (size_t i = 0; i < Vertices::vertexlabels.size(); i++) {
+      for (size_t j = 0; j <= i; j++) {
+         VertexPair vxpair(Vertices::vertexlabels[i], Vertices::vertexlabels[j]);
+         linecounts[vxpair] = 0;
+      }
+   }
+   for (size_t i = 0; i < _vertexpairs.size(); i++) {
+      VertexPair vxpair = _vertexpairs[i];
+      linecounts[vxpair]++;
+   }
+   // calculate the denominator
+   int denominator = 1;
+   for (size_t i = 0; i < Vertices::vertexlabels.size(); i++) {
+      for (size_t j = 0; j <= i; j++) {
+         VertexPair vxpair(Vertices::vertexlabels[i], Vertices::vertexlabels[j]);
+         denominator *= factorial(linecounts[vxpair]);
+      }
+   }
+
+   // the symmetry factor
+   double symfac = numerator * 1. / denominator;
+
+   return symfac;
 }

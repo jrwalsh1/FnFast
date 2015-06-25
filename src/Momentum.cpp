@@ -19,7 +19,7 @@
 #include "Momentum.hpp"
 
 //------------------------------------------------------------------------------
-DiagramMomenta::DiagramMomenta(map<Momenta::MomentumLabel, ThreeVector> momenta)
+DiagramMomenta::DiagramMomenta(unordered_map<Momenta::MomentumLabel, ThreeVector> momenta)
 : _momenta(momenta)
 {
    // assign any missing keys to 0 using map::insert

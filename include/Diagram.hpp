@@ -22,6 +22,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <unordered_map>
 
 #include "KernelBase.hpp"
 #include "LinearPowerSpectrumBase.hpp"
@@ -32,17 +33,18 @@ using namespace std;
 class Diagram
 {
    private:
-      Order _order;                                                        ///< order of the calculation
-      double _symfac;                                                      ///< symmetry factor
-      vector<Line> _lines;                                                 ///< lines in the graph
-      map<Vertices::VertexLabel, vector<Propagator> > _vertexmomenta;      ///< vertex factors
-      vector<Propagator> _IRpoles;                                         ///< IR poles
-      map<Vertices::VertexLabel, KernelBase*> _kernels;                    ///< pointer to a kernel instance
-      LinearPowerSpectrumBase* _PL;                                        ///< pointer to a linear power spectrum instance
+      Order _order;                                                                    ///< order of the calculation
+      double _symfac;                                                                  ///< symmetry factor
+      vector<Line> _lines;                                                             ///< lines in the graph
+      unordered_map<Vertices::VertexLabel, vector<Propagator> > _vertexmomenta;        ///< vertex factors
+      vector<Propagator> _IRpoles;                                                     ///< IR poles
+      unordered_map<Vertices::VertexLabel, KernelBase*> _kernels;                      ///< pointer to a kernel instance
+      LinearPowerSpectrumBase* _PL;                                                    ///< pointer to a linear power spectrum instance
+      vector<VertexPair> _vertexpairs;                                                 ///< container for endpoint vertices of lines
 
    public:
       /// constructor
-      Diagram(vector<Line> lines, map<Vertices::VertexLabel, KernelBase*> kernels, LinearPowerSpectrumBase* PL);
+      Diagram(vector<Line> lines, unordered_map<Vertices::VertexLabel, KernelBase*> kernels, LinearPowerSpectrumBase* PL);
       /// destructor
       virtual ~Diagram() {}
 
@@ -50,7 +52,7 @@ class Diagram
       void setLinearPowerSpectrum(LinearPowerSpectrumBase* PL);
 
       /// set the kernels
-      void setKernels(map<Vertices::VertexLabel, KernelBase*> kernels);
+      void setKernels(unordered_map<Vertices::VertexLabel, KernelBase*> kernels);
 
       /// returns the diagram value with the input momentum routing
       double value_base(DiagramMomenta mom);
@@ -64,6 +66,12 @@ class Diagram
    private:
       /// function theta(|p1| < |p2|)
       static double theta(ThreeVector p1, ThreeVector p2);
+
+      /// computes symmetry factor
+      double symmetry_factor();
+
+      /// factorial
+      static int factorial(int n) { return (n == 0 || n == 1) ? 1 : n * factorial(n-1); }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -77,7 +85,7 @@ inline void Diagram::setLinearPowerSpectrum(LinearPowerSpectrumBase* PL)
 }
 
 //------------------------------------------------------------------------------
-inline void Diagram::setKernels(map<Vertices::VertexLabel, KernelBase*> kernels)
+inline void Diagram::setKernels(unordered_map<Vertices::VertexLabel, KernelBase*> kernels)
 {
    _kernels = kernels;
 }

@@ -49,16 +49,16 @@ int main()
 //   cout << "F4, F4sym = " << F4 << ", " << F4sym << endl;
    cout << "F5, F5sym = " << F5 << ", " << F5sym << endl;
 
-   map<Momenta::MomentumLabel, ThreeVector> ext_mom {{Momenta::k1, k1}, {Momenta::k2, k2}};
+   unordered_map<Momenta::MomentumLabel, ThreeVector> ext_mom {{Momenta::k1, k1}, {Momenta::k2, k2}};
    DiagramMomenta momenta(ext_mom);
    momenta[Momenta::q] = k3;
 
-   map<Momenta::MomentumLabel, double> mom1 {{Momenta::q, 1}};
-   map<Momenta::MomentumLabel, double> mom2 {{Momenta::q, -1}, {Momenta::k2, 1}};
+   unordered_map<Momenta::MomentumLabel, double> mom1 {{Momenta::q, 1}};
+   unordered_map<Momenta::MomentumLabel, double> mom2 {{Momenta::q, -1}, {Momenta::k2, 1}};
    Line line1(Vertices::v1, Vertices::v2, mom1);
    Line line2(Vertices::v1, Vertices::v2, mom2);
    vector<Line> P22_lines = {line1, line2};
-   map<Vertices::VertexLabel, KernelBase*> vertexkernels {{Vertices::v1, &kernels}, {Vertices::v2, &kernels}};
+   unordered_map<Vertices::VertexLabel, KernelBase*> vertexkernels {{Vertices::v1, &kernels}, {Vertices::v2, &kernels}};
 
    LinearPowerSpectrumAnalytic PL(1);
 

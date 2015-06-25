@@ -21,7 +21,7 @@
 #include "Propagator.hpp"
 
 //------------------------------------------------------------------------------
-Propagator::Propagator(map<Momenta::MomentumLabel, double> components)
+Propagator::Propagator(unordered_map<Momenta::MomentumLabel, double> components)
 : _components(components)
 {
    // assign any missing keys to 0 using map::insert
@@ -70,7 +70,7 @@ bool Propagator::isNull()
 Propagator Propagator::reverse()
 {
    // get the map
-   map<Momenta::MomentumLabel, double> comp = _components;
+   unordered_map<Momenta::MomentumLabel, double> comp = _components;
    // multiply all factors (values) by -1
    for (size_t c = 0; c < Momenta::momentumlabels.size(); c++) {
       comp[Momenta::momentumlabels[c]] *= -1;
@@ -87,13 +87,13 @@ Propagator Propagator::IRpole(Momenta::MomentumLabel label)
    // first check to make sure the label we're solving for is present in the propagator
    if ( !hasLabel(label) ) {
       cout << "Propagator::IRpole : no component of propagator with given label!" << endl;
-      map<Momenta::MomentumLabel, double> nullcomp;
+      unordered_map<Momenta::MomentumLabel, double> nullcomp;
       Propagator nullprop(nullcomp);
       return nullprop;
    }
    
    // now the case where the label is present
-   map<Momenta::MomentumLabel, double> comp = _components;
+   unordered_map<Momenta::MomentumLabel, double> comp = _components;
    // get the factor for the label, then set the label factor to 0
    int fac = _components[label];
    _components[label] = 0;

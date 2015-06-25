@@ -63,6 +63,30 @@ struct Vertices
 
 //------------------------------------------------------------------------------
 /**
+ * \struct VertexPair
+ *
+ * \brief A container for a pair of VertexLabels
+ *
+ * Defines equality operator for use in maps, comparisons
+ */
+//------------------------------------------------------------------------------
+struct VertexPair
+{
+   Vertices::VertexLabel vA;     ///< label A
+   Vertices::VertexLabel vB;     ///< label B
+
+   /// constructor
+   VertexPair(Vertices::VertexLabel vxA, Vertices::VertexLabel vxB) : vA(vxA), vB(vxB) {}
+
+   /// comparison operator
+   bool operator==(const VertexPair& rhs) const {
+      if (((vA == rhs.vA) && (vB == rhs.vB)) || ((vA == rhs.vB) && (vB == rhs.vA))) { return true; }
+      else { return false; }
+   }
+};
+
+//------------------------------------------------------------------------------
+/**
  * \struct MomentumLabels
  *
  * \brief Defines constants to label the momenta and a vector of all values
@@ -83,5 +107,43 @@ struct Momenta{
 
    static const vector<MomentumLabel> momentumlabels;
 };
+
+/// hash functions for label objects
+namespace std
+{
+   /// hash function for VertexLabel
+   template <>
+   struct hash<Vertices::VertexLabel>
+   {
+      size_t operator()(const Vertices::VertexLabel& v) const
+      {
+         // Compute individual hash values for VertexLabel
+         return ((hash<int>()(v)) >> 1);
+      }
+   };
+
+   /// hash function for VertexPair
+   template <>
+   struct hash<VertexPair>
+   {
+      size_t operator()(const VertexPair& vp) const
+      {
+         // Compute individual hash values for two data members and combine them using XOR and bit shifting
+         return ((hash<int>()(vp.vA) ^ (hash<int>()(vp.vB) << 1)) >> 1);
+      }
+   };
+
+   /// hash function for MomentumLabel
+   template <>
+   struct hash<Momenta::MomentumLabel>
+   {
+      size_t operator()(const Momenta::MomentumLabel& k) const
+      {
+         // Compute individual hash values for MomentumLabel
+         return ((hash<int>()(k)) >> 1);
+      }
+   };
+}
+
 
 #endif // LABELS_HPP

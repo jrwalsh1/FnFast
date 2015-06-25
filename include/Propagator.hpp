@@ -51,16 +51,16 @@ using namespace std;
 class Propagator
 {
    private:
-      map<Momenta::MomentumLabel, double> _components;        ///< components of the momenta and their scale factors
+      unordered_map<Momenta::MomentumLabel, double> _components;        ///< components of the momenta and their scale factors
 
    public:
       /// constructor
-      Propagator(map<Momenta::MomentumLabel, double> components);
+      Propagator(unordered_map<Momenta::MomentumLabel, double> components);
       /// destructor
       virtual ~Propagator() {}
 
       /// accessors
-      map<Momenta::MomentumLabel, double> components() { return _components; }
+      unordered_map<Momenta::MomentumLabel, double> components() { return _components; }
 
       /// get the momentum given values for the loop, external momenta
       ThreeVector p(DiagramMomenta mom);

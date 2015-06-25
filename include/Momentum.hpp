@@ -20,7 +20,7 @@
 #define MOMENTUM_HPP
 
 #include <vector>
-#include <map>
+#include <unordered_map>
 
 #include "Labels.hpp"
 #include "ThreeVector.hpp"
@@ -47,16 +47,16 @@ using namespace std;
 class DiagramMomenta
 {
    private:
-      map<Momenta::MomentumLabel, ThreeVector> _momenta;        ///< ThreeVector for a given MomentumLabel
+      unordered_map<Momenta::MomentumLabel, ThreeVector> _momenta;        ///< ThreeVector for a given MomentumLabel
 
    public:
       /// constructor
-      DiagramMomenta(map<Momenta::MomentumLabel, ThreeVector> momenta);
+      DiagramMomenta(unordered_map<Momenta::MomentumLabel, ThreeVector> momenta);
       /// destructor
       virtual ~DiagramMomenta() {}
 
       /// accessors
-      map<Momenta::MomentumLabel, ThreeVector> momenta() { return _momenta; }
+      unordered_map<Momenta::MomentumLabel, ThreeVector> momenta() { return _momenta; }
       ThreeVector& operator[](Momenta::MomentumLabel label) { return _momenta[label]; }
 };
 
