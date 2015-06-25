@@ -19,8 +19,6 @@
 #ifndef LINE_HPP
 #define LINE_HPP
 
-#include "Labels.hpp"
-#include "Momentum.hpp"
 #include "Propagator.hpp"
 
 //------------------------------------------------------------------------------

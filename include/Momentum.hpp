@@ -46,16 +46,20 @@ using namespace std;
 
 class DiagramMomenta
 {
+   public:
+      vector<Momenta::MomentumLabel> labels;                               ///< momentum labels
+
    private:
-      unordered_map<Momenta::MomentumLabel, ThreeVector> _momenta;        ///< ThreeVector for a given MomentumLabel
+      unordered_map<Momenta::MomentumLabel, ThreeVector> _momenta;         ///< ThreeVector for a given MomentumLabel
 
    public:
       /// constructor
-      DiagramMomenta(unordered_map<Momenta::MomentumLabel, ThreeVector> momenta);
+      DiagramMomenta(vector<Momenta::MomentumLabel> labelset);
       /// destructor
       virtual ~DiagramMomenta() {}
 
       /// accessors
+      void set_momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> momenta) { _momenta = momenta; }
       unordered_map<Momenta::MomentumLabel, ThreeVector> momenta() { return _momenta; }
       ThreeVector& operator[](Momenta::MomentumLabel label) { return _momenta[label]; }
 };

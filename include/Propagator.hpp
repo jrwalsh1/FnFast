@@ -22,8 +22,6 @@
 #include <vector>
 #include <map>
 
-#include "Labels.hpp"
-#include "ThreeVector.hpp"
 #include "Momentum.hpp"
 
 using namespace std;

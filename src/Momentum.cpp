@@ -19,13 +19,12 @@
 #include "Momentum.hpp"
 
 //------------------------------------------------------------------------------
-DiagramMomenta::DiagramMomenta(unordered_map<Momenta::MomentumLabel, ThreeVector> momenta)
-: _momenta(momenta)
+DiagramMomenta::DiagramMomenta(vector<Momenta::MomentumLabel> labelset)
+: labels(labelset)
 {
-   // assign any missing keys to 0 using map::insert
-   // exisiting keys will not be replaced
+   // assign all keys a null momentum
    ThreeVector pnull;
-   for (size_t c = 0; c < Momenta::momentumlabels.size(); c++) {
-      _momenta.insert(pair<Momenta::MomentumLabel, ThreeVector>(Momenta::momentumlabels[c], pnull));
+   for (size_t c = 0; c < labels.size(); c++) {
+      _momenta[labels[c]] = pnull;
    }
 }

@@ -41,9 +41,9 @@ ThreeVector Propagator::p(DiagramMomenta mom)
       return pvec;
    }
    // loop over components, add to p
-   for (size_t c = 0; c < Momenta::momentumlabels.size(); c++) {
-      double fac = _components[Momenta::momentumlabels[c]];
-      pvec += fac * mom[Momenta::momentumlabels[c]];
+   for (size_t c = 0; c < mom.labels.size(); c++) {
+      double fac = _components[mom.labels[c]];
+      pvec += fac * mom[mom.labels[c]];
    }
    
    return pvec;
