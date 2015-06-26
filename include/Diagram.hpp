@@ -48,6 +48,9 @@ class Diagram
       /// destructor
       virtual ~Diagram() {}
 
+      /// return the symmetry factor
+      double symmetry_factor() { return _symfac; }
+
       /// set the linear power spectrum
       void setLinearPowerSpectrum(LinearPowerSpectrumBase* PL);
 
@@ -68,7 +71,7 @@ class Diagram
       static double theta(ThreeVector p1, ThreeVector p2);
 
       /// computes symmetry factor
-      double symmetry_factor();
+      double calc_symmetry_factor();
 
       /// factorial
       static int factorial(int n) { return (n == 0 || n == 1) ? 1 : n * factorial(n-1); }
@@ -77,6 +80,17 @@ class Diagram
 ////////////////////////////////////////////////////////////////////////////////
 // Inline Declarations
 ////////////////////////////////////////////////////////////////////////////////
+
+/*
+//------------------------------------------------------------------------------
+inline Diagram::~Diagram()
+{
+   delete _PL;
+   for (auto kern : _kernels) {
+      delete kern.second;
+   }
+}
+*/
 
 //------------------------------------------------------------------------------
 inline void Diagram::setLinearPowerSpectrum(LinearPowerSpectrumBase* PL)

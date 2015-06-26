@@ -38,7 +38,7 @@ Trispectrum::Trispectrum(Order order, LinearPowerSpectrumBase* PL) : _order(orde
    Line line_T3111_14(Vertices::v1, Vertices::v4, prop_T3111_k4);
    vector<Line> lines_T3111 {line_T3111_12, line_T3111_13, line_T3111_14};
    // define the diagram
-   Diagram T3111(lines_T3111, kernels_SPT, _PL);
+   Diagram* T3111 = new Diagram(lines_T3111, kernels_SPT, _PL);
 
    // T2211
    // propagators
@@ -51,10 +51,12 @@ Trispectrum::Trispectrum(Order order, LinearPowerSpectrumBase* PL) : _order(orde
    Line line_T2211_14(Vertices::v1, Vertices::v4, prop_T2211_k4);
    vector<Line> lines_T2211 {line_T2211_12, line_T2211_23, line_T2211_14};
    // define the diagram
-   Diagram T2211(lines_T2211, kernels_SPT, _PL);
+   Diagram* T2211 = new Diagram(lines_T2211, kernels_SPT, _PL);
 
    // define the tree diagrams
    _tree = {T3111, T2211};
+   _diagrams[Graphs::T3111] = T3111;
+   _diagrams[Graphs::T2211] = T2211;
 
    if (_order == kOneLoop) {
       // T5111
@@ -70,7 +72,7 @@ Trispectrum::Trispectrum(Order order, LinearPowerSpectrumBase* PL) : _order(orde
       Line line_T5111_14(Vertices::v1, Vertices::v4, prop_T5111_k4);
       vector<Line> lines_T5111 {line_T5111_11, line_T5111_12, line_T5111_13, line_T5111_14};
       // define the diagram
-      Diagram T5111(lines_T5111, kernels_SPT, _PL);
+      Diagram* T5111 = new Diagram(lines_T5111, kernels_SPT, _PL);
 
       // T4211a
       // propagators
@@ -85,7 +87,7 @@ Trispectrum::Trispectrum(Order order, LinearPowerSpectrumBase* PL) : _order(orde
       Line line_T4211a_14(Vertices::v1, Vertices::v4, prop_T4211a_k4);
       vector<Line> lines_T4211a {line_T4211a_11, line_T4211a_12, line_T4211a_23, line_T4211a_14};
       // define the diagram
-      Diagram T4211a(lines_T4211a, kernels_SPT, _PL);
+      Diagram* T4211a = new Diagram(lines_T4211a, kernels_SPT, _PL);
 
       // T4211b
       // propagators
@@ -100,7 +102,7 @@ Trispectrum::Trispectrum(Order order, LinearPowerSpectrumBase* PL) : _order(orde
       Line line_T4211b_14(Vertices::v1, Vertices::v4, prop_T4211b_k4);
       vector<Line> lines_T4211b {line_T4211b_12a, line_T4211b_12b, line_T4211b_13, line_T4211b_14};
       // define the diagram
-      Diagram T4211b(lines_T4211b, kernels_SPT, _PL);
+      Diagram* T4211b = new Diagram(lines_T4211b, kernels_SPT, _PL);
 
       // T3311a
       // propagators
@@ -115,7 +117,7 @@ Trispectrum::Trispectrum(Order order, LinearPowerSpectrumBase* PL) : _order(orde
       Line line_T3311a_24(Vertices::v2, Vertices::v4, prop_T3311a_k4);
       vector<Line> lines_T3311a {line_T3311a_11, line_T3311a_12, line_T3311a_23, line_T3311a_24};
       // define the diagram
-      Diagram T3311a(lines_T3311a, kernels_SPT, _PL);
+      Diagram* T3311a = new Diagram(lines_T3311a, kernels_SPT, _PL);
 
       // T3311b
       // propagators
@@ -130,7 +132,7 @@ Trispectrum::Trispectrum(Order order, LinearPowerSpectrumBase* PL) : _order(orde
       Line line_T3311b_14(Vertices::v1, Vertices::v4, prop_T3311b_k4);
       vector<Line> lines_T3311b {line_T3311b_12a, line_T3311b_12b, line_T3311b_23, line_T3311b_14};
       // define the diagram
-      Diagram T3311b(lines_T3311b, kernels_SPT, _PL);
+      Diagram* T3311b = new Diagram(lines_T3311b, kernels_SPT, _PL);
 
       // T3221a
       // propagators
@@ -145,7 +147,7 @@ Trispectrum::Trispectrum(Order order, LinearPowerSpectrumBase* PL) : _order(orde
       Line line_T3221a_34(Vertices::v3, Vertices::v4, prop_T3221a_k4);
       vector<Line> lines_T3221a {line_T3221a_11, line_T3221a_12, line_T3221a_23, line_T3221a_34};
       // define the diagram
-      Diagram T3221a(lines_T3221a, kernels_SPT, _PL);
+      Diagram* T3221a = new Diagram(lines_T3221a, kernels_SPT, _PL);
 
       // T3221b
       // propagators
@@ -160,7 +162,7 @@ Trispectrum::Trispectrum(Order order, LinearPowerSpectrumBase* PL) : _order(orde
       Line line_T3221b_34(Vertices::v3, Vertices::v4, prop_T3221b_k4);
       vector<Line> lines_T3221b {line_T3221b_12a, line_T3221b_12b, line_T3221b_13, line_T3221b_34};
       // define the diagram
-      Diagram T3221b(lines_T3221b, kernels_SPT, _PL);
+      Diagram* T3221b = new Diagram(lines_T3221b, kernels_SPT, _PL);
 
       // T3221c
       // propagators
@@ -175,7 +177,7 @@ Trispectrum::Trispectrum(Order order, LinearPowerSpectrumBase* PL) : _order(orde
       Line line_T3221c_14(Vertices::v1, Vertices::v4, prop_T3221c_k4);
       vector<Line> lines_T3221c {line_T3221c_12, line_T3221c_23, line_T3221c_13, line_T3221c_14};
       // define the diagram
-      Diagram T3221c(lines_T3221c, kernels_SPT, _PL);
+      Diagram* T3221c = new Diagram(lines_T3221c, kernels_SPT, _PL);
 
       // T2222
       // propagators
@@ -190,9 +192,18 @@ Trispectrum::Trispectrum(Order order, LinearPowerSpectrumBase* PL) : _order(orde
       Line line_T2222_14(Vertices::v1, Vertices::v4, prop_T2222_qk234);
       vector<Line> lines_T2222 {line_T2222_12, line_T2222_23, line_T2222_34, line_T2222_14};
       // define the diagram
-      Diagram T2222(lines_T2222, kernels_SPT, _PL);
+      Diagram* T2222 = new Diagram(lines_T2222, kernels_SPT, _PL);
 
       // define the loop diagrams
       _loop = {T5111, T4211a, T4211b, T3311a, T3311b, T3221a, T3221b, T3221c, T2222};
+      _diagrams[Graphs::T5111] = T5111;
+      _diagrams[Graphs::T4211a] = T4211a;
+      _diagrams[Graphs::T4211b] = T4211b;
+      _diagrams[Graphs::T3311a] = T3311a;
+      _diagrams[Graphs::T3311b] = T3311b;
+      _diagrams[Graphs::T3221a] = T3221a;
+      _diagrams[Graphs::T3221b] = T3221b;
+      _diagrams[Graphs::T3221c] = T3221c;
+      _diagrams[Graphs::T2222] = T2222;
    }
 }

@@ -36,10 +36,11 @@ Bispectrum::Bispectrum(Order order, LinearPowerSpectrumBase* PL) : _order(order)
    Line line_B211_13(Vertices::v1, Vertices::v3, prop_B211_k3);
    vector<Line> lines_B211 {line_B211_12, line_B211_13};
    // define the diagram
-   Diagram B211(lines_B211, kernels_SPT, _PL);
+   Diagram* B211 = new Diagram(lines_B211, kernels_SPT, _PL);
 
    // define the tree diagrams
    _tree = {B211};
+   _diagrams[Graphs::B211] = B211;
 
    if (_order == kOneLoop) {
       // B411
@@ -53,7 +54,7 @@ Bispectrum::Bispectrum(Order order, LinearPowerSpectrumBase* PL) : _order(order)
       Line line_B411_13(Vertices::v1, Vertices::v3, prop_B411_k3);
       vector<Line> lines_B411 {line_B411_11, line_B411_12, line_B411_13};
       // define the diagram
-      Diagram B411(lines_B411, kernels_SPT, _PL);
+      Diagram* B411 = new Diagram(lines_B411, kernels_SPT, _PL);
 
       // B321a
       // propagators
@@ -66,7 +67,7 @@ Bispectrum::Bispectrum(Order order, LinearPowerSpectrumBase* PL) : _order(order)
       Line line_B321a_13(Vertices::v1, Vertices::v3, prop_B321a_k3);
       vector<Line> lines_B321a {line_B321a_12a, line_B321a_12b, line_B321a_13};
       // define the diagram
-      Diagram B321a(lines_B321a, kernels_SPT, _PL);
+      Diagram* B321a = new Diagram(lines_B321a, kernels_SPT, _PL);
 
       // B321b
       // propagators
@@ -79,7 +80,7 @@ Bispectrum::Bispectrum(Order order, LinearPowerSpectrumBase* PL) : _order(order)
       Line line_B321b_23(Vertices::v2, Vertices::v3, prop_B321b_k3);
       vector<Line> lines_B321b {line_B321b_11, line_B321b_12, line_B321b_23};
       // define the diagram
-      Diagram B321b(lines_B321b, kernels_SPT, _PL);
+      Diagram* B321b = new Diagram(lines_B321b, kernels_SPT, _PL);
 
       // B222
       // propagators
@@ -87,14 +88,18 @@ Bispectrum::Bispectrum(Order order, LinearPowerSpectrumBase* PL) : _order(order)
       Propagator prop_B222_qk2(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, -1}, {Momenta::k2, 1}});
       Propagator prop_B222_qk23(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, -1}, {Momenta::k2, 1}, {Momenta::k3, 1}});
       // lines
-      Line line_B222_12(Vertices::v1, Vertices::v1, prop_B222_q);
+      Line line_B222_12(Vertices::v1, Vertices::v2, prop_B222_q);
       Line line_B222_23(Vertices::v2, Vertices::v3, prop_B222_qk2);
       Line line_B222_13(Vertices::v1, Vertices::v3, prop_B222_qk23);
       vector<Line> lines_B222 {line_B222_12, line_B222_23, line_B222_13};
       // define the diagram
-      Diagram B222(lines_B222, kernels_SPT, _PL);
+      Diagram* B222 = new Diagram(lines_B222, kernels_SPT, _PL);
 
       // define the loop diagrams
       _loop = {B411, B321a, B321b, B222};
+      _diagrams[Graphs::B411] = B411;
+      _diagrams[Graphs::B321a] = B321a;
+      _diagrams[Graphs::B321b] = B321b;
+      _diagrams[Graphs::B222] = B222;
    }
 }

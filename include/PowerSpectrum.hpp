@@ -19,7 +19,6 @@
 #ifndef POWER_SPECTRUM_HPP
 #define POWER_SPECTRUM_HPP
 
-#include <vector>
 #include <map>
 
 #include "Diagram.hpp"
@@ -50,19 +49,30 @@ using namespace std;
 
 class PowerSpectrum
 {
+   public:
+      enum Graphs {
+         P11,
+         P31,
+         P22
+      };
+
    private:
-      Order _order;                    ///< order of the calculation
-      LinearPowerSpectrumBase* _PL;    ///< the linear power spectrum used in the calculation
-      SPTkernels* _SPTkernels;         ///< SPT kernels instance
-      vector<Diagram> _tree;           ///< tree level diagrams
-      vector<Diagram> _loop;           ///< loop diagrams
-      vector<Diagram> _cterms;         ///< counterterms
+      Order _order;                                   ///< order of the calculation
+      LinearPowerSpectrumBase* _PL;                   ///< the linear power spectrum used in the calculation
+      SPTkernels* _SPTkernels;                        ///< SPT kernels instance
+      vector<Diagram*> _tree;                         ///< tree level diagrams
+      vector<Diagram*> _loop;                         ///< loop diagrams
+      vector<Diagram*> _cterms;                       ///< counterterms
+      map<Graphs, Diagram*> _diagrams;                ///< container for diagrams
 
    public:
       /// constructor
       PowerSpectrum(Order order, LinearPowerSpectrumBase* PL);
       /// destructor
       virtual ~PowerSpectrum() {}
+
+      /// access diagrams
+      Diagram* operator[](Graphs graph) { return _diagrams[graph]; }
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -20,6 +20,7 @@
 #define LABELS_HPP
 
 #include <vector>
+#include <functional>
 
 using namespace std;
 
@@ -115,7 +116,7 @@ namespace std
    template <>
    struct hash<Vertices::VertexLabel>
    {
-      size_t operator()(const Vertices::VertexLabel& v) const
+      size_t operator()(const Vertices::VertexLabel &v) const
       {
          // Compute individual hash values for VertexLabel
          return ((hash<int>()(v)) >> 1);

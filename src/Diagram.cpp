@@ -46,8 +46,9 @@ Diagram::Diagram(vector<Line> lines, unordered_map<Vertices::VertexLabel, Kernel
       // store the vertex pairs for each line
       _vertexpairs.push_back(VertexPair(_lines[i].start(), _lines[i].end()));
    }
+
    // calculate the symmetry factor
-   _symfac = symmetry_factor();
+   _symfac = calc_symmetry_factor();
 }
 
 //------------------------------------------------------------------------------
@@ -126,7 +127,7 @@ double Diagram::value_IRreg(DiagramMomenta mom)
 }
 
 //------------------------------------------------------------------------------
-double Diagram::symmetry_factor()
+double Diagram::calc_symmetry_factor()
 {
    // calculation of the (internal) symmetry factor
    // this factor is defined as the number of diagrams with an equivalent topology
@@ -150,21 +151,17 @@ double Diagram::symmetry_factor()
 
    // calculate the number of lines between each vertex pair
    unordered_map<VertexPair, int> linecounts;
-   for (size_t i = 0; i < Vertices::vertexlabels.size(); i++) {
-      for (size_t j = 0; j <= i; j++) {
-         VertexPair vxpair(Vertices::vertexlabels[i], Vertices::vertexlabels[j]);
-         linecounts[vxpair] = 0;
-      }
-   }
-   for (size_t i = 0; i < _vertexpairs.size(); i++) {
-      VertexPair vxpair = _vertexpairs[i];
-      linecounts[vxpair]++;
-   }
-   // calculate the denominator
    int denominator = 1;
    for (size_t i = 0; i < Vertices::vertexlabels.size(); i++) {
       for (size_t j = 0; j <= i; j++) {
          VertexPair vxpair(Vertices::vertexlabels[i], Vertices::vertexlabels[j]);
+         linecounts[vxpair] = 0;
+         for (size_t k = 0; k < _vertexpairs.size(); k++) {
+            if (_vertexpairs[k] == vxpair) {
+               linecounts[vxpair]++;
+               if (i == j) { linecounts[vxpair]++; }
+            }
+         }
          denominator *= factorial(linecounts[vxpair]);
       }
    }
