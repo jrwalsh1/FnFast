@@ -54,8 +54,14 @@ class Diagram
       /// return the symmetry factor
       double symmetry_factor() { return _symfac; }
 
-      /// return the symmetry factor
+      /// return the number of permutations
       int nperms() { return _perms.size(); }
+
+      /// get the external momentum permutations used in the diagram calculation
+      vector<unordered_map<Momenta::MomentumLabel, Momenta::MomentumLabel> > get_perms() { return _perms; }
+
+      /// set the external momentum permutations to be used in the diagram calculation
+      void set_perms(vector<unordered_map<Momenta::MomentumLabel, Momenta::MomentumLabel> > perms) { _perms = perms; }
 
       /// set the linear power spectrum
       void setLinearPowerSpectrum(LinearPowerSpectrumBase* PL);
