@@ -56,6 +56,12 @@ class PowerSpectrum
          P22
       };
 
+      /// phase space of the loop integral in the power spectrum
+      /*
+      class LoopPhaseSpace {
+         
+      }; */
+
    private:
       Order _order;                                   ///< order of the calculation
       LinearPowerSpectrumBase* _PL;                   ///< the linear power spectrum used in the calculation

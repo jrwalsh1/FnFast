@@ -34,6 +34,7 @@ class Diagram
 {
    private:
       Order _order;                                                                    ///< order of the calculation
+      vector<Vertices::VertexLabel> _vertices;                                         ///< list of vertices in the diagram
       double _symfac;                                                                  ///< symmetry factor
       vector<Line> _lines;                                                             ///< lines in the graph
       unordered_map<Vertices::VertexLabel, vector<Propagator> > _vertexmomenta;        ///< vertex factors
@@ -41,6 +42,8 @@ class Diagram
       unordered_map<Vertices::VertexLabel, KernelBase*> _kernels;                      ///< pointer to a kernel instance
       LinearPowerSpectrumBase* _PL;                                                    ///< pointer to a linear power spectrum instance
       vector<VertexPair> _vertexpairs;                                                 ///< container for endpoint vertices of lines
+      vector<Momenta::MomentumLabel> _extmomlabels;                                    ///< momentum labels in the graph
+      vector<unordered_map<Momenta::MomentumLabel, Momenta::MomentumLabel> > _perms;   ///< permutations of external momenta for the graph
 
    public:
       /// constructor
@@ -50,6 +53,9 @@ class Diagram
 
       /// return the symmetry factor
       double symmetry_factor() { return _symfac; }
+
+      /// return the symmetry factor
+      int nperms() { return _perms.size(); }
 
       /// set the linear power spectrum
       void setLinearPowerSpectrum(LinearPowerSpectrumBase* PL);
@@ -72,6 +78,9 @@ class Diagram
 
       /// computes symmetry factor
       double calc_symmetry_factor();
+
+      /// computes permutations of external momenta
+      vector<unordered_map<Momenta::MomentumLabel, Momenta::MomentumLabel> > calc_permutations();
 
       /// factorial
       static int factorial(int n) { return (n == 0 || n == 1) ? 1 : n * factorial(n-1); }

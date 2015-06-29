@@ -62,6 +62,9 @@ class DiagramMomenta
       void set_momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> momenta) { _momenta = momenta; }
       unordered_map<Momenta::MomentumLabel, ThreeVector> momenta() { return _momenta; }
       ThreeVector& operator[](Momenta::MomentumLabel label) { return _momenta[label]; }
+
+      /// permute momenta using a map
+      void permute(unordered_map<Momenta::MomentumLabel, Momenta::MomentumLabel> perm);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

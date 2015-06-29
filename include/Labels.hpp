@@ -79,10 +79,20 @@ struct VertexPair
    /// constructor
    VertexPair(Vertices::VertexLabel vxA, Vertices::VertexLabel vxB) : vA(vxA), vB(vxB) {}
 
-   /// comparison operator
+   /// equality operator
    bool operator==(const VertexPair& rhs) const {
       if (((vA == rhs.vA) && (vB == rhs.vB)) || ((vA == rhs.vB) && (vB == rhs.vA))) { return true; }
       else { return false; }
+   }
+
+   /// comparison operator
+   bool operator<(const VertexPair& rhs) const {
+      if (min(vA, vB) < min(rhs.vA, rhs.vB)) {
+         return true;
+      } else if ((min(vA, vB) == min(rhs.vA, rhs.vB)) && (max(vA, vB) < max(rhs.vA, rhs.vB))) {
+         return true;
+      }
+      return false;
    }
 };
 

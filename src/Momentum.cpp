@@ -28,3 +28,12 @@ DiagramMomenta::DiagramMomenta(vector<Momenta::MomentumLabel> labelset)
       _momenta[labels[c]] = pnull;
    }
 }
+
+//------------------------------------------------------------------------------
+void DiagramMomenta::permute(unordered_map<Momenta::MomentumLabel, Momenta::MomentumLabel> perm)
+{
+   unordered_map<Momenta::MomentumLabel, ThreeVector> curr_momenta = _momenta;
+   for (auto item : perm) {
+      _momenta[item.first] = curr_momenta[item.second];
+   }
+}

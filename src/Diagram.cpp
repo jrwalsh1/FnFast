@@ -49,6 +49,17 @@ Diagram::Diagram(vector<Line> lines, unordered_map<Vertices::VertexLabel, Kernel
 
    // calculate the symmetry factor
    _symfac = calc_symmetry_factor();
+
+   // store the vertex and momentum label list
+   // assumes the vertices are canonically ordered,
+   // e.g. {v1, v2, v3} for a bispectrum graph and not {v1, v2, v4}
+   // same for momenta: {k1, k2, k3} for a bispectrum graph and not {k2, k3, k4}
+   size_t nvertices = kernels.size();
+   _vertices = vector<Vertices::VertexLabel>(Vertices::vertexlabels.begin(), Vertices::vertexlabels.begin() + nvertices);
+   _extmomlabels = vector<Momenta::MomentumLabel>(Momenta::momentumlabels.begin() + 1, Momenta::momentumlabels.begin() + nvertices + 1);
+
+   // calculate the permutations of the external momenta
+   _perms = calc_permutations();
 }
 
 //------------------------------------------------------------------------------
@@ -117,24 +128,41 @@ double Diagram::value_base_IRreg(DiagramMomenta mom)
 //------------------------------------------------------------------------------
 double Diagram::value_IRreg(DiagramMomenta mom)
 {
-   // To return the IR regulated diagram symmetrized over external momenta,
-   // we symmetrize the IR regulated diagram with the input momentum routing
-   // over external momentum configurations.
-   // To make the symmetrization more efficient, we compute only the
-   // momentum configurations giving distinct diagram values,
-   // and multiply each by the appropriate symmetry factor
-   return 0;
+   /* 
+    * To return the IR regulated diagram symmetrized over external momenta,
+    * we symmetrize the IR regulated diagram with the input momentum routing
+    * over external momentum configurations.
+    * To make the symmetrization more efficient, we compute only the
+    * momentum configurations giving distinct diagram values,
+    * and multiply each by the appropriate symmetry factor
+    */
+
+   double value = 0;
+   // loop over external momentum permutations
+   // symmetrize over q -> -q
+   for (size_t i = 0; i < _perms.size(); i++) {
+      DiagramMomenta mom_perm = mom;
+      mom_perm.permute(_perms[i]);
+      value += 0.5 * value_base_IRreg(mom_perm);
+      ThreeVector mq = -1 * mom_perm[Momenta::q];
+      mom_perm[Momenta::q] = mq;
+      value += 0.5 * value_base_IRreg(mom_perm);
+   }
+
+   return value;
 }
 
 //------------------------------------------------------------------------------
 double Diagram::calc_symmetry_factor()
 {
-   // calculation of the (internal) symmetry factor
-   // this factor is defined as the number of diagrams with an equivalent topology
-   // that give the same value for any momentum routing.
-   // This function uses the Solon formula, prod_i N_i! / prod_{i,j} P_ij!
-   // where N_i is the number of lines from vertex i,
-   // and P_ij is the number of lines between vertices i and j
+   /*
+    * calculation of the (internal) symmetry factor
+    * this factor is defined as the number of diagrams with an equivalent topology
+    * that give the same value for any momentum routing.
+    * This function uses the Solon formula, prod_i N_i! / prod_{i,j} P_ij!
+    * where N_i is the number of lines from vertex i,
+    * and P_ij is the number of lines between vertices i and j
+    */
 
    // count the number of lines for each vertex
    unordered_map<Vertices::VertexLabel, int> vertexcounts;
@@ -170,4 +198,71 @@ double Diagram::calc_symmetry_factor()
    double symfac = numerator * 1. / denominator;
 
    return symfac;
+}
+
+//------------------------------------------------------------------------------
+vector<unordered_map<Momenta::MomentumLabel, Momenta::MomentumLabel> > Diagram::calc_permutations()
+{
+   /*
+    * Calculation of the external momentum permutations.
+    * Returns the set of permutations needed to correctly sum over all
+    * external momentum routings of the graph.
+    * Eliminates degenerate configurations.
+    * The permutations are stored as a map of momentum label mappings.
+    */
+   vector<unordered_map<Momenta::MomentumLabel, Momenta::MomentumLabel> > perms;
+   int nperm = 0;
+
+   // create a list of VertexPair objects, where each represents
+   // a distinct relabeling of the vertices (and hence a permutation of external momenta).
+   // We will iterate over vertex labeling permutations and store only those
+   // which will give a unique diagram value.
+   vector<vector<VertexPair> > vertexconnections;
+
+   // Loop over vertex permutations.
+   // Since we will be applying the same permutation to momentum labels and vertex labels,
+   // we index permutations with a simple list of integers
+   vector<int> indices;
+   for (size_t i = 0; i < _vertices.size(); i++) { indices.push_back(i); }
+   // make sure it's sorted...
+   sort(indices.begin(), indices.end());
+   do {
+      // create a map from the canonical vertex labels to the permuted ones
+      unordered_map<Vertices::VertexLabel, Vertices::VertexLabel> vertexmap;
+      for (size_t i = 0; i < _vertices.size(); i++) {
+         vertexmap[_vertices[i]] = _vertices[indices[i]];
+      }
+
+      // use this map to create a vector of VertexPair objects for each line
+      vector<VertexPair> vertexpairs;
+      for (size_t i = 0; i < _lines.size(); i++) {
+         // store the vertex pairs for each line
+         vertexpairs.push_back(VertexPair(vertexmap[_lines[i].start()], vertexmap[_lines[i].end()]));
+      }
+      // now sort this object and compare it to existing ones
+      sort(vertexpairs.begin(), vertexpairs.end());
+//      cout << "-----permutation-----" << endl;
+//      for (size_t i = 0; i < vertexpairs.size(); i++) {
+//         cout << "vertex pair: " << vertexpairs[i].vA << " , " << vertexpairs[i].vB << endl;
+//      }
+      bool newitem = true;
+      for (size_t i = 0; i < vertexconnections.size(); i++) {
+         if (vertexpairs == vertexconnections[i]) { newitem = false; break; }
+      }
+
+      // if we have encountered a new ordering, add it to the list
+      // and save the permutation in terms of the momentum labels map
+      if (newitem) {
+         nperm++;
+         vertexconnections.push_back(vertexpairs);
+         // create the map for the momentum labels (as we did for the vertices)
+         unordered_map<Momenta::MomentumLabel, Momenta::MomentumLabel> extmommap;
+         for (size_t i = 0; i < _vertices.size(); i++) {
+            extmommap[_extmomlabels[i]] = _extmomlabels[indices[i]];
+         }
+         perms.push_back(extmommap);
+      }
+   } while (next_permutation(indices.begin(), indices.end()));
+
+   return perms;
 }
