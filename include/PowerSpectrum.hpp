@@ -23,6 +23,7 @@
 
 #include "Diagram.hpp"
 #include "SPTkernels.hpp"
+#include "Momentum.hpp"
 
 using namespace std;
 
@@ -59,7 +60,6 @@ class PowerSpectrum
       /// phase space of the loop integral in the power spectrum
       /*
       class LoopPhaseSpace {
-         
       }; */
 
    private:

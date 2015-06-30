@@ -53,13 +53,16 @@ class DiagramMomenta
       unordered_map<Momenta::MomentumLabel, ThreeVector> _momenta;         ///< ThreeVector for a given MomentumLabel
 
    public:
-      /// constructor
+      /// constructors
+      DiagramMomenta() {}
       DiagramMomenta(vector<Momenta::MomentumLabel> labelset);
       /// destructor
       virtual ~DiagramMomenta() {}
 
+      /// set the momenta
+      void set_momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> momenta);
+
       /// accessors
-      void set_momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> momenta) { _momenta = momenta; }
       unordered_map<Momenta::MomentumLabel, ThreeVector> momenta() { return _momenta; }
       ThreeVector& operator[](Momenta::MomentumLabel label) { return _momenta[label]; }
 

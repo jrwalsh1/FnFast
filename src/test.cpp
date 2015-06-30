@@ -29,6 +29,9 @@ int main()
    ThreeVector k4(0.4, 0.1, 0.8);
    ThreeVector k5(-0.4, -0.1, -0.8);
 
+   vector<Momenta::MomentumLabel> labels = {Momenta::k1, Momenta::k2};
+   DiagramMomenta pdiag(labels);
+
    SPTkernels kernels;
    
    vector<ThreeVector> mom = {k1, k2, k3, k4, k5};

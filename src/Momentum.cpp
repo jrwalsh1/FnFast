@@ -30,6 +30,17 @@ DiagramMomenta::DiagramMomenta(vector<Momenta::MomentumLabel> labelset)
 }
 
 //------------------------------------------------------------------------------
+void DiagramMomenta::set_momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> momenta)
+{
+   _momenta = momenta;
+   vector<Momenta::MomentumLabel> inlabels;
+   for (auto mom : momenta) {
+      inlabels.push_back(mom.first);
+   }
+   labels = inlabels;
+}
+
+//------------------------------------------------------------------------------
 void DiagramMomenta::permute(unordered_map<Momenta::MomentumLabel, Momenta::MomentumLabel> perm)
 {
    unordered_map<Momenta::MomentumLabel, ThreeVector> curr_momenta = _momenta;
