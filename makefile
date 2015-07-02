@@ -9,7 +9,7 @@ CUBA=/Users/jwalsh/Desktop/Research/HEP/Cuba-4.2/
 	$(CXX) -c $(CXXFLAGS) $(INCLUDE) -I$(CUBA) $< -o $@ -L$(CUBA) -lcuba
 
 # executables
-test: test.o KernelBase.o SPTkernels.o Diagram.o Random.o Labels.o Momentum.o Propagator.o PowerSpectrum.o Bispectrum.o Trispectrum.o
+test: test.o KernelBase.o SPTkernels.o EFTkernels.o Diagram.o Random.o Labels.o Momentum.o Propagator.o PowerSpectrum.o Bispectrum.o Trispectrum.o
 	mkdir -p bin
 	$(CXX) -o bin/$@ $^ $(CXXFLAGS) -L$(CUBA) -lcuba
 

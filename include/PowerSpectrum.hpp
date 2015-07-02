@@ -21,9 +21,11 @@
 
 #include <map>
 
+#include "Momentum.hpp"
 #include "Diagram.hpp"
 #include "SPTkernels.hpp"
-#include "Momentum.hpp"
+#include "EFTkernels.hpp"
+#include "WindowFunctionBase.hpp"
 
 using namespace std;
 
@@ -54,31 +56,65 @@ class PowerSpectrum
       enum Graphs {
          P11,
          P31,
-         P22
+         P22,
+         P31x
       };
-
-      /// phase space of the loop integral in the power spectrum
-      /*
-      class LoopPhaseSpace {
-      }; */
 
    private:
       Order _order;                                   ///< order of the calculation
       LinearPowerSpectrumBase* _PL;                   ///< the linear power spectrum used in the calculation
       SPTkernels* _SPTkernels;                        ///< SPT kernels instance
+      EFTkernels* _EFTkernels;                        ///< EFT kernels instance
       vector<Diagram*> _tree;                         ///< tree level diagrams
       vector<Diagram*> _loop;                         ///< loop diagrams
       vector<Diagram*> _cterms;                       ///< counterterms
       map<Graphs, Diagram*> _diagrams;                ///< container for diagrams
+      EFTcoefficients* _eftcoefficients;              ///< EFT coefficients
+      vector<Momenta::MomentumLabel> _labels;         ///< external momenta labels
+      DiagramMomenta _momenta;                        ///< diagram momenta
+      double _UVcutoff;                               ///< UV cutoff for loop integrations
+      double _kBin;                                   ///< size of k bins
+      WindowFunctionBase* _W;                         ///< Window function
 
    public:
       /// constructor
-      PowerSpectrum(Order order, LinearPowerSpectrumBase* PL);
+      PowerSpectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficients* eftcoefficients);
       /// destructor
       virtual ~PowerSpectrum() {}
 
       /// access diagrams
       Diagram* operator[](Graphs graph) { return _diagrams[graph]; }
+
+      /// set size of k bins
+      void set_kBinSize(double kBin) { _kBin = kBin; }
+      /// set window function
+      void set_windowFunction(WindowFunctionBase* W) { _W = W; }
+
+      /// access results
+      /// Differential in k
+      /// tree level
+      double treeLevel_value(ThreeVector k);
+      /// one loop differential in q and integrated in q
+      double oneLoopSPT_value(ThreeVector k, ThreeVector q);
+      double oneLoopSPT_value(ThreeVector k);
+      /// one loop counterterms
+      double oneLoopCterms_value(ThreeVector k);
+    
+      /// Averaged over k bins
+      /// tree level
+      double treeLevel_value(double k);
+      /// one loop integrated in q
+      double oneLoopSPT_value(double k);
+      /// one loop counterterms
+      double oneLoopCterms_value(double k);
+    
+      /// Averaged over k bins + convolution with window function
+      /// tree level
+      double treeLevel_value_win(double k);
+      /// one loop integrated in q
+      double oneLoopSPT_value_win(double k);
+      /// one loop counterterms
+      double oneLoopCterms_value_win(double k);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

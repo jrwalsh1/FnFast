@@ -21,10 +21,18 @@
 #include "Bispectrum.hpp"
 
 //------------------------------------------------------------------------------
-Bispectrum::Bispectrum(Order order, LinearPowerSpectrumBase* PL) : _order(order), _PL(PL), _SPTkernels(new SPTkernels)
+Bispectrum::Bispectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficients* eftcoefficients) : _order(order), _PL(PL), _SPTkernels(new SPTkernels), _EFTkernels(new EFTkernels), _eftcoefficients(eftcoefficients), _UVcutoff(10.), _kBin(0), _W(NULL)
 {
+   // Diagram momenta
+   _labels = { Momenta::k1, Momenta::k2, Momenta::k3, Momenta::q };
+   _momenta=DiagramMomenta(_labels);
+
    // vertex kernels
+   // SPT
    unordered_map<Vertices::VertexLabel, KernelBase*> kernels_SPT = {{Vertices::v1, _SPTkernels}, {Vertices::v2, _SPTkernels}, {Vertices::v3, _SPTkernels}};
+   // counterterms
+   _EFTkernels->set_coefficients(*_eftcoefficients);
+   unordered_map<Vertices::VertexLabel, KernelBase*> kernels_EFTSPT = {{Vertices::v1, _EFTkernels}, {Vertices::v2, _SPTkernels}, {Vertices::v3, _SPTkernels}};
 
    // set up the diagrams, starting with the tree level
    // B211
@@ -94,12 +102,96 @@ Bispectrum::Bispectrum(Order order, LinearPowerSpectrumBase* PL) : _order(order)
       vector<Line> lines_B222 {line_B222_12, line_B222_23, line_B222_13};
       // define the diagram
       Diagram* B222 = new Diagram(lines_B222, kernels_SPT, _PL);
-
+       
       // define the loop diagrams
       _loop = {B411, B321a, B321b, B222};
       _diagrams[Graphs::B411] = B411;
       _diagrams[Graphs::B321a] = B321a;
       _diagrams[Graphs::B321b] = B321b;
       _diagrams[Graphs::B222] = B222;
+       
+      // B411x
+      // propagators
+      Propagator prop_B411x_k2(unordered_map<Momenta::MomentumLabel, double> {{Momenta::k2, 1}});
+      Propagator prop_B411x_k3(unordered_map<Momenta::MomentumLabel, double> {{Momenta::k3, 1}});
+      // lines
+      Line line_B411x_12(Vertices::v1, Vertices::v2, prop_B411x_k2);
+      Line line_B411x_13(Vertices::v1, Vertices::v3, prop_B411x_k3);
+      vector<Line> lines_B411x {line_B411x_12, line_B411x_13};
+      // define the diagram
+      Diagram* B411x = new Diagram(lines_B411x, kernels_EFTSPT, _PL);
+      B411x->set_perms(B411->get_perms());
+       
+      // B321bx
+      // propagators
+      Propagator prop_B321bx_k23(unordered_map<Momenta::MomentumLabel, double> {{Momenta::k2, 1}, {Momenta::k3, 1}});
+      Propagator prop_B321bx_k3(unordered_map<Momenta::MomentumLabel, double> {{Momenta::k3, 1}});
+      // lines
+      Line line_B321bx_12(Vertices::v1, Vertices::v2, prop_B321bx_k23);
+      Line line_B321bx_23(Vertices::v2, Vertices::v3, prop_B321bx_k3);
+      vector<Line> lines_B321bx {line_B321bx_12, line_B321bx_23};
+      // define the diagram
+      Diagram* B321bx = new Diagram(lines_B321bx, kernels_EFTSPT, _PL);
+      B321bx->set_perms(B321b->get_perms());
+       
+      // define the counterterm diagrams
+      _cterms = {B411x,B321bx};
+      _diagrams[Graphs::B411x] = B411x;
+      _diagrams[Graphs::B321bx] = B321bx;
    }
 }
+
+//------------------------------------------------------------------------------
+double Bispectrum::treeLevel_value(ThreeVector k2, ThreeVector k3)
+{
+   // set the external momenta
+    _momenta.set_momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, -k2-k3}, {Momenta::k2, k2}, {Momenta::k3, k3}, {Momenta::q, ThreeVector(1,0,0)}});
+
+   double value = 0;
+   // sum over diagrams
+   for (size_t i = 0; i < _tree.size(); i++) {
+      value += _tree[i]->value_IRreg(_momenta);
+   }
+   return value;
+}
+
+//------------------------------------------------------------------------------
+double Bispectrum::oneLoopSPT_value(ThreeVector k2, ThreeVector k3, ThreeVector q)
+{
+   // set the external momenta
+   _momenta.set_momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, -k2-k3}, {Momenta::k2, k2}, {Momenta::k3, k3}, {Momenta::q, q}});
+
+   double value = 0;
+   // sum over diagrams
+   for(unsigned int i=0; i<_loop.size(); i++) {
+      value += _loop[i]->value_IRreg(_momenta);
+   }
+   return value;
+}
+
+//------------------------------------------------------------------------------
+double Bispectrum::oneLoopSPT_value(ThreeVector k2, ThreeVector k3)
+{
+   // set the external momenta
+   _momenta.set_momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, -k2-k3}, {Momenta::k2, k2}, {Momenta::k3, k3}, {Momenta::q, ThreeVector(1,0,0)}});
+ 
+   double value = 0;
+   // Integration
+
+   return value;
+}
+
+//------------------------------------------------------------------------------
+double Bispectrum::oneLoopCterms_value(ThreeVector k2, ThreeVector k3)
+{
+   // set the external momenta
+   _momenta.set_momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, -k2-k3}, {Momenta::k2, k2}, {Momenta::k3, k3}, {Momenta::q, ThreeVector(1,0,0)}});
+
+   double value = 0;
+   // sum over diagrams
+   for(size_t i = 0; i < _cterms.size(); i++) {
+      value += _cterms[i]->value_IRreg(_momenta);
+   }
+   return value;
+}
+

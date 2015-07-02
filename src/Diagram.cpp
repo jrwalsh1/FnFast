@@ -73,7 +73,7 @@ double Diagram::value_base(DiagramMomenta mom)
       value *= (*_PL)(_lines[i].propagator().p(mom).magnitude());
    }
    // now do vertex factors
-   for (size_t i = 0; i < Vertices::vertexlabels.size(); i++) {
+   for (size_t i = 0; i < _vertices.size(); i++) {
       Vertices::VertexLabel vertex = Vertices::vertexlabels[i];
       vector<ThreeVector> p;
       for (size_t j = 0; j < _vertexmomenta[vertex].size(); j++) {
@@ -87,6 +87,9 @@ double Diagram::value_base(DiagramMomenta mom)
 //------------------------------------------------------------------------------
 double Diagram::value_base_IRreg(DiagramMomenta mom)
 {
+   // no IR regulation necessary if there are no poles away from q = 0
+   if (_IRpoles.empty()) return value_base(mom);
+
    // To regulate the diagram in the IR, we map each region with
    // an IR pole at q = qIR != 0 onto coordinates with the pole at q = 0
    double value = 0;

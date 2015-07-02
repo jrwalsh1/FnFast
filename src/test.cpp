@@ -29,8 +29,10 @@ int main()
    ThreeVector k4(0.4, 0.1, 0.8);
    ThreeVector k5(-0.4, -0.1, -0.8);
 
-   vector<Momenta::MomentumLabel> labels = {Momenta::k1, Momenta::k2};
+   vector<Momenta::MomentumLabel> labels = {Momenta::k1, Momenta::k2, Momenta::q};
+   unordered_map<Momenta::MomentumLabel, ThreeVector> momentamap = {{Momenta::k1, k1}, {Momenta::k2, k2}, {Momenta::q, k3}};
    DiagramMomenta pdiag(labels);
+   pdiag.set_momenta(momentamap);
 
    SPTkernels kernels;
    
@@ -40,10 +42,11 @@ int main()
    cout << "F5, F5sym = " << F5 << ", " << F5sym << endl;
 
    LinearPowerSpectrumAnalytic PL(1);
+   EFTcoefficients coeffs;
 
-   PowerSpectrum PS(kOneLoop, &PL);
-   Bispectrum BS(kOneLoop, &PL);
-   Trispectrum TS(kOneLoop, &PL);
+   PowerSpectrum PS(kOneLoop, &PL, &coeffs);
+   Bispectrum BS(kOneLoop, &PL, &coeffs);
+   Trispectrum TS(kOneLoop, &PL, &coeffs);
 
    Diagram* P11 = PS[PowerSpectrum::P11];
    Diagram* P31 = PS[PowerSpectrum::P31];
@@ -88,6 +91,9 @@ int main()
    cout << "T2222: " << T2222->symmetry_factor() << ", " << T2222->nperms() << endl;
 
    cout << "-----------" << endl;
+
+   double diagramvalue = P11->value_base(pdiag);
+   cout << "P11 = " << diagramvalue << endl;
 
    return 0;
 } // end of main program
