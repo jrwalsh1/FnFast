@@ -53,6 +53,7 @@ using namespace std;
 class PowerSpectrum
 {
    public:
+      /// graph labels
       enum Graphs {
          P11,
          P31,
@@ -76,6 +77,36 @@ class PowerSpectrum
       double _kBin;                                   ///< size of k bins
       WindowFunctionBase* _W;                         ///< Window function
 
+      /// phase space for the loop momentum
+      class LoopPhaseSpace {
+         private:
+            double _qmax;           ///< upper limit on q integral
+            double _jacobian;       ///< jacobian for the phase space point
+            ThreeVector _q;         ///< loop momentum value
+
+         public:
+            static constexpr double pi = 3.14159265358979;      ///< pi
+
+         public:
+            /// constructor
+            LoopPhaseSpace(double qmax) : _qmax(qmax) {}
+            /// destructor
+            virtual ~LoopPhaseSpace() {}
+
+            /// set the loop phase space, returns the jacobian
+            double setPS(double qpts[2], double k);
+
+            /// returns the loop momentum
+            ThreeVector q() { return _q; }
+      };
+
+      /// container for the integration options
+      struct LoopIntegrationOptions {
+         double k;
+         PowerSpectrum* powerspectrum;
+         LoopPhaseSpace* loopPS;
+      };
+
    public:
       /// constructor
       PowerSpectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficients* eftcoefficients);
@@ -93,20 +124,20 @@ class PowerSpectrum
       /// access results
       /// Differential in k
       /// tree level
-      double treeLevel_value(ThreeVector k);
+      double treeLevel_value(double k);
       /// one loop differential in q and integrated in q
       double oneLoopSPT_value(ThreeVector k, ThreeVector q);
-      double oneLoopSPT_value(ThreeVector k);
-      /// one loop counterterms
-      double oneLoopCterms_value(ThreeVector k);
-    
-      /// Averaged over k bins
-      /// tree level
-      double treeLevel_value(double k);
-      /// one loop integrated in q
       double oneLoopSPT_value(double k);
       /// one loop counterterms
       double oneLoopCterms_value(double k);
+    
+      /// Averaged over k bins
+      /// tree level
+      double treeLevel_value_avg(double k);
+      /// one loop integrated in q
+      double oneLoopSPT_value_avg(double k);
+      /// one loop counterterms
+      double oneLoopCterms_value_avg(double k);
     
       /// Averaged over k bins + convolution with window function
       /// tree level
@@ -115,6 +146,10 @@ class PowerSpectrum
       double oneLoopSPT_value_win(double k);
       /// one loop counterterms
       double oneLoopCterms_value_win(double k);
+
+   private:
+      /// loop integrand function
+      static int loop_integrand(const int *ndim, const double xx[], const int *ncomp, double ff[], void *userdata);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

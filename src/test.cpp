@@ -45,6 +45,9 @@ int main()
    EFTcoefficients coeffs;
 
    PowerSpectrum PS(kOneLoop, &PL, &coeffs);
+   double kmag = 0.596859;
+   double result = PS.oneLoopSPT_value(kmag);
+   cout << "k, integration result = " << kmag << ", " << result << endl;
    Bispectrum BS(kOneLoop, &PL, &coeffs);
    Trispectrum TS(kOneLoop, &PL, &coeffs);
 
