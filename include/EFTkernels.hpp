@@ -97,12 +97,13 @@ class EFTkernels : public KernelBase {
         double cF_2(int n);
         double cG_1(int n);
         double cG_2(int n);
-    
-    
+
+
         double alpha(ThreeVector p1, ThreeVector p2){return _sptkernels.alpha(p1,p2);}      ///< kernel function alpha
         double beta(ThreeVector p1, ThreeVector p2){return _sptkernels.beta(p1,p2);}        ///< kernel function alpha
 
-    
+      int name() { return 5; }        ///< name of the kernels
+   
         double Fn(vector<ThreeVector> p);                  ///< EFT kernel Fn (q1, ..., qn)
         double Gn(vector<ThreeVector> p);                  ///< EFT kernel Gn (q1, ..., qn)
       

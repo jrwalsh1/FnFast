@@ -39,6 +39,10 @@ class ThreeVector;
 class SPTkernels : public KernelBase
 {
    public:
+      SPTkernels() {}
+      virtual ~SPTkernels() {}
+
+      int name() { return 37; }      ///< name of the kernels
       double cF_alpha(int n);                            ///< constant for Fn coefficient of alpha term
       double cF_beta(int n);                             ///< constant for Fn coefficient of beta term
       double cG_alpha(int n);                            ///< constant for Gn coefficient of alpha term

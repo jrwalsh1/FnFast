@@ -21,6 +21,7 @@
 #include "ThreeVector.hpp"
 #include "KernelBase.hpp"
 
+/*
 //------------------------------------------------------------------------------
 double KernelBase::Fn_sym(vector<ThreeVector> p)
 {
@@ -50,3 +51,4 @@ double KernelBase::Gn_sym(vector<ThreeVector> p)
 
    return value / nperm;
 }
+*/

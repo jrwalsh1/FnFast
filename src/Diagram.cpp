@@ -19,6 +19,7 @@
 #include <iostream>
 
 #include "Diagram.hpp"
+#include "SPTkernels.hpp"
 
 /*
  * The implementation of a SPT diagram

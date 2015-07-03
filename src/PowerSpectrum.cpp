@@ -25,7 +25,7 @@
 PowerSpectrum::PowerSpectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficients* eftcoefficients) : _order(order), _PL(PL), _SPTkernels(new SPTkernels), _EFTkernels(new EFTkernels), _eftcoefficients(eftcoefficients), _UVcutoff(10.), _kBin(0), _W(NULL)
 {
    // Diagram momenta
-    _labels = { Momenta::k1, Momenta::k2, Momenta::q };
+   _labels = { Momenta::k1, Momenta::k2, Momenta::q };
    _momenta = DiagramMomenta(_labels);
     
    // vertex kernels
@@ -150,7 +150,7 @@ double PowerSpectrum::oneLoopSPT_value(double k)
 //   const int mineval = 0;
 //   const int maxeval = 10000000;
    const int mineval = 10;
-   const int maxeval = 1000;
+   const int maxeval = 10000;
    // starting number of points
 //   const int nstart = 100000;
    // increment per iteration
@@ -229,8 +229,11 @@ double PowerSpectrum::LoopPhaseSpace::setPS(double qpts[2], double k)
    double qcosth = 2 * qpts[1] - 1.;
 
    // jacobian
-   // pick up a 2pi from the phi integral and a 1/(2pi)^3 from the measure
-   _jacobian = qmag * qmag / (4 * pi*pi);
+   // qmax from the magnitude integral,
+   // 2 from the cos theta jacobian,
+   // pick up a 2pi from the phi integral,
+   // and a 1/(2pi)^3 from the measure
+   _jacobian = qmag * qmag * _qmax / (2 * pi*pi);
 
    // 3-vector for the loop momentum
    _q = ThreeVector(qmag * sqrt(1. - qcosth*qcosth), 0, qmag * qcosth);
