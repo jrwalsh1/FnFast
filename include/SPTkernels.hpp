@@ -48,7 +48,7 @@ class SPTkernels : public KernelBase
       double beta(ThreeVector p1, ThreeVector p2);       ///< kernel function alpha
 
       double Fn(vector<ThreeVector> p);                  ///< SPT kernel Fn (q1, ..., qn)
-      double Gn(vector<ThreeVector> p);                  ///< SPT kernel Gn (q1, ..., qn)      
+      double Gn(vector<ThreeVector> p);                  ///< SPT kernel Gn (q1, ..., qn)
 };
 
 ////////////////////////////////////////////////////////////////////////////////

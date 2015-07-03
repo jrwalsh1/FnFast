@@ -17,6 +17,7 @@
 #include "Bispectrum.hpp"
 #include "Trispectrum.hpp"
 #include "LinearPowerSpectrumAnalytic.hpp"
+#include "LinearPowerSpectrumCAMB.hpp"
 
 using namespace std;
 
@@ -24,6 +25,7 @@ using namespace std;
 int main()
 {
    LinearPowerSpectrumAnalytic PL(1);
+   LinearPowerSpectrumCAMB PLcamb("data/LIdata.txt");
    EFTcoefficients coeffs;
 
    vector<Momenta::MomentumLabel> labels = {Momenta::k1, Momenta::k2, Momenta::q};
@@ -34,7 +36,7 @@ int main()
    DiagramMomenta pdiag(labels);
    pdiag.set_momenta(momentamap);
 
-   PowerSpectrum PS(kOneLoop, &PL, &coeffs);
+   PowerSpectrum PS(kOneLoop, &PLcamb, &coeffs);
 
    SPTkernels kernels;
    vector<ThreeVector> pvec {qtest, -qtest, ktest};

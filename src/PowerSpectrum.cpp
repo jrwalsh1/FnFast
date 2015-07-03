@@ -150,7 +150,7 @@ double PowerSpectrum::oneLoopSPT_value(double k)
 //   const int mineval = 0;
 //   const int maxeval = 10000000;
    const int mineval = 10;
-   const int maxeval = 10000;
+   const int maxeval = 100000;
    // starting number of points
 //   const int nstart = 100000;
    // increment per iteration
