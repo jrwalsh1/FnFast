@@ -21,7 +21,6 @@
 #include "ThreeVector.hpp"
 #include "KernelBase.hpp"
 
-/*
 //------------------------------------------------------------------------------
 double KernelBase::Fn_sym(vector<ThreeVector> p)
 {
@@ -29,6 +28,7 @@ double KernelBase::Fn_sym(vector<ThreeVector> p)
    int nperm = 0; // count the permutations
    // use the next_permutation algorithm together with the comparison operator
    // in ThreeVector to generate permutations
+   sort(p.begin(),p.end());
    do {
       nperm++;
       value += Fn(p);
@@ -44,6 +44,7 @@ double KernelBase::Gn_sym(vector<ThreeVector> p)
    int nperm = 0; // count the permutations
    // use the next_permutation algorithm together with the comparison operator
    // in ThreeVector to generate permutations
+   sort(p.begin(),p.end());
    do {
       nperm++;
       value += Gn(p);
@@ -51,4 +52,3 @@ double KernelBase::Gn_sym(vector<ThreeVector> p)
 
    return value / nperm;
 }
-*/

@@ -39,10 +39,6 @@ class ThreeVector;
 class SPTkernels : public KernelBase
 {
    public:
-      SPTkernels() {}
-      virtual ~SPTkernels() {}
-
-      int name() { return 37; }      ///< name of the kernels
       double cF_alpha(int n);                            ///< constant for Fn coefficient of alpha term
       double cF_beta(int n);                             ///< constant for Fn coefficient of beta term
       double cG_alpha(int n);                            ///< constant for Gn coefficient of alpha term
@@ -52,10 +48,7 @@ class SPTkernels : public KernelBase
       double beta(ThreeVector p1, ThreeVector p2);       ///< kernel function alpha
 
       double Fn(vector<ThreeVector> p);                  ///< SPT kernel Fn (q1, ..., qn)
-      double Gn(vector<ThreeVector> p);                  ///< SPT kernel Gn (q1, ..., qn)
-      
-      double Fn_sym(vector<ThreeVector> p);              ///< symmetrized SPT kernel Fn
-      double Gn_sym(vector<ThreeVector> p);              ///< symmetrized SPT kernel Gn
+      double Gn(vector<ThreeVector> p);                  ///< SPT kernel Gn (q1, ..., qn)      
 };
 
 ////////////////////////////////////////////////////////////////////////////////

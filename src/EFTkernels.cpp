@@ -288,34 +288,3 @@ double EFTkernels::Gn(vector<ThreeVector> p)
     
    return Gnval;
 }
-
-//------------------------------------------------------------------------------
-double EFTkernels::Fn_sym(vector<ThreeVector> p)
-{
-   double value = 0;
-   int nperm = 0; // count the permutations
-   // use the next_permutation algorithm together with the comparison operator
-   // in ThreeVector to generate permutations
-   sort(p.begin(),p.end());
-   do {
-      nperm++;
-      value += Fn(p);
-   } while (next_permutation(p.begin(), p.end()));
-
-   return value / nperm;
-}
-
-//------------------------------------------------------------------------------
-double EFTkernels::Gn_sym(vector<ThreeVector> p)
-{
-   double value = 0;
-   int nperm = 0; // count the permutations
-   // use the next_permutation algorithm together with the comparison operator
-   // in ThreeVector to generate permutations
-   do {
-      nperm++;
-      value += Gn(p);
-   } while (next_permutation(p.begin(), p.end()));
-   
-   return value / nperm;
-}
