@@ -83,7 +83,6 @@ class Trispectrum
       map<Graphs, Diagram*> _diagrams;                ///< container for diagrams
       EFTcoefficients* _eftcoefficients;              ///< EFT coefficients
       vector<Momenta::MomentumLabel> _labels;         ///< external momenta labels
-      DiagramMomenta _momenta;                        ///< diagram momenta
       double _UVcutoff;                               ///< UV cutoff for loop integrations
       double _kBin;                                   ///< size of k bins
       WindowFunctionBase* _W;                         ///< Window function
@@ -105,7 +104,7 @@ class Trispectrum
             virtual ~LoopPhaseSpace() {}
 
             /// set the loop phase space, returns the jacobian
-            double setPS(double qpts[3], double k1, double k2, double theta12);
+            double setPS(double qpts[3]);
 
             /// returns the loop momentum
             ThreeVector q() { return _q; }

@@ -26,7 +26,6 @@ Bispectrum::Bispectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficients
 {
    // Diagram momenta
    _labels = { Momenta::k1, Momenta::k2, Momenta::k3, Momenta::q };
-   _momenta=DiagramMomenta(_labels);
 
    // vertex kernels
    // SPT
@@ -148,12 +147,12 @@ double Bispectrum::tree(double k1, double k2, double theta12)
    // set the external momenta
    ThreeVector pk1(0, 0, k1);
    ThreeVector pk2(k2 * sin(theta12), 0, k2 * cos(theta12));
-   _momenta.set_momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, pk1}, {Momenta::k2, pk2}, {Momenta::k3, -pk1-pk2}, {Momenta::q, ThreeVector(1,0,0)}});
+   DiagramMomenta momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, pk1}, {Momenta::k2, pk2}, {Momenta::k3, -pk1-pk2}});
 
    double value = 0;
    // sum over diagrams
    for (size_t i = 0; i < _tree.size(); i++) {
-      value += _tree[i]->value_IRreg(_momenta);
+      value += _tree[i]->value_IRreg(momenta);
    }
    return value;
 }
@@ -162,12 +161,12 @@ double Bispectrum::tree(double k1, double k2, double theta12)
 double Bispectrum::loopSPT_excl(ThreeVector k1, ThreeVector k2, ThreeVector q)
 {
    // set the external momenta
-   _momenta.set_momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, k1}, {Momenta::k2, k2}, {Momenta::k3, -k1-k2}, {Momenta::q, q}});
+   DiagramMomenta momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, k1}, {Momenta::k2, k2}, {Momenta::k3, -k1-k2}, {Momenta::q, q}});
 
    double value = 0;
    // sum over diagrams
    for (size_t i = 0; i < _loop.size(); i++) {
-      value += _loop[i]->value_IRreg(_momenta);
+      value += _loop[i]->value_IRreg(momenta);
    }
    return value;
 }
@@ -263,18 +262,18 @@ double Bispectrum::ctermsEFT(double k1, double k2, double theta12)
    // set the external momenta
    ThreeVector pk1(0, 0, k1);
    ThreeVector pk2(k2 * sin(theta12), 0, k2 * cos(theta12));
-   _momenta.set_momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, pk1}, {Momenta::k2, pk2}, {Momenta::k3, -pk1-pk2}, {Momenta::q, ThreeVector(1,0,0)}});
+   DiagramMomenta momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, pk1}, {Momenta::k2, pk2}, {Momenta::k3, -pk1-pk2}});
 
    double value = 0;
    // sum over diagrams
    for (size_t i = 0; i < _cterms.size(); i++) {
-      value += _cterms[i]->value_IRreg(_momenta);
+      value += _cterms[i]->value_IRreg(momenta);
    }
    return value;
 }
 
 //------------------------------------------------------------------------------
-double Bispectrum::LoopPhaseSpace::setPS(double qpts[3], double k1, double k2, double theta12)
+double Bispectrum::LoopPhaseSpace::setPS(double qpts[3])
 {
    // we sample q flat in spherical coordinates, setting k1 along the z-axis, k2 in the x-z plane
    // q components
@@ -310,7 +309,7 @@ int Bispectrum::loop_integrand(const int *ndim, const double xx[], const int *nc
    double qpts[3] = {xx[0], xx[1], xx[2]};
 
    // set the PS point and return the integrand
-   double jacobian = data->loopPS->setPS(qpts, k1, k2, theta12);
+   double jacobian = data->loopPS->setPS(qpts);
    double integrand = 0;
    if (jacobian > 0) {
       ThreeVector q = data->loopPS->q();

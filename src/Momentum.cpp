@@ -18,6 +18,7 @@
 
 #include "Momentum.hpp"
 
+
 //------------------------------------------------------------------------------
 DiagramMomenta::DiagramMomenta(vector<Momenta::MomentumLabel> labelset)
 : labels(labelset)
@@ -26,6 +27,15 @@ DiagramMomenta::DiagramMomenta(vector<Momenta::MomentumLabel> labelset)
    ThreeVector pnull;
    for (size_t c = 0; c < labels.size(); c++) {
       _momenta[labels[c]] = pnull;
+   }
+}
+
+//------------------------------------------------------------------------------
+DiagramMomenta::DiagramMomenta(unordered_map<Momenta::MomentumLabel, ThreeVector> momenta)
+: _momenta(momenta)
+{
+   for (auto mom : momenta) {
+      labels.push_back(mom.first);
    }
 }
 

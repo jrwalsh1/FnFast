@@ -26,8 +26,7 @@ Trispectrum::Trispectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficien
 {
    // Diagram momenta
    _labels = { Momenta::k1, Momenta::k2, Momenta::k3, Momenta::k4, Momenta::q };
-   _momenta=DiagramMomenta(_labels);
-    
+
    // vertex kernels
    // SPT
    unordered_map<Vertices::VertexLabel, KernelBase*> kernels_SPT = {{Vertices::v1, _SPTkernels}, {Vertices::v2, _SPTkernels}, {Vertices::v3, _SPTkernels}, {Vertices::v4, _SPTkernels}};
@@ -290,12 +289,12 @@ double Trispectrum::cov_tree(double k, double kp, double theta)
    ThreeVector k2(0, 0, -k);
    ThreeVector k3(kp * sin(theta), 0, kp * cos(theta));
    ThreeVector k4(-kp * sin(theta), 0, -kp * cos(theta));
-   _momenta.set_momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, k1}, {Momenta::k2, k2}, {Momenta::k3, k3},  {Momenta::k4, k4}, {Momenta::q, ThreeVector(1,0,0)}});
+   DiagramMomenta momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, k1}, {Momenta::k2, k2}, {Momenta::k3, k3},  {Momenta::k4, k4}});
 
    double value = 0;
    // sum over diagrams
    for (size_t i = 0; i < _tree.size(); i++) {
-      value += _tree[i]->value_IRreg(_momenta);
+      value += _tree[i]->value_IRreg(momenta);
    }
    return value;
 }
@@ -393,18 +392,18 @@ double Trispectrum::cov_ctermsEFT(double k, double kp, double theta)
    ThreeVector k2(0, 0, -k);
    ThreeVector k3(kp * sin(theta), 0, kp * cos(theta));
    ThreeVector k4(-kp * sin(theta), 0, -kp * cos(theta));
-   _momenta.set_momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, k1}, {Momenta::k2, k2}, {Momenta::k3, k3},  {Momenta::k4, k4}, {Momenta::q, ThreeVector(1,0,0)}});
+   DiagramMomenta momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, k1}, {Momenta::k2, k2}, {Momenta::k3, k3},  {Momenta::k4, k4}});
     
    double value = 0;
    // sum over diagrams
    for (size_t i = 0; i < _cterms.size(); i++) {
-      value += _cterms[i]->value_IRreg(_momenta);
+      value += _cterms[i]->value_IRreg(momenta);
    }
    return value;
 }
 
 //------------------------------------------------------------------------------
-double Trispectrum::LoopPhaseSpace::setPS(double qpts[3], double k, double kp, double theta)
+double Trispectrum::LoopPhaseSpace::setPS(double qpts[3])
 {
    // we sample q flat in spherical coordinates, setting k along the z-axis, kp in the x-z plane
    // q components
@@ -440,7 +439,7 @@ int Trispectrum::loop_integrand(const int *ndim, const double xx[], const int *n
    double qpts[3] = {xx[0], xx[1], xx[2]};
 
    // set the PS point and return the integrand
-   double jacobian = data->loopPS->setPS(qpts, k, kp, theta);
+   double jacobian = data->loopPS->setPS(qpts);
    double integrand = 0;
    if (jacobian > 0) {
       ThreeVector q = data->loopPS->q();
@@ -460,12 +459,12 @@ int Trispectrum::loop_integrand(const int *ndim, const double xx[], const int *n
 double Trispectrum::loopSPT_excl(ThreeVector k1, ThreeVector k2, ThreeVector k3, ThreeVector q)
 {
    // set the external momenta
-   _momenta.set_momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, k1}, {Momenta::k2, k2}, {Momenta::k3, k3},  {Momenta::k4, -k1-k2-k3}, {Momenta::q, q}});
+   DiagramMomenta momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, k1}, {Momenta::k2, k2}, {Momenta::k3, k3},  {Momenta::k4, -k1-k2-k3}, {Momenta::q, q}});
 
    double value = 0;
    // sum over diagrams
    for (size_t i = 0; i < _loop.size(); i++) {
-      value += _loop[i]->value_IRreg(_momenta);
+      value += _loop[i]->value_IRreg(momenta);
    }
    return value;
 }

@@ -56,6 +56,7 @@ class DiagramMomenta
       /// constructors
       DiagramMomenta() {}
       DiagramMomenta(vector<Momenta::MomentumLabel> labelset);
+      DiagramMomenta(unordered_map<Momenta::MomentumLabel, ThreeVector> momenta);
       /// destructor
       virtual ~DiagramMomenta() {}
 
