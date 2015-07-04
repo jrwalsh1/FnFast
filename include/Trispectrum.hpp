@@ -88,6 +88,37 @@ class Trispectrum
       double _kBin;                                   ///< size of k bins
       WindowFunctionBase* _W;                         ///< Window function
 
+      /// phase space for the loop momentum
+      class LoopPhaseSpace {
+         private:
+            double _qmax;           ///< upper limit on q integral
+            double _jacobian;       ///< jacobian for the phase space point
+            ThreeVector _q;         ///< loop momentum value
+
+         public:
+            static constexpr double pi = 3.14159265358979;      ///< pi
+
+         public:
+            /// constructor
+            LoopPhaseSpace(double qmax) : _qmax(qmax) {}
+            /// destructor
+            virtual ~LoopPhaseSpace() {}
+
+            /// set the loop phase space, returns the jacobian
+            double setPS(double qpts[3], double k1, double k2, double theta12);
+
+            /// returns the loop momentum
+            ThreeVector q() { return _q; }
+      };
+
+      /// container for the integration options
+      struct LoopIntegrationOptions {
+         double k;
+         double kp;
+         double theta;
+         Trispectrum* trispectrum;
+         LoopPhaseSpace* loopPS;
+      };
 
    public:
       /// constructor
@@ -103,31 +134,43 @@ class Trispectrum
       /// set window function
       void set_windowFunction(WindowFunctionBase* W) { _W = W; }
 
-      /// access results
-      /// Differential in k
+      /// get results
+      /// covariance limit, differential in k
       /// tree level
-      double treeLevel_value(ThreeVector k2, ThreeVector k3, ThreeVector k4);
-      /// one loop differential in q and integrated in q
-      double oneLoopSPT_value(ThreeVector k2, ThreeVector k3, ThreeVector k4, ThreeVector q);
-      double oneLoopSPT_value(ThreeVector k2, ThreeVector k3, ThreeVector k4);
+      double cov_tree(double k, double kp, double theta);
+      /// one loop integrated in q
+      double cov_loopSPT(double k, double kp, double theta);
       /// one loop counterterms
-      double oneLoopCterms_value(ThreeVector k2, ThreeVector k3, ThreeVector k4);
+      double cov_ctermsEFT(double k, double kp, double theta);
 
       /// Averaged over k bins
       /// tree level
-      double treeLevel_value(double k2, double k3, double k4);
+      double cov_tree_kbin(double k2, double k3, double k4);
       /// one loop integrated in q
-      double oneLoopSPT_value(double k2, double k3, double k4);
+      double cov_loopSPT_kbin(double k2, double k3, double k4);
       /// one loop counterterms
-      double oneLoopCterms_value(double k2, double k3, double k4);
+      double cov_ctermsEFT_kbin(double k2, double k3, double k4);
 
       /// Averaged over k bins + convolution with window function
       /// tree level
-      double treeLevel_value_win(double k2, double k3, double k4);
+      double cov_tree_kbin_win(double k2, double k3, double k4);
       /// one loop integrated in q
-      double oneLoopSPT_value_win(double k2, double k3, double k4);
+      double cov_loopSPT_kbin_win(double k2, double k3, double k4);
       /// one loop counterterms
-      double oneLoopCterms_value_win(double k2, double k3, double k4);
+      double cov_ctermsEFT_kbin_win(double k2, double k3, double k4);
+
+      /// full trispectrum, differential in k
+      /// tree level
+      double tree(ThreeVector k2, ThreeVector k3, ThreeVector k4);
+      /// one loop differential in q and integrated in q
+      double loopSPT_excl(ThreeVector k2, ThreeVector k3, ThreeVector k4, ThreeVector q);
+      double loopSPT(ThreeVector k2, ThreeVector k3, ThreeVector k4);
+      /// one loop counterterms
+      double ctermsEFT(ThreeVector k2, ThreeVector k3, ThreeVector k4);
+
+   private:
+      /// loop integrand function
+      static int loop_integrand(const int *ndim, const double xx[], const int *ncomp, double ff[], void *userdata);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

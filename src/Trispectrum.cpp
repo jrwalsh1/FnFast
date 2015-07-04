@@ -19,6 +19,7 @@
 #include <iostream>
 
 #include "Trispectrum.hpp"
+#include "cuba.h"
 
 //------------------------------------------------------------------------------
 Trispectrum::Trispectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficients* eftcoefficients) : _order(order), _PL(PL), _SPTkernels(new SPTkernels), _EFTkernels(new EFTkernels), _eftcoefficients(eftcoefficients), _UVcutoff(10.), _kBin(0), _W(NULL)
@@ -282,10 +283,14 @@ Trispectrum::Trispectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficien
 }
 
 //------------------------------------------------------------------------------
-double Trispectrum::treeLevel_value(ThreeVector k2, ThreeVector k3, ThreeVector k4)
+double Trispectrum::cov_tree(double k, double kp, double theta)
 {
    // set the external momenta
-   _momenta.set_momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, -k2-k3-k4}, {Momenta::k2, k2}, {Momenta::k3, k3},  {Momenta::k4, k4}, {Momenta::q, ThreeVector(1,0,0)}});
+   ThreeVector k1(0, 0, k);
+   ThreeVector k2(0, 0, -k);
+   ThreeVector k3(kp * sin(theta), 0, kp * cos(theta));
+   ThreeVector k4(-kp * sin(theta), 0, -kp * cos(theta));
+   _momenta.set_momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, k1}, {Momenta::k2, k2}, {Momenta::k3, k3},  {Momenta::k4, k4}, {Momenta::q, ThreeVector(1,0,0)}});
 
    double value = 0;
    // sum over diagrams
@@ -296,41 +301,171 @@ double Trispectrum::treeLevel_value(ThreeVector k2, ThreeVector k3, ThreeVector 
 }
 
 //------------------------------------------------------------------------------
-double Trispectrum::oneLoopSPT_value(ThreeVector k2, ThreeVector k3, ThreeVector k4, ThreeVector q)
+double Trispectrum::cov_loopSPT(double k, double kp, double theta)
 {
-   // set the external momenta
-   _momenta.set_momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, -k2-k3-k4}, {Momenta::k2, k2}, {Momenta::k3, k3},  {Momenta::k4, k4}, {Momenta::q, q}});
+   // options passed into the integration
+   LoopIntegrationOptions data;
+   data.k = k;
+   data.kp = kp;
+   data.theta = theta;
+   data.trispectrum = this;
+   double qmax = 10;
+   LoopPhaseSpace loopPS(qmax);
+   data.loopPS = &loopPS;
 
-   double value = 0;
-   // sum over diagrams
-   for (size_t i = 0; i < _loop.size(); i++) {
-      value += _loop[i]->value_IRreg(_momenta);
-   }
-   return value;
-}
-
-//------------------------------------------------------------------------------
-double Trispectrum::oneLoopSPT_value(ThreeVector k2, ThreeVector k3, ThreeVector k4)
-{
-   // set the external momenta
-   _momenta.set_momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, -k2-k3-k4}, {Momenta::k2, k2}, {Momenta::k3, k3},  {Momenta::k4, k4}, {Momenta::q, ThreeVector(1,0,0)}});
-    
-   double value = 0;
    // Integration
+   // VEGAS parameters
+   // PS dimensionality
+   // q: 3-dim
+   const int ndim = 3;
+   // number of computations
+   const int ncomp = 1; // only 1 computation
+   // number of points sent to the integrand per invocation
+   const int nvec = 1; // no vectorization
+   // absolute uncertainty (safeguard)
+   const double epsrel = 1e-4;
+   const double epsabs = 1e-12;
+   // min, max number of points
+//   const int mineval = 0;
+//   const int maxeval = 10000000;
+   const int mineval = 10;
+   const int maxeval = 100000;
+   // starting number of points
+//   const int nstart = 100000;
+   // increment per iteration
+   // number of additional pts sampled per iteration
+//   const int nincrease = 100000;
+   // batch size to sample PS points in
+//   const int nbatch = 100000;
+   // grid number
+   // 1-10 saves the grid for another integration
+//   const int gridnum = 0;
+   // cubature rule degree
+   int key = 13;
+   // file for the state of the integration
+   const char *statefile = NULL;
+   // spin
+   void* spin = NULL;
+   // random number seed
+//   const int vegasseed = 37;
+   // flags:
+   // bits 0&1: verbosity level
+   // bit 2: whether or not to use only last sample (0 for all samps, 1 for last only)
+   // bit 3: whether or not to use sharp edges in importance function (0 for no, 1 for yes)
+   // bit 4: retain the state file (0 for no, 1 for yes)
+   // bits 8-31: random number generator, also uses seed parameter:
+   //    seed = 0: Sobol (quasi-random) used, ignores bits 8-31 of flags
+   //    seed > 0, bits 8-31 of flags = 0: Mersenne Twister
+   //    seed > 0, bits 8-31 of flags > 0: Ranlux
+   int flags = 1054;
+   // number of regions, evaluations, fail code
+   int nregions, neval, fail;
 
-   return value;
+   // containers for output
+   double integral[ncomp], error[ncomp], prob[ncomp];
+
+   /*
+   // run VEGAS
+   Vegas(ndim, ncomp, loop_integrand, &data, nvec,
+       epsrel, epsabs, flags, vegasseed,
+       mineval, maxeval, nstart, nincrease, nbatch,
+       gridnum, statefile, spin,
+       &neval, &fail, integral, error, prob);
+   */
+
+   // run Cuhre
+   Cuhre(ndim, ncomp, loop_integrand, &data, nvec,
+       epsrel, epsabs, flags,
+       mineval, maxeval,
+       key, statefile, spin, &nregions,
+       &neval, &fail, integral, error, prob);
+
+   cout << "integral, error, prob = " << integral[0] << ", " << error[0] << ", " << prob[0] << endl;
+
+   return integral[0];
 }
 
 //------------------------------------------------------------------------------
-double Trispectrum::oneLoopCterms_value(ThreeVector k2, ThreeVector k3, ThreeVector k4)
+double Trispectrum::cov_ctermsEFT(double k, double kp, double theta)
 {
    // set the external momenta
-   _momenta.set_momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, -k2-k3-k4}, {Momenta::k2, k2}, {Momenta::k3, k3},  {Momenta::k4, k4}, {Momenta::q, ThreeVector(1,0,0)}});
+   ThreeVector k1(0, 0, k);
+   ThreeVector k2(0, 0, -k);
+   ThreeVector k3(kp * sin(theta), 0, kp * cos(theta));
+   ThreeVector k4(-kp * sin(theta), 0, -kp * cos(theta));
+   _momenta.set_momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, k1}, {Momenta::k2, k2}, {Momenta::k3, k3},  {Momenta::k4, k4}, {Momenta::q, ThreeVector(1,0,0)}});
     
    double value = 0;
    // sum over diagrams
    for (size_t i = 0; i < _cterms.size(); i++) {
       value += _cterms[i]->value_IRreg(_momenta);
+   }
+   return value;
+}
+
+//------------------------------------------------------------------------------
+double Trispectrum::LoopPhaseSpace::setPS(double qpts[3], double k, double kp, double theta)
+{
+   // we sample q flat in spherical coordinates, setting k along the z-axis, kp in the x-z plane
+   // q components
+   double qmag = qpts[0] * _qmax;
+   double qcosth = 2 * qpts[1] - 1.;
+   double qphi = 2*pi * qpts[2];
+
+   // jacobian
+   // qmax from the magnitude integral,
+   // 2 from the cos theta jacobian,
+   // pick up a 2pi from the phi integral,
+   // and a 1/(2pi)^3 from the measure
+   _jacobian = qmag * qmag * _qmax / (2 * pi*pi);
+
+   // 3-vector for the loop momentum
+   _q = ThreeVector(qmag * sqrt(1. - qcosth*qcosth) * cos(qphi), qmag * sqrt(1. - qcosth*qcosth) * sin(qphi), qmag * qcosth);
+
+   return _jacobian;
+}
+
+//------------------------------------------------------------------------------
+int Trispectrum::loop_integrand(const int *ndim, const double xx[], const int *ncomp, double ff[], void *userdata)
+{
+   // get the options
+   LoopIntegrationOptions* data = static_cast<LoopIntegrationOptions*>(userdata);
+
+   // external momentum magnitude
+   double k = data->k;
+   double kp = data->kp;
+   double theta = data->theta;
+
+   // define the variables needed for the PS point
+   double qpts[3] = {xx[0], xx[1], xx[2]};
+
+   // set the PS point and return the integrand
+   double jacobian = data->loopPS->setPS(qpts, k, kp, theta);
+   double integrand = 0;
+   if (jacobian > 0) {
+      ThreeVector q = data->loopPS->q();
+      ThreeVector k1(0, 0, k);
+      ThreeVector k2(0, 0, -k);
+      ThreeVector k3(kp * sin(theta), 0, kp * cos(theta));
+      integrand = data->trispectrum->loopSPT_excl(k1, k2, k3, q);
+   }
+
+   // loop calculation
+   ff[0] = jacobian * integrand;
+
+   return 0;
+}
+
+//------------------------------------------------------------------------------
+double Trispectrum::loopSPT_excl(ThreeVector k1, ThreeVector k2, ThreeVector k3, ThreeVector q)
+{
+   // set the external momenta
+   _momenta.set_momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, k1}, {Momenta::k2, k2}, {Momenta::k3, k3},  {Momenta::k4, -k1-k2-k3}, {Momenta::q, q}});
+
+   double value = 0;
+   // sum over diagrams
+   for (size_t i = 0; i < _loop.size(); i++) {
+      value += _loop[i]->value_IRreg(_momenta);
    }
    return value;
 }

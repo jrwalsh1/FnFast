@@ -49,7 +49,7 @@ int main()
    double P22value = PS[PowerSpectrum::P22]->value_IRreg(pdiag);
    cout << "P22 value = " << P22value << endl;
 
-   double result = PS.oneLoopSPT_value(kmag);
+   double result = PS.loopSPT(kmag);
    cout << "1 loop SPT PS result = " << result << endl;
 
    return 0;

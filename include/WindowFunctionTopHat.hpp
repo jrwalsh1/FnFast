@@ -20,7 +20,7 @@
 #define WINDOW_FUNCTION_TOPHAT_HPP
 
 #include "ThreeVector.hpp"
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 

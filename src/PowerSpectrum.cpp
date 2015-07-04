@@ -95,7 +95,7 @@ PowerSpectrum::PowerSpectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoeffi
 }
 
 //------------------------------------------------------------------------------
-double PowerSpectrum::treeLevel_value(double k)
+double PowerSpectrum::tree(double k)
 {
    // set the external momenta
    ThreeVector k2(0, 0, k);
@@ -110,7 +110,7 @@ double PowerSpectrum::treeLevel_value(double k)
 }
 
 //------------------------------------------------------------------------------
-double PowerSpectrum::oneLoopSPT_value(ThreeVector k, ThreeVector q)
+double PowerSpectrum::loopSPT_excl(ThreeVector k, ThreeVector q)
 {
    // set the external momenta
    _momenta.set_momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, -k}, {Momenta::k2, k}, {Momenta::q, q}});
@@ -124,7 +124,7 @@ double PowerSpectrum::oneLoopSPT_value(ThreeVector k, ThreeVector q)
 }
 
 //------------------------------------------------------------------------------
-double PowerSpectrum::oneLoopSPT_value(double k)
+double PowerSpectrum::loopSPT(double k)
 {
    // options passed into the integration
    LoopIntegrationOptions data;
@@ -207,7 +207,7 @@ double PowerSpectrum::oneLoopSPT_value(double k)
 }
 
 //------------------------------------------------------------------------------
-double PowerSpectrum::oneLoopCterms_value(double k)
+double PowerSpectrum::ctermsEFT(double k)
 {
    // set the external momenta
    ThreeVector k2(0, 0, k);
@@ -259,7 +259,7 @@ int PowerSpectrum::loop_integrand(const int *ndim, const double xx[], const int 
    if (jacobian > 0) {
       ThreeVector q = data->loopPS->q();
       ThreeVector k2(0, 0, k);
-      integrand = data->powerspectrum->oneLoopSPT_value(k2, q);
+      integrand = data->powerspectrum->loopSPT_excl(k2, q);
    }
 
    // loop calculation

@@ -121,31 +121,31 @@ class PowerSpectrum
       /// set window function
       void set_windowFunction(WindowFunctionBase* W) { _W = W; }
 
-      /// access results
+      /// get results
       /// Differential in k
       /// tree level
-      double treeLevel_value(double k);
+      double tree(double k);
       /// one loop differential in q and integrated in q
-      double oneLoopSPT_value(ThreeVector k, ThreeVector q);
-      double oneLoopSPT_value(double k);
+      double loopSPT_excl(ThreeVector k, ThreeVector q);
+      double loopSPT(double k);
       /// one loop counterterms
-      double oneLoopCterms_value(double k);
+      double ctermsEFT(double k);
     
       /// Averaged over k bins
       /// tree level
-      double treeLevel_value_avg(double k);
+      double tree_kbin(double k);
       /// one loop integrated in q
-      double oneLoopSPT_value_avg(double k);
+      double loopSPT_kbin(double k);
       /// one loop counterterms
-      double oneLoopCterms_value_avg(double k);
+      double ctermsEFT_kbin(double k);
     
       /// Averaged over k bins + convolution with window function
       /// tree level
-      double treeLevel_value_win(double k);
+      double tree_kbin_win(double k);
       /// one loop integrated in q
-      double oneLoopSPT_value_win(double k);
+      double loopSPT_kbin_win(double k);
       /// one loop counterterms
-      double oneLoopCterms_value_win(double k);
+      double ctermsEFT_kbin_win(double k);
 
    private:
       /// loop integrand function
