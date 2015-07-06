@@ -67,33 +67,33 @@ Bispectrum::Bispectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficients
       // B321a
       // propagators
       Propagator prop_B321a_q(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, 1}});
-      Propagator prop_B321a_qk2(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, -1}, {Momenta::k2, 1}});
+      Propagator prop_B321a_k23(unordered_map<Momenta::MomentumLabel, double> {{Momenta::k2, 1}, {Momenta::k3, 1}});
       Propagator prop_B321a_k3(unordered_map<Momenta::MomentumLabel, double> {{Momenta::k3, 1}});
       // lines
-      Line line_B321a_12a(Vertices::v1, Vertices::v2, prop_B321a_q);
-      Line line_B321a_12b(Vertices::v1, Vertices::v2, prop_B321a_qk2);
-      Line line_B321a_13(Vertices::v1, Vertices::v3, prop_B321a_k3);
-      vector<Line> lines_B321a {line_B321a_12a, line_B321a_12b, line_B321a_13};
+      Line line_B321a_11(Vertices::v1, Vertices::v1, prop_B321a_q);
+      Line line_B321a_12(Vertices::v1, Vertices::v2, prop_B321a_k23);
+      Line line_B321a_23(Vertices::v2, Vertices::v3, prop_B321a_k3);
+      vector<Line> lines_B321a {line_B321a_11, line_B321a_12, line_B321a_23};
       // define the diagram
       Diagram* B321a = new Diagram(lines_B321a, kernels_SPT, _PL);
 
       // B321b
       // propagators
       Propagator prop_B321b_q(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, 1}});
-      Propagator prop_B321b_k23(unordered_map<Momenta::MomentumLabel, double> {{Momenta::k2, 1}, {Momenta::k3, 1}});
+      Propagator prop_B321b_qk2(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, -1}, {Momenta::k2, 1}});
       Propagator prop_B321b_k3(unordered_map<Momenta::MomentumLabel, double> {{Momenta::k3, 1}});
       // lines
-      Line line_B321b_11(Vertices::v1, Vertices::v1, prop_B321b_q);
-      Line line_B321b_12(Vertices::v1, Vertices::v2, prop_B321b_k23);
-      Line line_B321b_23(Vertices::v2, Vertices::v3, prop_B321b_k3);
-      vector<Line> lines_B321b {line_B321b_11, line_B321b_12, line_B321b_23};
+      Line line_B321b_12a(Vertices::v1, Vertices::v2, prop_B321b_q);
+      Line line_B321b_12b(Vertices::v1, Vertices::v2, prop_B321b_qk2);
+      Line line_B321b_13(Vertices::v1, Vertices::v3, prop_B321b_k3);
+      vector<Line> lines_B321b {line_B321b_12a, line_B321b_12b, line_B321b_13};
       // define the diagram
       Diagram* B321b = new Diagram(lines_B321b, kernels_SPT, _PL);
 
       // B222
       // propagators
       Propagator prop_B222_q(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, 1}});
-      Propagator prop_B222_qk2(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, -1}, {Momenta::k2, 1}});
+      Propagator prop_B222_qk2(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, 1}, {Momenta::k2, -1}});
       Propagator prop_B222_qk23(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, -1}, {Momenta::k2, 1}, {Momenta::k3, 1}});
       // lines
       Line line_B222_12(Vertices::v1, Vertices::v2, prop_B222_q);
@@ -124,20 +124,20 @@ Bispectrum::Bispectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficients
        
       // B321bx
       // propagators
-      Propagator prop_B321bx_k23(unordered_map<Momenta::MomentumLabel, double> {{Momenta::k2, 1}, {Momenta::k3, 1}});
-      Propagator prop_B321bx_k3(unordered_map<Momenta::MomentumLabel, double> {{Momenta::k3, 1}});
+      Propagator prop_B321ax_k23(unordered_map<Momenta::MomentumLabel, double> {{Momenta::k2, 1}, {Momenta::k3, 1}});
+      Propagator prop_B321ax_k3(unordered_map<Momenta::MomentumLabel, double> {{Momenta::k3, 1}});
       // lines
-      Line line_B321bx_12(Vertices::v1, Vertices::v2, prop_B321bx_k23);
-      Line line_B321bx_23(Vertices::v2, Vertices::v3, prop_B321bx_k3);
-      vector<Line> lines_B321bx {line_B321bx_12, line_B321bx_23};
+      Line line_B321ax_12(Vertices::v1, Vertices::v2, prop_B321ax_k23);
+      Line line_B321ax_23(Vertices::v2, Vertices::v3, prop_B321ax_k3);
+      vector<Line> lines_B321ax {line_B321ax_12, line_B321ax_23};
       // define the diagram
-      Diagram* B321bx = new Diagram(lines_B321bx, kernels_EFTSPT, _PL);
-      B321bx->set_perms(B321b->get_perms());
+      Diagram* B321ax = new Diagram(lines_B321ax, kernels_EFTSPT, _PL);
+      B321ax->set_perms(B321b->get_perms());
        
       // define the counterterm diagrams
-      _cterms = {B411x,B321bx};
+      _cterms = {B411x,B321ax};
       _diagrams[Graphs::B411x] = B411x;
-      _diagrams[Graphs::B321bx] = B321bx;
+      _diagrams[Graphs::B321ax] = B321ax;
    }
 }
 
@@ -180,7 +180,7 @@ double Bispectrum::loopSPT(double k1, double k2, double theta12)
    data.k2 = k2;
    data.theta12 = theta12;
    data.bispectrum = this;
-   double qmax = 10;
+   double qmax = 2;
    LoopPhaseSpace loopPS(qmax);
    data.loopPS = &loopPS;
 

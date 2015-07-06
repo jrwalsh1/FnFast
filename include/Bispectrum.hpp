@@ -61,7 +61,7 @@ class Bispectrum
          B321b,
          B222,
          B411x,
-         B321bx
+         B321ax
       };
 
    private:
