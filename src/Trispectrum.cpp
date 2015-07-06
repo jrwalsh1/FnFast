@@ -175,7 +175,7 @@ Trispectrum::Trispectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficien
       // T3221c
       // propagators
       Propagator prop_T3221c_q(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, 1}});
-      Propagator prop_T3221c_qk2(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, -1}, {Momenta::k2, 1}});
+      Propagator prop_T3221c_qk2(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, 1}, {Momenta::k2, -1}});
       Propagator prop_T3221c_qk23(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, -1}, {Momenta::k2, 1}, {Momenta::k3, 1}});
       Propagator prop_T3221c_k4(unordered_map<Momenta::MomentumLabel, double> {{Momenta::k4, 1}});
       // lines
@@ -190,8 +190,8 @@ Trispectrum::Trispectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficien
       // T2222
       // propagators
       Propagator prop_T2222_q(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, 1}});
-      Propagator prop_T2222_qk2(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, -1}, {Momenta::k2, 1}});
-      Propagator prop_T2222_qk23(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, -1}, {Momenta::k2, 1}, {Momenta::k3, 1}});
+      Propagator prop_T2222_qk2(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, 1}, {Momenta::k2, -1}});
+      Propagator prop_T2222_qk23(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, 1}, {Momenta::k2, -1}, {Momenta::k3, -1}});
       Propagator prop_T2222_qk234(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, -1}, {Momenta::k2, 1}, {Momenta::k3, 1}, {Momenta::k4, 1}});
       // lines
       Line line_T2222_12(Vertices::v1, Vertices::v2, prop_T2222_q);
@@ -308,7 +308,7 @@ double Trispectrum::cov_loopSPT(double k, double kp, double theta)
    data.kp = kp;
    data.theta = theta;
    data.trispectrum = this;
-   double qmax = 10;
+   double qmax = 2;
    LoopPhaseSpace loopPS(qmax);
    data.loopPS = &loopPS;
 
@@ -328,7 +328,7 @@ double Trispectrum::cov_loopSPT(double k, double kp, double theta)
 //   const int mineval = 0;
 //   const int maxeval = 10000000;
    const int mineval = 10;
-   const int maxeval = 100000;
+   const int maxeval = 500000;
    // starting number of points
 //   const int nstart = 100000;
    // increment per iteration
