@@ -113,7 +113,7 @@ double Diagram::value_base_IRreg(DiagramMomenta mom)
       PSregion = 1;
       PSregion *= theta(mom[Momenta::q], mom[Momenta::q] + pole);
       // loop over all other poles and make PS cuts for each
-      for (size_t j = 0; j < _IRpoles.size(); i++) {
+      for (size_t j = 0; j < _IRpoles.size(); j++) {
          if (j != i) {
             ThreeVector pole_j = _IRpoles[j].p(mom);
             PSregion *= theta(mom[Momenta::q], mom[Momenta::q] + pole - pole_j);

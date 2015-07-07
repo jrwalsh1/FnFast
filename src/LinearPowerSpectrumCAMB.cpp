@@ -39,7 +39,7 @@ LinearPowerSpectrumCAMB::LinearPowerSpectrumCAMB(const string& input_file): _inp
             _Pvec.push_back(P);
             npts++;
         }
-        
+       
         // Define patches at low and high k
         // Use first and last 10 points to get tails behavior
         double k_low[10], P_low[10], k_high[10], P_high[10];
@@ -52,13 +52,13 @@ LinearPowerSpectrumCAMB::LinearPowerSpectrumCAMB(const string& input_file): _inp
             k_high[i] = log(_kvec[j]);
             P_high[i] = log(_Pvec[j]);
         }
-        
+       
         // Fitting function returns linear fit coefficients and covariance and chisq parameters
         double cov1_low,cov2_low,cov3_low,chisq_low,cov1_high,cov2_high,cov3_high,chisq_high;
         
         gsl_fit_linear (k_low, 1, P_low, 1, 10, &_c0_low, &_c1_low, &cov1_low, &cov2_low, &cov3_low, &chisq_low);
         gsl_fit_linear (k_high, 1, P_high, 1, 10, &_c0_high, &_c1_high, &cov1_high, &cov2_high, &cov3_high, &chisq_high);
-        
+       
         // Generate a set of points (equally spaced in log)
         int npts_patch = 10;
         vector<double> k_low_patch = _log_gen(_kvec.front() / 10, _kvec.front(), npts_patch);
@@ -103,7 +103,7 @@ LinearPowerSpectrumCAMB::LinearPowerSpectrumCAMB(const string& input_file): _inp
         _spline_ptr = gsl_spline_alloc (gsl_interp_cspline, npts_tot);
         gsl_spline_init(_spline_ptr, k_vals, P_vals, npts_tot);
     }
-    
+   
     file.close();
 }
 

@@ -65,14 +65,15 @@ PowerSpectrum::PowerSpectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoeffi
       Propagator prop_P22_q(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, 1}});
       Propagator prop_P22_qk2(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, -1}, {Momenta::k2, 1}});
       // lines
-      Line line_P22_11(Vertices::v1, Vertices::v2, prop_P22_q);
-      Line line_P22_12(Vertices::v1, Vertices::v2, prop_P22_qk2);
-      vector<Line> lines_P22 {line_P22_11, line_P22_12};
+      Line line_P22_12a(Vertices::v1, Vertices::v2, prop_P22_q);
+      Line line_P22_12b(Vertices::v1, Vertices::v2, prop_P22_qk2);
+      vector<Line> lines_P22 {line_P22_12a, line_P22_12b};
       // define the diagram
       Diagram* P22 = new Diagram(lines_P22, kernels_SPT, _PL);
        
       // define the loop diagrams
-      _loop = {P31, P22};
+//      _loop = {P31, P22};
+      _loop = {P22};
       _diagrams[Graphs::P31] = P31;
       _diagrams[Graphs::P22] = P22;
        

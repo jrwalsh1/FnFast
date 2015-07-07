@@ -60,10 +60,10 @@ bool Propagator::isNull()
 {
    // return true if any label has nonzero coefficient
    for (size_t c = 0; c < Momenta::momentumlabels.size(); c++) {
-      if (_components[Momenta::momentumlabels[c]] != 0) { return true; }
+      if (_components[Momenta::momentumlabels[c]] != 0) { return false; }
    }
 
-   return false;
+   return true;
 }
 
 //------------------------------------------------------------------------------
@@ -96,7 +96,7 @@ Propagator Propagator::IRpole(Momenta::MomentumLabel label)
    unordered_map<Momenta::MomentumLabel, double> comp = _components;
    // get the factor for the label, then set the label factor to 0
    int fac = _components[label];
-   _components[label] = 0;
+   comp[label] = 0;
    // now scale all factors by -1 / fac
    for (size_t c = 0; c < Momenta::momentumlabels.size(); c++) {
       comp[Momenta::momentumlabels[c]] *= (-1. / fac);
