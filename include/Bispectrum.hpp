@@ -106,7 +106,7 @@ class Bispectrum
       struct LoopIntegrationOptions {
          double k1;
          double k2;
-         double theta12;
+         double costheta12;
          Bispectrum* bispectrum;
          LoopPhaseSpace* loopPS;
       };
@@ -128,28 +128,28 @@ class Bispectrum
       /// get results
       /// Differential in k
       /// tree level
-      double tree(double k1, double k2, double theta12);
+      double tree(double k1, double k2, double costheta12);
       /// one loop differential in q and integrated in q
       double loopSPT_excl(ThreeVector k1, ThreeVector k2, ThreeVector q);
-      double loopSPT(double k1, double k2, double theta12);
+      double loopSPT(double k1, double k2, double costheta12);
       /// one loop counterterms
-      double ctermsEFT(double k1, double k2, double theta12);
+      double ctermsEFT(double k1, double k2, double costheta12);
 
       /// Averaged over k bins
       /// tree level
-      double tree_kbin(double k2, double k3);
+      double tree_kbin(double k1, double k2);
       /// one loop integrated in q
-      double loopSPT_kbin(double k2, double k3);
+      double loopSPT_kbin(double k1, double k2);
       /// one loop counterterms
-      double ctermsEFT_kbin(double k2, double k3);
+      double ctermsEFT_kbin(double k1, double k2);
 
       /// Averaged over k bins + convolution with window function
       /// tree level
-      double tree_kbin_win(double k2, double k3);
+      double tree_kbin_win(double k1, double k2);
       /// one loop integrated in q
-      double loopSPT_kbin_win(double k2, double k3);
+      double loopSPT_kbin_win(double k1, double k2);
       /// one loop counterterms
-      double ctermsEFT_kbin_win(double k2, double k3);
+      double ctermsEFT_kbin_win(double k1, double k2);
 
    private:
       /// loop integrand function

@@ -281,14 +281,35 @@ Trispectrum::Trispectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficien
    }
 }
 
+//******************************************************************************
+// tree level:
+// - full trispectrum
+// - covariance limit, differential in angle
+// - covariance limit, integrated over angle
+//******************************************************************************
+
 //------------------------------------------------------------------------------
-double Trispectrum::cov_tree(double k, double kp, double theta)
+double Trispectrum::tree(ThreeVector k1, ThreeVector k2, ThreeVector k3)
+{
+   // set the external momenta
+   DiagramMomenta momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, k1}, {Momenta::k2, k2}, {Momenta::k3, k3},  {Momenta::k4, -k1-k2-k3}});
+
+   double value = 0;
+   // sum over diagrams
+   for (size_t i = 0; i < _tree.size(); i++) {
+      value += _tree[i]->value_IRreg(momenta);
+   }
+   return value;
+}
+
+//------------------------------------------------------------------------------
+double Trispectrum::cov_tree(double k, double kp, double costheta)
 {
    // set the external momenta
    ThreeVector k1(0, 0, k);
    ThreeVector k2(0, 0, -k);
-   ThreeVector k3(kp * sin(theta), 0, kp * cos(theta));
-   ThreeVector k4(-kp * sin(theta), 0, -kp * cos(theta));
+   ThreeVector k3(kp * sqrt(1 - costheta*costheta), 0, kp * costheta);
+   ThreeVector k4(-kp * sqrt(1 - costheta*costheta), 0, -kp * costheta);
    DiagramMomenta momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, k1}, {Momenta::k2, k2}, {Momenta::k3, k3},  {Momenta::k4, k4}});
 
    double value = 0;
@@ -300,20 +321,162 @@ double Trispectrum::cov_tree(double k, double kp, double theta)
 }
 
 //------------------------------------------------------------------------------
-double Trispectrum::cov_loopSPT(double k, double kp, double theta)
+double Trispectrum::cov_tree(double k, double kp)
+{
+   // options passed into the integration
+   AngularIntegrationOptions data;
+   data.k = k;
+   data.kp = kp;
+   data.trispectrum = this;
+
+   // Integration
+   // CUBA parameters
+   // PS dimensionality
+   // theta: 1-dim
+   const int ndim = 1;
+   // number of computations
+   const int ncomp = 1; // only 1 computation
+   // number of points sent to the integrand per invocation
+   const int nvec = 1; // no vectorization
+   // absolute uncertainty (safeguard)
+   const double epsrel = 1e-4;
+   const double epsabs = 1e-12;
+   // min, max number of points
+   const int mineval = 0;
+   const int maxeval = 100000;
+//   const int mineval = 10;
+//   const int maxeval = 500000;
+   // starting number of points
+   const int nstart = 1000;
+   // increment per iteration
+   // number of additional pts sampled per iteration
+   const int nincrease = 1000;
+   // batch size to sample PS points in
+   const int nbatch = 1000;
+   // grid number
+   // 1-10 saves the grid for another integration
+   const int gridnum = 0;
+   // cubature rule degree
+   int key = 13;
+   // file for the state of the integration
+   const char *statefile = NULL;
+   // spin
+   void* spin = NULL;
+   // random number seed
+   const int vegasseed = 37;
+   // flags:
+   // bits 0&1: verbosity level
+   // bit 2: whether or not to use only last sample (0 for all samps, 1 for last only)
+   // bit 3: whether or not to use sharp edges in importance function (0 for no, 1 for yes)
+   // bit 4: retain the state file (0 for no, 1 for yes)
+   // bits 8-31: random number generator, also uses seed parameter:
+   //    seed = 0: Sobol (quasi-random) used, ignores bits 8-31 of flags
+   //    seed > 0, bits 8-31 of flags = 0: Mersenne Twister
+   //    seed > 0, bits 8-31 of flags > 0: Ranlux
+   // current flag setting: 1038 = 10000001110
+   int flags = 1038;
+   // number of regions, evaluations, fail code
+   int nregions, neval, fail;
+
+   // containers for output
+   double integral[ncomp], error[ncomp], prob[ncomp];
+
+   // run VEGAS
+   Vegas(ndim, ncomp, tree_angular_integrand, &data, nvec,
+       epsrel, epsabs, flags, vegasseed,
+       mineval, maxeval, nstart, nincrease, nbatch,
+       gridnum, statefile, spin,
+       &neval, &fail, integral, error, prob);
+
+   /*
+   // run Cuhre
+   Cuhre(ndim, ncomp, tree_angular_integrand, &data, nvec,
+       epsrel, epsabs, flags,
+       mineval, maxeval,
+       key, statefile, spin, &nregions,
+       &neval, &fail, integral, error, prob);
+   */
+
+   cout << "integral, error, prob = " << integral[0] << ", " << error[0] << ", " << prob[0] << endl;
+
+   return integral[0];
+}
+
+//------------------------------------------------------------------------------
+int Trispectrum::tree_angular_integrand(const int *ndim, const double xx[], const int *ncomp, double ff[], void *userdata)
+{
+   // get the options
+   AngularIntegrationOptions* data = static_cast<AngularIntegrationOptions*>(userdata);
+
+   // external momenta magnitudes
+   double k = data->k;
+   double kp = data->kp;
+
+   // define the variables needed for the PS point
+   double costheta = 2 * xx[0] - 1.;
+   double jacobian = 2;
+
+   // set the PS point and return the integrand
+   double integrand = data->trispectrum->cov_tree(k, kp, costheta);
+
+   // loop calculation
+   ff[0] = jacobian * integrand;
+
+   return 0;
+}
+
+//******************************************************************************
+// loop level:
+// - full trispectrum, SPT loop fully differential in loop momentum
+// - full trispectrum, EFT counterterms fully differential in loop momentum
+// - covariance limit, SPT loop integrated over loop momentum, but differential in angle
+// - covariance limit, EFT counterterms differential in angle
+// - covariance limit, SPT loop + EFT counterterms integrated over angle, loop momentum (SPT)
+//******************************************************************************
+
+//------------------------------------------------------------------------------
+double Trispectrum::loopSPT_excl(ThreeVector k1, ThreeVector k2, ThreeVector k3, ThreeVector q)
+{
+   // set the external momenta
+   DiagramMomenta momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, k1}, {Momenta::k2, k2}, {Momenta::k3, k3},  {Momenta::k4, -k1-k2-k3}, {Momenta::q, q}});
+
+   double value = 0;
+   // sum over diagrams
+   for (size_t i = 0; i < _loop.size(); i++) {
+      value += _loop[i]->value_IRreg(momenta);
+   }
+   return value;
+}
+
+//------------------------------------------------------------------------------
+double Trispectrum::ctermsEFT(ThreeVector k1, ThreeVector k2, ThreeVector k3)
+{
+   // set the external momenta
+   DiagramMomenta momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, k1}, {Momenta::k2, k2}, {Momenta::k3, k3},  {Momenta::k4, -k1-k2-k3}});
+
+   double value = 0;
+   // sum over diagrams
+   for (size_t i = 0; i < _cterms.size(); i++) {
+      value += _cterms[i]->value_IRreg(momenta);
+   }
+   return value;
+}
+
+//------------------------------------------------------------------------------
+double Trispectrum::cov_loopSPT(double k, double kp, double costheta)
 {
    // options passed into the integration
    LoopIntegrationOptions data;
    data.k = k;
    data.kp = kp;
-   data.theta = theta;
+   data.costheta = costheta;
    data.trispectrum = this;
-   double qmax = 2;
+   double qmax = 10;
    LoopPhaseSpace loopPS(qmax);
    data.loopPS = &loopPS;
 
    // Integration
-   // VEGAS parameters
+   // CUBA parameters
    // PS dimensionality
    // q: 3-dim
    const int ndim = 3;
@@ -325,28 +488,28 @@ double Trispectrum::cov_loopSPT(double k, double kp, double theta)
    const double epsrel = 1e-4;
    const double epsabs = 1e-12;
    // min, max number of points
-//   const int mineval = 0;
-//   const int maxeval = 10000000;
-   const int mineval = 10;
-   const int maxeval = 500000;
+   const int mineval = 0;
+   const int maxeval = 100000;
+//   const int mineval = 10;
+//   const int maxeval = 500000;
    // starting number of points
-//   const int nstart = 100000;
+   const int nstart = 1000;
    // increment per iteration
    // number of additional pts sampled per iteration
-//   const int nincrease = 100000;
+   const int nincrease = 1000;
    // batch size to sample PS points in
-//   const int nbatch = 100000;
+   const int nbatch = 1000;
    // grid number
    // 1-10 saves the grid for another integration
-//   const int gridnum = 0;
+   const int gridnum = 0;
    // cubature rule degree
-   int key = 13;
+//   int key = 13;
    // file for the state of the integration
    const char *statefile = NULL;
    // spin
    void* spin = NULL;
    // random number seed
-//   const int vegasseed = 37;
+   const int vegasseed = 37;
    // flags:
    // bits 0&1: verbosity level
    // bit 2: whether or not to use only last sample (0 for all samps, 1 for last only)
@@ -356,28 +519,29 @@ double Trispectrum::cov_loopSPT(double k, double kp, double theta)
    //    seed = 0: Sobol (quasi-random) used, ignores bits 8-31 of flags
    //    seed > 0, bits 8-31 of flags = 0: Mersenne Twister
    //    seed > 0, bits 8-31 of flags > 0: Ranlux
-   int flags = 1054;
+   // current flag setting: 1038 = 10000001110
+   int flags = 1038;
    // number of regions, evaluations, fail code
    int nregions, neval, fail;
 
    // containers for output
    double integral[ncomp], error[ncomp], prob[ncomp];
 
-   /*
    // run VEGAS
    Vegas(ndim, ncomp, loop_integrand, &data, nvec,
        epsrel, epsabs, flags, vegasseed,
        mineval, maxeval, nstart, nincrease, nbatch,
        gridnum, statefile, spin,
        &neval, &fail, integral, error, prob);
-   */
 
+/*
    // run Cuhre
    Cuhre(ndim, ncomp, loop_integrand, &data, nvec,
        epsrel, epsabs, flags,
        mineval, maxeval,
        key, statefile, spin, &nregions,
        &neval, &fail, integral, error, prob);
+*/
 
    cout << "integral, error, prob = " << integral[0] << ", " << error[0] << ", " << prob[0] << endl;
 
@@ -385,25 +549,7 @@ double Trispectrum::cov_loopSPT(double k, double kp, double theta)
 }
 
 //------------------------------------------------------------------------------
-double Trispectrum::cov_ctermsEFT(double k, double kp, double theta)
-{
-   // set the external momenta
-   ThreeVector k1(0, 0, k);
-   ThreeVector k2(0, 0, -k);
-   ThreeVector k3(kp * sin(theta), 0, kp * cos(theta));
-   ThreeVector k4(-kp * sin(theta), 0, -kp * cos(theta));
-   DiagramMomenta momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, k1}, {Momenta::k2, k2}, {Momenta::k3, k3},  {Momenta::k4, k4}});
-    
-   double value = 0;
-   // sum over diagrams
-   for (size_t i = 0; i < _cterms.size(); i++) {
-      value += _cterms[i]->value_IRreg(momenta);
-   }
-   return value;
-}
-
-//------------------------------------------------------------------------------
-double Trispectrum::LoopPhaseSpace::setPS(double qpts[3])
+double Trispectrum::LoopPhaseSpace::set_loopPS(double qpts[3])
 {
    // we sample q flat in spherical coordinates, setting k along the z-axis, kp in the x-z plane
    // q components
@@ -433,19 +579,19 @@ int Trispectrum::loop_integrand(const int *ndim, const double xx[], const int *n
    // external momentum magnitude
    double k = data->k;
    double kp = data->kp;
-   double theta = data->theta;
+   double costheta = data->costheta;
 
    // define the variables needed for the PS point
    double qpts[3] = {xx[0], xx[1], xx[2]};
 
    // set the PS point and return the integrand
-   double jacobian = data->loopPS->setPS(qpts);
+   double jacobian = data->loopPS->set_loopPS(qpts);
    double integrand = 0;
    if (jacobian > 0) {
       ThreeVector q = data->loopPS->q();
       ThreeVector k1(0, 0, k);
       ThreeVector k2(0, 0, -k);
-      ThreeVector k3(kp * sin(theta), 0, kp * cos(theta));
+      ThreeVector k3(kp * sqrt(1 - costheta*costheta), 0, kp * costheta);
       integrand = data->trispectrum->loopSPT_excl(k1, k2, k3, q);
    }
 
@@ -456,15 +602,136 @@ int Trispectrum::loop_integrand(const int *ndim, const double xx[], const int *n
 }
 
 //------------------------------------------------------------------------------
-double Trispectrum::loopSPT_excl(ThreeVector k1, ThreeVector k2, ThreeVector k3, ThreeVector q)
+double Trispectrum::cov_ctermsEFT(double k, double kp, double costheta)
 {
    // set the external momenta
-   DiagramMomenta momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, k1}, {Momenta::k2, k2}, {Momenta::k3, k3},  {Momenta::k4, -k1-k2-k3}, {Momenta::q, q}});
-
+   ThreeVector k1(0, 0, k);
+   ThreeVector k2(0, 0, -k);
+   ThreeVector k3(kp * sqrt(1 - costheta*costheta), 0, kp * costheta);
+   ThreeVector k4(-kp * sqrt(1 - costheta*costheta), 0, -kp * costheta);
+   DiagramMomenta momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, k1}, {Momenta::k2, k2}, {Momenta::k3, k3},  {Momenta::k4, k4}});
+    
    double value = 0;
    // sum over diagrams
-   for (size_t i = 0; i < _loop.size(); i++) {
-      value += _loop[i]->value_IRreg(momenta);
+   for (size_t i = 0; i < _cterms.size(); i++) {
+      value += _cterms[i]->value_IRreg(momenta);
    }
    return value;
+}
+
+//------------------------------------------------------------------------------
+double Trispectrum::cov_loop(double k, double kp)
+{
+   // options passed into the integration
+   LoopIntegrationOptions data;
+   data.k = k;
+   data.kp = kp;
+   data.trispectrum = this;
+   double qmax = 10;
+   LoopPhaseSpace loopPS(qmax);
+   data.loopPS = &loopPS;
+
+   // Integration
+   // CUBA parameters
+   // PS dimensionality
+   // q + costheta: 4-dim
+   const int ndim = 4;
+   // number of computations
+   const int ncomp = 1; // only 1 computation
+   // number of points sent to the integrand per invocation
+   const int nvec = 1; // no vectorization
+   // absolute uncertainty (safeguard)
+   const double epsrel = 1e-4;
+   const double epsabs = 1e-12;
+   // min, max number of points
+   const int mineval = 0;
+   const int maxeval = 100000;
+//   const int mineval = 10;
+//   const int maxeval = 500000;
+   // starting number of points
+   const int nstart = 1000;
+   // increment per iteration
+   // number of additional pts sampled per iteration
+   const int nincrease = 1000;
+   // batch size to sample PS points in
+   const int nbatch = 1000;
+   // grid number
+   // 1-10 saves the grid for another integration
+   const int gridnum = 0;
+   // cubature rule degree
+//   int key = 13;
+   // file for the state of the integration
+   const char *statefile = NULL;
+   // spin
+   void* spin = NULL;
+   // random number seed
+   const int vegasseed = 37;
+   // flags:
+   // bits 0&1: verbosity level
+   // bit 2: whether or not to use only last sample (0 for all samps, 1 for last only)
+   // bit 3: whether or not to use sharp edges in importance function (0 for no, 1 for yes)
+   // bit 4: retain the state file (0 for no, 1 for yes)
+   // bits 8-31: random number generator, also uses seed parameter:
+   //    seed = 0: Sobol (quasi-random) used, ignores bits 8-31 of flags
+   //    seed > 0, bits 8-31 of flags = 0: Mersenne Twister
+   //    seed > 0, bits 8-31 of flags > 0: Ranlux
+   // current flag setting: 1038 = 10000001110
+   int flags = 1038;
+   // number of regions, evaluations, fail code
+   int nregions, neval, fail;
+
+   // containers for output
+   double integral[ncomp], error[ncomp], prob[ncomp];
+
+   // run VEGAS
+   Vegas(ndim, ncomp, loop_integrand, &data, nvec,
+       epsrel, epsabs, flags, vegasseed,
+       mineval, maxeval, nstart, nincrease, nbatch,
+       gridnum, statefile, spin,
+       &neval, &fail, integral, error, prob);
+
+/*
+   // run Cuhre
+   Cuhre(ndim, ncomp, loop_integrand, &data, nvec,
+       epsrel, epsabs, flags,
+       mineval, maxeval,
+       key, statefile, spin, &nregions,
+       &neval, &fail, integral, error, prob);
+*/
+
+   cout << "integral, error, prob = " << integral[0] << ", " << error[0] << ", " << prob[0] << endl;
+
+   return integral[0];
+}
+
+//------------------------------------------------------------------------------
+int Trispectrum::angular_loop_integrand(const int *ndim, const double xx[], const int *ncomp, double ff[], void *userdata)
+{
+   // get the options
+   LoopIntegrationOptions* data = static_cast<LoopIntegrationOptions*>(userdata);
+
+   // external momentum magnitude
+   double k = data->k;
+   double kp = data->kp;
+
+   // define the variables needed for the PS point
+   double qpts[3] = {xx[0], xx[1], xx[2]};
+   double costheta = 2 * xx[3] - 1.;
+
+   // set the PS point and return the integrand
+   double jacobian_costh = 2;
+   double jacobian_loop = data->loopPS->set_loopPS(qpts);
+   double integrand = 0;
+   if (jacobian_loop > 0) {
+      ThreeVector q = data->loopPS->q();
+      ThreeVector k1(0, 0, k);
+      ThreeVector k2(0, 0, -k);
+      ThreeVector k3(kp * sqrt(1 - costheta*costheta), 0, kp * costheta);
+      integrand = data->trispectrum->loopSPT_excl(k1, k2, k3, q) + data->trispectrum->cov_ctermsEFT(k, kp, costheta);
+   }
+
+   // loop calculation
+   ff[0] = jacobian_costh * jacobian_loop * integrand;
+
+   return 0;
 }

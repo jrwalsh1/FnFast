@@ -142,11 +142,11 @@ Bispectrum::Bispectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficients
 }
 
 //------------------------------------------------------------------------------
-double Bispectrum::tree(double k1, double k2, double theta12)
+double Bispectrum::tree(double k1, double k2, double costheta12)
 {
    // set the external momenta
    ThreeVector pk1(0, 0, k1);
-   ThreeVector pk2(k2 * sin(theta12), 0, k2 * cos(theta12));
+   ThreeVector pk2(k2 * sqrt(1. - costheta12*costheta12), 0, k2 * costheta12);
    DiagramMomenta momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, pk1}, {Momenta::k2, pk2}, {Momenta::k3, -pk1-pk2}});
 
    double value = 0;
@@ -172,15 +172,15 @@ double Bispectrum::loopSPT_excl(ThreeVector k1, ThreeVector k2, ThreeVector q)
 }
 
 //------------------------------------------------------------------------------
-double Bispectrum::loopSPT(double k1, double k2, double theta12)
+double Bispectrum::loopSPT(double k1, double k2, double costheta12)
 {
    // options passed into the integration
    LoopIntegrationOptions data;
    data.k1 = k1;
    data.k2 = k2;
-   data.theta12 = theta12;
+   data.costheta12 = costheta12;
    data.bispectrum = this;
-   double qmax = 2;
+   double qmax = 10;
    LoopPhaseSpace loopPS(qmax);
    data.loopPS = &loopPS;
 
@@ -197,28 +197,28 @@ double Bispectrum::loopSPT(double k1, double k2, double theta12)
    const double epsrel = 1e-4;
    const double epsabs = 1e-12;
    // min, max number of points
-//   const int mineval = 0;
-//   const int maxeval = 10000000;
-   const int mineval = 10;
+   const int mineval = 0;
    const int maxeval = 100000;
+//   const int mineval = 10;
+//   const int maxeval = 100000;
    // starting number of points
-//   const int nstart = 100000;
+   const int nstart = 1000;
    // increment per iteration
    // number of additional pts sampled per iteration
-//   const int nincrease = 100000;
+   const int nincrease = 1000;
    // batch size to sample PS points in
-//   const int nbatch = 100000;
+   const int nbatch = 1000;
    // grid number
    // 1-10 saves the grid for another integration
-//   const int gridnum = 0;
+   const int gridnum = 0;
    // cubature rule degree
-   int key = 13;
+//   int key = 13;
    // file for the state of the integration
    const char *statefile = NULL;
    // spin
    void* spin = NULL;
    // random number seed
-//   const int vegasseed = 37;
+   const int vegasseed = 37;
    // flags:
    // bits 0&1: verbosity level
    // bit 2: whether or not to use only last sample (0 for all samps, 1 for last only)
@@ -228,28 +228,29 @@ double Bispectrum::loopSPT(double k1, double k2, double theta12)
    //    seed = 0: Sobol (quasi-random) used, ignores bits 8-31 of flags
    //    seed > 0, bits 8-31 of flags = 0: Mersenne Twister
    //    seed > 0, bits 8-31 of flags > 0: Ranlux
-   int flags = 1054;
+   // current flag setting: 1038 = 10000001110
+   int flags = 1038;
    // number of regions, evaluations, fail code
    int nregions, neval, fail;
 
    // containers for output
    double integral[ncomp], error[ncomp], prob[ncomp];
 
-   /*
    // run VEGAS
    Vegas(ndim, ncomp, loop_integrand, &data, nvec,
        epsrel, epsabs, flags, vegasseed,
        mineval, maxeval, nstart, nincrease, nbatch,
        gridnum, statefile, spin,
        &neval, &fail, integral, error, prob);
-   */
 
+   /*
    // run Cuhre
    Cuhre(ndim, ncomp, loop_integrand, &data, nvec,
        epsrel, epsabs, flags,
        mineval, maxeval,
        key, statefile, spin, &nregions,
        &neval, &fail, integral, error, prob);
+   */
 
    cout << "integral, error, prob = " << integral[0] << ", " << error[0] << ", " << prob[0] << endl;
 
@@ -257,11 +258,11 @@ double Bispectrum::loopSPT(double k1, double k2, double theta12)
 }
 
 //------------------------------------------------------------------------------
-double Bispectrum::ctermsEFT(double k1, double k2, double theta12)
+double Bispectrum::ctermsEFT(double k1, double k2, double costheta12)
 {
    // set the external momenta
    ThreeVector pk1(0, 0, k1);
-   ThreeVector pk2(k2 * sin(theta12), 0, k2 * cos(theta12));
+   ThreeVector pk2(k2 * sqrt(1. - costheta12*costheta12), 0, k2 * costheta12);
    DiagramMomenta momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, pk1}, {Momenta::k2, pk2}, {Momenta::k3, -pk1-pk2}});
 
    double value = 0;
@@ -303,7 +304,7 @@ int Bispectrum::loop_integrand(const int *ndim, const double xx[], const int *nc
    // external momentum magnitude
    double k1 = data->k1;
    double k2 = data->k2;
-   double theta12 = data->theta12;
+   double costheta12 = data->costheta12;
 
    // define the variables needed for the PS point
    double qpts[3] = {xx[0], xx[1], xx[2]};
@@ -314,7 +315,7 @@ int Bispectrum::loop_integrand(const int *ndim, const double xx[], const int *nc
    if (jacobian > 0) {
       ThreeVector q = data->loopPS->q();
       ThreeVector pk1(0, 0, k1);
-      ThreeVector pk2(k2 * sin(theta12), 0, k2 * cos(theta12));
+      ThreeVector pk2(k2 * sqrt(1. - costheta12*costheta12), 0, k2 * costheta12);
       integrand = data->bispectrum->loopSPT_excl(pk1, pk2, q);
    }
 

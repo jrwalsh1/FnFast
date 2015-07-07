@@ -72,8 +72,7 @@ PowerSpectrum::PowerSpectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoeffi
       Diagram* P22 = new Diagram(lines_P22, kernels_SPT, _PL);
        
       // define the loop diagrams
-//      _loop = {P31, P22};
-      _loop = {P22};
+      _loop = {P31, P22};
       _diagrams[Graphs::P31] = P31;
       _diagrams[Graphs::P22] = P22;
        

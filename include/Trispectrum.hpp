@@ -104,7 +104,7 @@ class Trispectrum
             virtual ~LoopPhaseSpace() {}
 
             /// set the loop phase space, returns the jacobian
-            double setPS(double qpts[3]);
+            double set_loopPS(double qpts[3]);
 
             /// returns the loop momentum
             ThreeVector q() { return _q; }
@@ -114,9 +114,16 @@ class Trispectrum
       struct LoopIntegrationOptions {
          double k;
          double kp;
-         double theta;
+         double costheta;
          Trispectrum* trispectrum;
          LoopPhaseSpace* loopPS;
+      };
+
+      /// container for the integration options
+      struct AngularIntegrationOptions {
+         double k;
+         double kp;
+         Trispectrum* trispectrum;
       };
 
    public:
@@ -136,11 +143,17 @@ class Trispectrum
       /// get results
       /// covariance limit, differential in k
       /// tree level
-      double cov_tree(double k, double kp, double theta);
+      double cov_tree(double k, double kp, double costheta);
       /// one loop integrated in q
-      double cov_loopSPT(double k, double kp, double theta);
+      double cov_loopSPT(double k, double kp, double costheta);
       /// one loop counterterms
-      double cov_ctermsEFT(double k, double kp, double theta);
+      double cov_ctermsEFT(double k, double kp, double costheta);
+
+      /// covariance limit integrated over angles
+      /// tree level
+      double cov_tree(double k, double kp);
+      /// full one loop integrated in q
+      double cov_loop(double k, double kp);
 
       /// Averaged over k bins
       /// tree level
@@ -160,16 +173,20 @@ class Trispectrum
 
       /// full trispectrum, differential in k
       /// tree level
-      double tree(ThreeVector k2, ThreeVector k3, ThreeVector k4);
+      double tree(ThreeVector k1, ThreeVector k2, ThreeVector k3);
       /// one loop differential in q and integrated in q
-      double loopSPT_excl(ThreeVector k2, ThreeVector k3, ThreeVector k4, ThreeVector q);
-      double loopSPT(ThreeVector k2, ThreeVector k3, ThreeVector k4);
+      double loopSPT_excl(ThreeVector k1, ThreeVector k2, ThreeVector k3, ThreeVector q);
+      double loopSPT(ThreeVector k1, ThreeVector k2, ThreeVector k3);
       /// one loop counterterms
-      double ctermsEFT(ThreeVector k2, ThreeVector k3, ThreeVector k4);
+      double ctermsEFT(ThreeVector k1, ThreeVector k2, ThreeVector k3);
 
    private:
-      /// loop integrand function
+      /// tree level: polar angle integrand function, covariance limit
+      static int tree_angular_integrand(const int *ndim, const double xx[], const int *ncomp, double ff[], void *userdata);
+      /// loop integrand function, covariance limit
       static int loop_integrand(const int *ndim, const double xx[], const int *ncomp, double ff[], void *userdata);
+      /// polar angle integrand function, covariance limit
+      static int angular_loop_integrand(const int *ndim, const double xx[], const int *ncomp, double ff[], void *userdata);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
