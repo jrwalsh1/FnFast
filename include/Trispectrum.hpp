@@ -153,7 +153,7 @@ class Trispectrum
       /// tree level
       double cov_tree(double k, double kp);
       /// full one loop integrated in q
-      double cov_loop(double k, double kp);
+      double cov_loopSPT(double k, double kp);
 
       /// Averaged over k bins
       /// tree level

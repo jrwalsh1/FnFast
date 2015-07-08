@@ -1,0 +1,5 @@
+#!/bin/bash
+
+qsub -cwd -b y ./runFnFast_cov_loopSPT 0.1 0.1 cov_loopSPT_0.1_0.1.dat
+
+

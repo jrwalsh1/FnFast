@@ -620,7 +620,7 @@ double Trispectrum::cov_ctermsEFT(double k, double kp, double costheta)
 }
 
 //------------------------------------------------------------------------------
-double Trispectrum::cov_loop(double k, double kp)
+double Trispectrum::cov_loopSPT(double k, double kp)
 {
    // options passed into the integration
    LoopIntegrationOptions data;
@@ -684,7 +684,7 @@ double Trispectrum::cov_loop(double k, double kp)
    double integral[ncomp], error[ncomp], prob[ncomp];
 
    // run VEGAS
-   Vegas(ndim, ncomp, loop_integrand, &data, nvec,
+   Vegas(ndim, ncomp, angular_loop_integrand, &data, nvec,
        epsrel, epsabs, flags, vegasseed,
        mineval, maxeval, nstart, nincrease, nbatch,
        gridnum, statefile, spin,
@@ -727,7 +727,7 @@ int Trispectrum::angular_loop_integrand(const int *ndim, const double xx[], cons
       ThreeVector k1(0, 0, k);
       ThreeVector k2(0, 0, -k);
       ThreeVector k3(kp * sqrt(1 - costheta*costheta), 0, kp * costheta);
-      integrand = data->trispectrum->loopSPT_excl(k1, k2, k3, q) + data->trispectrum->cov_ctermsEFT(k, kp, costheta);
+      integrand = data->trispectrum->loopSPT_excl(k1, k2, k3, q);
    }
 
    // loop calculation

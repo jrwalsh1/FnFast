@@ -68,7 +68,7 @@ int main()
    cin.get();
 
    cout << "---------- computing 1-loop trispectrum, angular integrated ----------" << endl;
-   double TSresult_loop = TS.cov_loop(k1mag, k2mag);
+   double TSresult_loop = TS.cov_loopSPT(k1mag, k2mag);
    cout << "1-loop TS result = " << TSresult_loop << endl;
    cout << "press any key to continue" << endl;
    cin.get();

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+## check arguments
+if [ $# -ne 3 ]
+then
+   echo ""
+   echo "Arguments needed:"
+   echo "1. k (mangnitude)"
+   echo "2. kp (magnitude)"
+   echo "3. output file name"
+   echo ""
+   
+   exit 1
+fi
+
+## submit jobs
+kmag=$1
+kpmag=$2
+outfile=$3
+
+date > FnFast_covloopSPT_${outfile}
+
+bin/main_covariance_loopSPT ${kmag} ${kpmag} ${outfile}  >> FnFast_covloopSPT_${outfile}

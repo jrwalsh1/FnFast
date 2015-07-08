@@ -244,6 +244,17 @@ double Bispectrum::loopSPT(double k1, double k2, double costheta12)
        &neval, &fail, integral, error, prob);
 
    /*
+   int nnew = 2000;
+   int nmin = 100;
+   double flatness = 5;
+
+   Suave(ndim, ncomp, loop_integrand, &data, nvec,
+      epsrel, epsabs, flags, vegasseed,
+      mineval, maxeval, nnew, nmin, flatness,
+      statefile, spin, &nregions,
+      &neval, &fail, integral, error, prob);
+   */
+   /*
    // run Cuhre
    Cuhre(ndim, ncomp, loop_integrand, &data, nvec,
        epsrel, epsabs, flags,
