@@ -735,3 +735,108 @@ int Trispectrum::angular_loop_integrand(const int *ndim, const double xx[], cons
 
    return 0;
 }
+
+//------------------------------------------------------------------------------
+double Trispectrum::cov_ctermsEFT(double k, double kp){
+   
+   // options passed into the integration
+   AngularIntegrationOptions data;
+   data.k = k;
+   data.kp = kp;
+   data.trispectrum = this;
+   
+   // Integration
+   // CUBA parameters
+   // PS dimensionality
+   // theta: 1-dim
+   const int ndim = 1;
+   // number of computations
+   const int ncomp = 1; // only 1 computation
+   // number of points sent to the integrand per invocation
+   const int nvec = 1; // no vectorization
+   // absolute uncertainty (safeguard)
+   const double epsrel = 1e-4;
+   const double epsabs = 1e-12;
+   // min, max number of points
+   const int mineval = 0;
+   const int maxeval = 100000;
+   //   const int mineval = 10;
+   //   const int maxeval = 500000;
+   // starting number of points
+   const int nstart = 1000;
+   // increment per iteration
+   // number of additional pts sampled per iteration
+   const int nincrease = 1000;
+   // batch size to sample PS points in
+   const int nbatch = 1000;
+   // grid number
+   // 1-10 saves the grid for another integration
+   const int gridnum = 0;
+   // cubature rule degree
+   int key = 13;
+   // file for the state of the integration
+   const char *statefile = NULL;
+   // spin
+   void* spin = NULL;
+   // random number seed
+   const int vegasseed = 37;
+   // flags:
+   // bits 0&1: verbosity level
+   // bit 2: whether or not to use only last sample (0 for all samps, 1 for last only)
+   // bit 3: whether or not to use sharp edges in importance function (0 for no, 1 for yes)
+   // bit 4: retain the state file (0 for no, 1 for yes)
+   // bits 8-31: random number generator, also uses seed parameter:
+   //    seed = 0: Sobol (quasi-random) used, ignores bits 8-31 of flags
+   //    seed > 0, bits 8-31 of flags = 0: Mersenne Twister
+   //    seed > 0, bits 8-31 of flags > 0: Ranlux
+   // current flag setting: 1038 = 10000001110
+   int flags = 1038;
+   // number of regions, evaluations, fail code
+   int nregions, neval, fail;
+   
+   // containers for output
+   double integral[ncomp], error[ncomp], prob[ncomp];
+   
+   // run VEGAS
+   Vegas(ndim, ncomp, cterms_angular_integrand, &data, nvec,
+         epsrel, epsabs, flags, vegasseed,
+         mineval, maxeval, nstart, nincrease, nbatch,
+         gridnum, statefile, spin,
+         &neval, &fail, integral, error, prob);
+   
+   /*
+    // run Cuhre
+    Cuhre(ndim, ncomp, tree_angular_integrand, &data, nvec,
+    epsrel, epsabs, flags,
+    mineval, maxeval,
+    key, statefile, spin, &nregions,
+    &neval, &fail, integral, error, prob);
+    */
+   
+   cout << "integral, error, prob = " << integral[0] << ", " << error[0] << ", " << prob[0] << endl;
+   
+   return integral[0];
+}
+
+//------------------------------------------------------------------------------
+int Trispectrum::cterms_angular_integrand(const int *ndim, const double xx[], const int *ncomp, double ff[], void *userdata)
+{
+   // get the options
+   AngularIntegrationOptions* data = static_cast<AngularIntegrationOptions*>(userdata);
+   
+   // external momenta magnitudes
+   double k = data->k;
+   double kp = data->kp;
+   
+   // define the variables needed for the PS point
+   double costheta = 2 * xx[0] - 1.;
+   double jacobian = 2;
+   
+   // set the PS point and return the integrand
+   double integrand = data->trispectrum->cov_ctermsEFT(k, kp, costheta);
+   
+   // loop calculation
+   ff[0] = jacobian * integrand;
+   
+   return 0;
+}

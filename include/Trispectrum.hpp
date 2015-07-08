@@ -154,6 +154,8 @@ class Trispectrum
       double cov_tree(double k, double kp);
       /// full one loop integrated in q
       double cov_loopSPT(double k, double kp);
+      /// one loop counterterms
+      double cov_ctermsEFT(double k, double kp);
 
       /// Averaged over k bins
       /// tree level
@@ -187,6 +189,8 @@ class Trispectrum
       static int loop_integrand(const int *ndim, const double xx[], const int *ncomp, double ff[], void *userdata);
       /// polar angle integrand function, covariance limit
       static int angular_loop_integrand(const int *ndim, const double xx[], const int *ncomp, double ff[], void *userdata);
+      /// polar angle integrand function, covariance limit, EFT counterterms
+      static int cterms_angular_integrand(const int *ndim, const double xx[], const int *ncomp, double ff[], void *userdata);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
