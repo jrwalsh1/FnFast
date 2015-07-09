@@ -31,6 +31,8 @@ int main()
    PowerSpectrum PS(kOneLoop, &PL, &coeffs);
    Bispectrum BS(kOneLoop, &PL, &coeffs);
    Trispectrum TS(kOneLoop, &PL, &coeffs);
+   TS.set_qmax(2.);
+   TS.set_seed(37);
 
    double qmag = 0.01;
    double qcostheta = 0.9;
@@ -38,11 +40,24 @@ int main()
    ThreeVector q(qmag * sqrt(1 - qcostheta*qcostheta) * cos(qphi), qmag * sqrt(1 - qcostheta*qcostheta) * sin(qphi), qmag * qcostheta);
 
    ThreeVector k1(0.5, 0, 0.1);
-   ThreeVector k2(-0.3, 0.3, 0.4);
+   ThreeVector k2(0, 0, 0.4);
+   ThreeVector k3 = -k1;
+   ThreeVector k4 = -k2;
    double k1mag = k1.magnitude();
    double k2mag = k2.magnitude();
    double costheta12 = (k1*k2) / (k1mag*k2mag);
 
+   cout << "---------- computing 1-loop trispectrum ----------" << endl;
+   unordered_map<Momenta::MomentumLabel, ThreeVector> TSmom = {{Momenta::q, q}, {Momenta::k1, k1}, {Momenta::k2, k2}, {Momenta::k3, k3}, {Momenta::k4, k4}};
+//   cout << "T3311b poles: " << endl;
+//   TS[Trispectrum::T3311b]->value_IRreg(TSmom);
+
+
+   double TSresult = TS.cov_loopSPT(k1mag, k2mag, costheta12);
+   cout << "1 loop SPT TS result = " << TSresult << endl;
+
+   
+/*
    cout << "---------- computing 1-loop power spectrum ----------" << endl;
    double PSresult = PS.loopSPT(k1mag);
    cout << "1 loop SPT PS result = " << PSresult << endl;
@@ -72,6 +87,7 @@ int main()
    cout << "1-loop TS result = " << TSresult_loop << endl;
    cout << "press any key to continue" << endl;
    cin.get();
+*/
 
    return 0;
 } // end of main program

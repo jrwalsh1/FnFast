@@ -22,7 +22,7 @@
 #include "cuba.h"
 
 //------------------------------------------------------------------------------
-Trispectrum::Trispectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficients* eftcoefficients) : _order(order), _PL(PL), _SPTkernels(new SPTkernels), _EFTkernels(new EFTkernels), _eftcoefficients(eftcoefficients), _UVcutoff(10.), _kBin(0), _W(NULL)
+Trispectrum::Trispectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficients* eftcoefficients) : _order(order), _PL(PL), _SPTkernels(new SPTkernels), _EFTkernels(new EFTkernels), _eftcoefficients(eftcoefficients), _UVcutoff(10.), _kBin(0), _W(NULL), _seed(37)
 {
    // Diagram momenta
    _labels = { Momenta::k1, Momenta::k2, Momenta::k3, Momenta::k4, Momenta::q };
@@ -203,7 +203,8 @@ Trispectrum::Trispectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficien
       Diagram* T2222 = new Diagram(lines_T2222, kernels_SPT, _PL);
 
       // define the loop diagrams
-      _loop = {T5111, T4211a, T4211b, T3311a, T3311b, T3221a, T3221b, T3221c, T2222};
+//      _loop = {T5111, T4211a, T4211b, T3311a, T3311b, T3221a, T3221b, T3221c, T2222};
+      _loop = {T3311b};
       _diagrams[Graphs::T5111] = T5111;
       _diagrams[Graphs::T4211a] = T4211a;
       _diagrams[Graphs::T4211b] = T4211b;
@@ -213,7 +214,7 @@ Trispectrum::Trispectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficien
       _diagrams[Graphs::T3221b] = T3221b;
       _diagrams[Graphs::T3221c] = T3221c;
       _diagrams[Graphs::T2222] = T2222;
-       
+
       // T5111x
       // propagators
       Propagator prop_T5111x_k2(unordered_map<Momenta::MomentumLabel, double> {{Momenta::k2, 1}});
@@ -242,7 +243,6 @@ Trispectrum::Trispectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficien
       Diagram* T4211ax = new Diagram(lines_T4211ax, kernels_EFTSPT, _PL);
       T4211ax->set_perms(T4211a->get_perms());
 
-       
       // T3311ax
       // propagators
       Propagator prop_T3311ax_k234(unordered_map<Momenta::MomentumLabel, double> {{Momenta::k2, 1}, {Momenta::k3, 1}, {Momenta::k4, 1}});
@@ -257,7 +257,6 @@ Trispectrum::Trispectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficien
       Diagram* T3311ax = new Diagram(lines_T3311ax, kernels_EFTSPT, _PL);
       T3311ax->set_perms(T3311a->get_perms());
 
-       
       // T3221ax
       // propagators
       Propagator prop_T3221ax_k234(unordered_map<Momenta::MomentumLabel, double> {{Momenta::k2, 1}, {Momenta::k3, 1}, {Momenta::k4, 1}});
@@ -340,7 +339,7 @@ double Trispectrum::cov_tree(double k, double kp)
    const int nvec = 1; // no vectorization
    // absolute uncertainty (safeguard)
    const double epsrel = 1e-4;
-   const double epsabs = 1e-12;
+   const double epsabs = 1e-20;
    // min, max number of points
    const int mineval = 0;
    const int maxeval = 100000;
@@ -363,7 +362,7 @@ double Trispectrum::cov_tree(double k, double kp)
    // spin
    void* spin = NULL;
    // random number seed
-   const int vegasseed = 37;
+   const int vegasseed = _seed;
    // flags:
    // bits 0&1: verbosity level
    // bit 2: whether or not to use only last sample (0 for all samps, 1 for last only)
@@ -486,10 +485,10 @@ double Trispectrum::cov_loopSPT(double k, double kp, double costheta)
    const int nvec = 1; // no vectorization
    // absolute uncertainty (safeguard)
    const double epsrel = 1e-4;
-   const double epsabs = 1e-12;
+   const double epsabs = 1e-20;
    // min, max number of points
    const int mineval = 0;
-   const int maxeval = 100000;
+   const int maxeval = 250000;
 //   const int mineval = 10;
 //   const int maxeval = 500000;
    // starting number of points
@@ -509,7 +508,7 @@ double Trispectrum::cov_loopSPT(double k, double kp, double costheta)
    // spin
    void* spin = NULL;
    // random number seed
-   const int vegasseed = 37;
+   const int vegasseed = _seed;
    // flags:
    // bits 0&1: verbosity level
    // bit 2: whether or not to use only last sample (0 for all samps, 1 for last only)
@@ -642,7 +641,7 @@ double Trispectrum::cov_loopSPT(double k, double kp)
    const int nvec = 1; // no vectorization
    // absolute uncertainty (safeguard)
    const double epsrel = 1e-4;
-   const double epsabs = 1e-12;
+   const double epsabs = 1e-20;
    // min, max number of points
    const int mineval = 0;
    const int maxeval = 100000;
@@ -665,7 +664,7 @@ double Trispectrum::cov_loopSPT(double k, double kp)
    // spin
    void* spin = NULL;
    // random number seed
-   const int vegasseed = 37;
+   const int vegasseed = _seed;
    // flags:
    // bits 0&1: verbosity level
    // bit 2: whether or not to use only last sample (0 for all samps, 1 for last only)
@@ -756,7 +755,7 @@ double Trispectrum::cov_ctermsEFT(double k, double kp){
    const int nvec = 1; // no vectorization
    // absolute uncertainty (safeguard)
    const double epsrel = 1e-4;
-   const double epsabs = 1e-12;
+   const double epsabs = 1e-20;
    // min, max number of points
    const int mineval = 0;
    const int maxeval = 100000;
@@ -779,7 +778,7 @@ double Trispectrum::cov_ctermsEFT(double k, double kp){
    // spin
    void* spin = NULL;
    // random number seed
-   const int vegasseed = 37;
+   const int vegasseed = _seed;
    // flags:
    // bits 0&1: verbosity level
    // bit 2: whether or not to use only last sample (0 for all samps, 1 for last only)

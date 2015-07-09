@@ -22,13 +22,18 @@ using namespace std;
 int main(int argc, const char* argv[])
 {
    // get arguments
-   if (argc != 4) {
-      cout << "Usage: bin/main_covariance_loopSPT k(magnitude) kp(magnitude) output_file" << endl;
+   if (argc != 5) {
+      cout << "Usage: bin/main_covariance_loopSPT k(magnitude) kp(magnitude) seed output_file" << endl;
       exit(1);
    }
    double k = atof(argv[1]);
    double kp = atof(argv[2]);
-   string outfilename = argv[3];
+   int seed = atoi(argv[3]);
+   string outfilenamebase = argv[4];
+   stringstream ss;
+   ss << seed;
+   string seedstr = ss.str();
+   string outfilename = outfilenamebase+"_R"+seedstr+".dat";
 
    // the linear power spectrum
    // LinearPowerSpectrumAnalytic PL(1);
@@ -38,6 +43,8 @@ int main(int argc, const char* argv[])
    EFTcoefficients coeffs;
    // set up the trispectrum calculation
    Trispectrum TS(kOneLoop, &PLcamb, &coeffs);
+   TS.set_qmax(2);
+   TS.set_seed(seed);
 
    // do the calculation
    double TSresult_loopSPT = TS.cov_loopSPT(k, kp);

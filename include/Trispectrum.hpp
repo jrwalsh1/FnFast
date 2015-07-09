@@ -86,6 +86,7 @@ class Trispectrum
       double _UVcutoff;                               ///< UV cutoff for loop integrations
       double _kBin;                                   ///< size of k bins
       WindowFunctionBase* _W;                         ///< Window function
+      int _seed;                                      ///< random number seed for VEGAS
 
       /// phase space for the loop momentum
       class LoopPhaseSpace {
@@ -139,6 +140,12 @@ class Trispectrum
       void set_kBinSize(double kBin) { _kBin = kBin;}
       /// set window function
       void set_windowFunction(WindowFunctionBase* W) { _W = W; }
+
+      /// set the loop momentum cutoff
+      void set_qmax(double qmax);
+
+      /// set the random number seed
+      void set_seed(int seed) { _seed = seed; }
 
       /// get results
       /// covariance limit, differential in k
@@ -196,5 +203,12 @@ class Trispectrum
 ////////////////////////////////////////////////////////////////////////////////
 // Inline Declarations
 ////////////////////////////////////////////////////////////////////////////////
+
+//------------------------------------------------------------------------------
+inline void Trispectrum::set_qmax(double qmax) {
+   for (size_t c = 0; c < _loop.size(); c++) {
+      _loop[c]->set_qmax(qmax);
+   }
+}
 
 #endif // TRISPECTRUM_HPP

@@ -17,6 +17,7 @@
 //------------------------------------------------------------------------------
 
 #include <iostream>
+#include <limits>
 
 #include "Diagram.hpp"
 #include "SPTkernels.hpp"
@@ -27,7 +28,7 @@
  */
 
 //------------------------------------------------------------------------------
-Diagram::Diagram(vector<Line> lines, unordered_map<Vertices::VertexLabel, KernelBase*> kernels, LinearPowerSpectrumBase* PL) : _lines(lines), _kernels(kernels), _PL(PL)
+Diagram::Diagram(vector<Line> lines, unordered_map<Vertices::VertexLabel, KernelBase*> kernels, LinearPowerSpectrumBase* PL) : _lines(lines), _kernels(kernels), _PL(PL), _qmax(numeric_limits<double>::infinity())
 {
    // iterate over lines, fill in other diagram objects
    _order = kTree;
@@ -66,6 +67,19 @@ Diagram::Diagram(vector<Line> lines, unordered_map<Vertices::VertexLabel, Kernel
 //------------------------------------------------------------------------------
 double Diagram::value_base(DiagramMomenta mom)
 {
+   // check to see if the loop momentum is above the cutoff, if so return 0
+   // first check whether the diagram has a loop or not
+   bool has_loop = false;
+   for (size_t c = 0; c < mom.labels.size(); c++) {
+      if (mom.labels[c] == Momenta::q) {
+         has_loop = true;
+         break;
+      }
+   }
+   if (has_loop) {
+      if (mom[Momenta::q].magnitude() > _qmax) { return 0; }
+   }
+
    // the diagram value is:
    // symmetry factor * propagators * vertices
    double value = _symfac;
@@ -94,28 +108,35 @@ double Diagram::value_base_IRreg(DiagramMomenta mom)
    // To regulate the diagram in the IR, we map each region with
    // an IR pole at q = qIR != 0 onto coordinates with the pole at q = 0
    double value = 0;
-   // each IRpole gets a set of PS cuts to isolate it
-   // first we do the pole at q = 0
-   double PSregion = 1;
+   // need to regulate only the unique IR poles
+   // e.g. in the covariance limit, two IR poles can be degenerate
+   // and we should treat them simultaneously
+   vector<ThreeVector> uniqueIRpoles;
+   // pole at q = 0
+   uniqueIRpoles.push_back(ThreeVector(0, 0, 0));
+   // loop over the nonzero poles
    for (size_t i = 0; i < _IRpoles.size(); i++) {
-      // require theta(|q| < |q - pole|) for each non-null IR pole
+      // check if pole is unique
+      bool is_unique = true;
       ThreeVector pole = _IRpoles[i].p(mom);
-      PSregion *= theta(mom[Momenta::q], mom[Momenta::q] - pole);
-      // add diagram value times the PS factor
-      value += PSregion * value_base(mom);
+      for (size_t j = 0; j < uniqueIRpoles.size(); j++) {
+         if (pole == uniqueIRpoles[j]) {
+            is_unique = false;
+            break;
+         }
+      }
+      if (is_unique) { uniqueIRpoles.push_back(pole); }
    }
-   // now loop over all the IR poles
-   for (size_t i = 0; i < _IRpoles.size(); i++) {
+   // now loop over all the unique IR poles
+   for (size_t i = 0; i < uniqueIRpoles.size(); i++) {
       // for these poles we change variables: q -> q + pole
       // so that the pole maps to 0 and we exclude all other poles
-      ThreeVector pole = _IRpoles[i].p(mom);
-      // first the PS cuts from mapping the pole onto q = 0 (and shifting the pole at 0)
-      PSregion = 1;
-      PSregion *= theta(mom[Momenta::q], mom[Momenta::q] + pole);
+      ThreeVector pole = uniqueIRpoles[i];
+      double PSregion = 1;
       // loop over all other poles and make PS cuts for each
-      for (size_t j = 0; j < _IRpoles.size(); j++) {
+      for (size_t j = 0; j < uniqueIRpoles.size(); j++) {
          if (j != i) {
-            ThreeVector pole_j = _IRpoles[j].p(mom);
+            ThreeVector pole_j = uniqueIRpoles[j];
             PSregion *= theta(mom[Momenta::q], mom[Momenta::q] + pole - pole_j);
          }
       }

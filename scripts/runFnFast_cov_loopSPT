@@ -1,13 +1,14 @@
 #!/bin/bash
 
 ## check arguments
-if [ $# -ne 3 ]
+if [ $# -ne 4 ]
 then
    echo ""
    echo "Arguments needed:"
    echo "1. k (mangnitude)"
    echo "2. kp (magnitude)"
-   echo "3. output file name"
+   echo "3. random number seed (for VEGAS)"
+   echo "4. output file name"
    echo ""
    
    exit 1
@@ -16,8 +17,9 @@ fi
 ## submit jobs
 kmag=$1
 kpmag=$2
-outfile=$3
+seed=$3
+outfile=$4
 
-date > FnFast_covloopSPT_${outfile}
+date > FnFast_covloopSPT_R${seed}_${outfile}
 
-bin/main_covariance_loopSPT ${kmag} ${kpmag} ${outfile}  >> FnFast_covloopSPT_${outfile}
+bin/main_covariance_loopSPT ${kmag} ${kpmag} ${seed} ${outfile}  >> FnFast_covloopSPT_R${seed}_${outfile}.dat

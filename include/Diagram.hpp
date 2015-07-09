@@ -23,6 +23,7 @@
 #include <map>
 #include <vector>
 #include <unordered_map>
+#include <limits>
 
 #include "KernelBase.hpp"
 #include "LinearPowerSpectrumBase.hpp"
@@ -44,6 +45,7 @@ class Diagram
       vector<VertexPair> _vertexpairs;                                                 ///< container for endpoint vertices of lines
       vector<Momenta::MomentumLabel> _extmomlabels;                                    ///< momentum labels in the graph
       vector<unordered_map<Momenta::MomentumLabel, Momenta::MomentumLabel> > _perms;   ///< permutations of external momenta for the graph
+      double _qmax;                                                                    ///< upper limit on the magnitude of the loop momentum (default is infinity)
 
    public:
       /// constructor
@@ -77,6 +79,9 @@ class Diagram
 
       /// returns the IR regulated diagram value, symmetrized over external momenta
       double value_IRreg(DiagramMomenta mom);
+
+      /// set a cutoff on the magnitude of the loop momentum
+      void set_qmax(double qmax) { _qmax = qmax; }
 
    private:
       /// function theta(|p1| < |p2|)
