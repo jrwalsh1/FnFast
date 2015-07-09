@@ -203,8 +203,7 @@ Trispectrum::Trispectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficien
       Diagram* T2222 = new Diagram(lines_T2222, kernels_SPT, _PL);
 
       // define the loop diagrams
-//      _loop = {T5111, T4211a, T4211b, T3311a, T3311b, T3221a, T3221b, T3221c, T2222};
-      _loop = {T3311b};
+      _loop = {T5111, T4211a, T4211b, T3311a, T3311b, T3221a, T3221b, T3221c, T2222};
       _diagrams[Graphs::T5111] = T5111;
       _diagrams[Graphs::T4211a] = T4211a;
       _diagrams[Graphs::T4211b] = T4211b;
