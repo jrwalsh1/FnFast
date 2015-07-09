@@ -20,6 +20,11 @@ kpmag=$2
 seed=$3
 outfile=$4
 
-date > FnFast_covloopSPT_R${seed}_${outfile}
+## store the date/time in the log file
+date > FnFast_covloopSPT_R${seed}_${outfile}.dat
 
+## run the program
 bin/main_covariance_loopSPT ${kmag} ${kpmag} ${seed} ${outfile}  >> FnFast_covloopSPT_R${seed}_${outfile}.dat
+
+## store the date/time in the log file
+date > FnFast_covloopSPT_R${seed}_${outfile}.dat

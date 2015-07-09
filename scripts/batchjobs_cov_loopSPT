@@ -1,5 +1,18 @@
 #!/bin/bash
 
-qsub -cwd -b y ./runFnFast_cov_loopSPT 0.1 0.1 37 cov_loopSPT_0.1_0.1
+# submission command: qsub [options] [executable] [arguments]
+# -cwd: central working directory
+# -b y: program is a binary file
+
+# example:
+# qsub -cwd -b y ./runFnFast_cov_loopSPT 0.1 0.1 37 test
+# runs the job with k = kp = 0.1, seed = 37, base file name = "test"
+# the progarm outputs the result to test_R37.dat
+
+# loop over random seeds
+for seed in $(seq 1 100)
+do
+   qsub -cwd -b y ./runFnFast_cov_loopSPT 0.1 0.1 ${seed} cov_loopSPT_0.1_0.1
+done
 
 
