@@ -27,6 +27,7 @@
 #include "SPTkernels.hpp"
 #include "EFTkernels.hpp"
 #include "WindowFunctionBase.hpp"
+#include "Integration.hpp"
 
 using namespace std;
 
@@ -138,7 +139,7 @@ class Bispectrum
       double tree(double k1, double k2, double costheta12);
       /// one loop differential in q and integrated in q
       double loopSPT_excl(ThreeVector k1, ThreeVector k2, ThreeVector q);
-      double loopSPT(double k1, double k2, double costheta12);
+      IntegralResult loopSPT(double k1, double k2, double costheta12);
       /// one loop counterterms
       double ctermsEFT(double k1, double k2, double costheta12);
 

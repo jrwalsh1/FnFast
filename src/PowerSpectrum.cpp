@@ -123,7 +123,7 @@ double PowerSpectrum::loopSPT_excl(ThreeVector k, ThreeVector q)
 }
 
 //------------------------------------------------------------------------------
-double PowerSpectrum::loopSPT(double k)
+IntegralResult PowerSpectrum::loopSPT(double k)
 {
    // options passed into the integration
    LoopIntegrationOptions data;
@@ -144,30 +144,26 @@ double PowerSpectrum::loopSPT(double k)
    const int nvec = 1; // no vectorization
    // absolute uncertainty (safeguard)
    const double epsrel = 1e-4;
-   const double epsabs = 1e-12;
+   const double epsabs = 0;
    // min, max number of points
-//   const int mineval = 0;
-//   const int maxeval = 10000000;
-   const int mineval = 10;
-   const int maxeval = 100000;
+   const int mineval = 0;
+   const int maxeval = 250000;
    // starting number of points
-//   const int nstart = 100000;
+   const int nstart = 1000;
    // increment per iteration
    // number of additional pts sampled per iteration
-//   const int nincrease = 100000;
+   const int nincrease = 1000;
    // batch size to sample PS points in
-//   const int nbatch = 100000;
+   const int nbatch = 1000;
    // grid number
    // 1-10 saves the grid for another integration
-//   const int gridnum = 0;
-   // cubature rule degree
-   int key = 13;
+   const int gridnum = 0;
    // file for the state of the integration
    const char *statefile = NULL;
    // spin
    void* spin = NULL;
    // random number seed
-//   const int vegasseed = 37;
+   const int vegasseed = 37;
    // flags:
    // bits 0&1: verbosity level
    // bit 2: whether or not to use only last sample (0 for all samps, 1 for last only)
@@ -177,32 +173,25 @@ double PowerSpectrum::loopSPT(double k)
    //    seed = 0: Sobol (quasi-random) used, ignores bits 8-31 of flags
    //    seed > 0, bits 8-31 of flags = 0: Mersenne Twister
    //    seed > 0, bits 8-31 of flags > 0: Ranlux
-   int flags = 1054;
+   // current flag setting: 1038 = 10000001110
+   int flags = 1038;
    // number of regions, evaluations, fail code
-   int nregions, neval, fail;
+   int neval, fail;
 
    // containers for output
    double integral[ncomp], error[ncomp], prob[ncomp];
 
-   /*
    // run VEGAS
    Vegas(ndim, ncomp, loop_integrand, &data, nvec,
        epsrel, epsabs, flags, vegasseed,
        mineval, maxeval, nstart, nincrease, nbatch,
        gridnum, statefile, spin,
        &neval, &fail, integral, error, prob);
-   */
 
-   // run Cuhre
-   Cuhre(ndim, ncomp, loop_integrand, &data, nvec,
-       epsrel, epsabs, flags,
-       mineval, maxeval,
-       key, statefile, spin, &nregions,
-       &neval, &fail, integral, error, prob);
+   // save the results in a container
+   IntegralResult result(integral[0], error[0], prob[0]);
 
-   cout << "integral, error, prob = " << integral[0] << ", " << error[0] << ", " << prob[0] << endl;
-
-   return integral[0];
+   return result;
 }
 
 //------------------------------------------------------------------------------

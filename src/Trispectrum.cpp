@@ -319,7 +319,7 @@ double Trispectrum::cov_tree(double k, double kp, double costheta)
 }
 
 //------------------------------------------------------------------------------
-double Trispectrum::cov_tree(double k, double kp)
+IntegralResult Trispectrum::cov_tree(double k, double kp)
 {
    // options passed into the integration
    AngularIntegrationOptions data;
@@ -338,12 +338,10 @@ double Trispectrum::cov_tree(double k, double kp)
    const int nvec = 1; // no vectorization
    // absolute uncertainty (safeguard)
    const double epsrel = 1e-4;
-   const double epsabs = 1e-20;
+   const double epsabs = 0;
    // min, max number of points
    const int mineval = 0;
    const int maxeval = 100000;
-//   const int mineval = 10;
-//   const int maxeval = 500000;
    // starting number of points
    const int nstart = 1000;
    // increment per iteration
@@ -354,8 +352,6 @@ double Trispectrum::cov_tree(double k, double kp)
    // grid number
    // 1-10 saves the grid for another integration
    const int gridnum = 0;
-   // cubature rule degree
-   int key = 13;
    // file for the state of the integration
    const char *statefile = NULL;
    // spin
@@ -374,7 +370,7 @@ double Trispectrum::cov_tree(double k, double kp)
    // current flag setting: 1038 = 10000001110
    int flags = 1038;
    // number of regions, evaluations, fail code
-   int nregions, neval, fail;
+   int neval, fail;
 
    // containers for output
    double integral[ncomp], error[ncomp], prob[ncomp];
@@ -386,18 +382,10 @@ double Trispectrum::cov_tree(double k, double kp)
        gridnum, statefile, spin,
        &neval, &fail, integral, error, prob);
 
-   /*
-   // run Cuhre
-   Cuhre(ndim, ncomp, tree_angular_integrand, &data, nvec,
-       epsrel, epsabs, flags,
-       mineval, maxeval,
-       key, statefile, spin, &nregions,
-       &neval, &fail, integral, error, prob);
-   */
+   // save the results in a container
+   IntegralResult result(integral[0], error[0], prob[0]);
 
-   cout << "integral, error, prob = " << integral[0] << ", " << error[0] << ", " << prob[0] << endl;
-
-   return integral[0];
+   return result;
 }
 
 //------------------------------------------------------------------------------
@@ -461,7 +449,7 @@ double Trispectrum::ctermsEFT(ThreeVector k1, ThreeVector k2, ThreeVector k3)
 }
 
 //------------------------------------------------------------------------------
-double Trispectrum::cov_loopSPT(double k, double kp, double costheta)
+IntegralResult Trispectrum::cov_loopSPT(double k, double kp, double costheta)
 {
    // options passed into the integration
    LoopIntegrationOptions data;
@@ -484,12 +472,10 @@ double Trispectrum::cov_loopSPT(double k, double kp, double costheta)
    const int nvec = 1; // no vectorization
    // absolute uncertainty (safeguard)
    const double epsrel = 1e-4;
-   const double epsabs = 1e-20;
+   const double epsabs = 0;
    // min, max number of points
    const int mineval = 0;
    const int maxeval = 250000;
-//   const int mineval = 10;
-//   const int maxeval = 500000;
    // starting number of points
    const int nstart = 1000;
    // increment per iteration
@@ -500,8 +486,6 @@ double Trispectrum::cov_loopSPT(double k, double kp, double costheta)
    // grid number
    // 1-10 saves the grid for another integration
    const int gridnum = 0;
-   // cubature rule degree
-//   int key = 13;
    // file for the state of the integration
    const char *statefile = NULL;
    // spin
@@ -520,7 +504,7 @@ double Trispectrum::cov_loopSPT(double k, double kp, double costheta)
    // current flag setting: 1038 = 10000001110
    int flags = 1038;
    // number of regions, evaluations, fail code
-   int nregions, neval, fail;
+   int neval, fail;
 
    // containers for output
    double integral[ncomp], error[ncomp], prob[ncomp];
@@ -532,18 +516,10 @@ double Trispectrum::cov_loopSPT(double k, double kp, double costheta)
        gridnum, statefile, spin,
        &neval, &fail, integral, error, prob);
 
-/*
-   // run Cuhre
-   Cuhre(ndim, ncomp, loop_integrand, &data, nvec,
-       epsrel, epsabs, flags,
-       mineval, maxeval,
-       key, statefile, spin, &nregions,
-       &neval, &fail, integral, error, prob);
-*/
+   // save the results in a container
+   IntegralResult result(integral[0], error[0], prob[0]);
 
-   cout << "integral, error, prob = " << integral[0] << ", " << error[0] << ", " << prob[0] << endl;
-
-   return integral[0];
+   return result;
 }
 
 //------------------------------------------------------------------------------
@@ -618,7 +594,7 @@ double Trispectrum::cov_ctermsEFT(double k, double kp, double costheta)
 }
 
 //------------------------------------------------------------------------------
-double Trispectrum::cov_loopSPT(double k, double kp)
+IntegralResult Trispectrum::cov_loopSPT(double k, double kp)
 {
    // options passed into the integration
    LoopIntegrationOptions data;
@@ -640,12 +616,10 @@ double Trispectrum::cov_loopSPT(double k, double kp)
    const int nvec = 1; // no vectorization
    // absolute uncertainty (safeguard)
    const double epsrel = 1e-4;
-   const double epsabs = 1e-20;
+   const double epsabs = 0;
    // min, max number of points
    const int mineval = 0;
    const int maxeval = 100000;
-//   const int mineval = 10;
-//   const int maxeval = 500000;
    // starting number of points
    const int nstart = 1000;
    // increment per iteration
@@ -656,8 +630,6 @@ double Trispectrum::cov_loopSPT(double k, double kp)
    // grid number
    // 1-10 saves the grid for another integration
    const int gridnum = 0;
-   // cubature rule degree
-//   int key = 13;
    // file for the state of the integration
    const char *statefile = NULL;
    // spin
@@ -676,7 +648,7 @@ double Trispectrum::cov_loopSPT(double k, double kp)
    // current flag setting: 1038 = 10000001110
    int flags = 1038;
    // number of regions, evaluations, fail code
-   int nregions, neval, fail;
+   int neval, fail;
 
    // containers for output
    double integral[ncomp], error[ncomp], prob[ncomp];
@@ -688,18 +660,10 @@ double Trispectrum::cov_loopSPT(double k, double kp)
        gridnum, statefile, spin,
        &neval, &fail, integral, error, prob);
 
-/*
-   // run Cuhre
-   Cuhre(ndim, ncomp, loop_integrand, &data, nvec,
-       epsrel, epsabs, flags,
-       mineval, maxeval,
-       key, statefile, spin, &nregions,
-       &neval, &fail, integral, error, prob);
-*/
+   // save the results in a container
+   IntegralResult result(integral[0], error[0], prob[0]);
 
-   cout << "integral, error, prob = " << integral[0] << ", " << error[0] << ", " << prob[0] << endl;
-
-   return integral[0];
+   return result;
 }
 
 //------------------------------------------------------------------------------
@@ -735,7 +699,7 @@ int Trispectrum::angular_loop_integrand(const int *ndim, const double xx[], cons
 }
 
 //------------------------------------------------------------------------------
-double Trispectrum::cov_ctermsEFT(double k, double kp){
+IntegralResult Trispectrum::cov_ctermsEFT(double k, double kp){
    
    // options passed into the integration
    AngularIntegrationOptions data;
@@ -754,12 +718,10 @@ double Trispectrum::cov_ctermsEFT(double k, double kp){
    const int nvec = 1; // no vectorization
    // absolute uncertainty (safeguard)
    const double epsrel = 1e-4;
-   const double epsabs = 1e-20;
+   const double epsabs = 0;
    // min, max number of points
    const int mineval = 0;
    const int maxeval = 100000;
-   //   const int mineval = 10;
-   //   const int maxeval = 500000;
    // starting number of points
    const int nstart = 1000;
    // increment per iteration
@@ -770,8 +732,6 @@ double Trispectrum::cov_ctermsEFT(double k, double kp){
    // grid number
    // 1-10 saves the grid for another integration
    const int gridnum = 0;
-   // cubature rule degree
-   int key = 13;
    // file for the state of the integration
    const char *statefile = NULL;
    // spin
@@ -790,7 +750,7 @@ double Trispectrum::cov_ctermsEFT(double k, double kp){
    // current flag setting: 1038 = 10000001110
    int flags = 1038;
    // number of regions, evaluations, fail code
-   int nregions, neval, fail;
+   int neval, fail;
    
    // containers for output
    double integral[ncomp], error[ncomp], prob[ncomp];
@@ -801,19 +761,11 @@ double Trispectrum::cov_ctermsEFT(double k, double kp){
          mineval, maxeval, nstart, nincrease, nbatch,
          gridnum, statefile, spin,
          &neval, &fail, integral, error, prob);
-   
-   /*
-    // run Cuhre
-    Cuhre(ndim, ncomp, tree_angular_integrand, &data, nvec,
-    epsrel, epsabs, flags,
-    mineval, maxeval,
-    key, statefile, spin, &nregions,
-    &neval, &fail, integral, error, prob);
-    */
-   
-   cout << "integral, error, prob = " << integral[0] << ", " << error[0] << ", " << prob[0] << endl;
-   
-   return integral[0];
+
+   // save the results in a container
+   IntegralResult result(integral[0], error[0], prob[0]);
+
+   return result;
 }
 
 //------------------------------------------------------------------------------

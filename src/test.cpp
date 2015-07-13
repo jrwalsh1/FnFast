@@ -53,38 +53,38 @@ int main()
 //   TS[Trispectrum::T3311b]->value_IRreg(TSmom);
 
 
-   double TSresult = TS.cov_loopSPT(k1mag, k2mag, costheta12);
-   cout << "1 loop SPT TS result = " << TSresult << endl;
+   IntegralResult TSresult = TS.cov_loopSPT(k1mag, k2mag, costheta12);
+   cout << "1 loop SPT TS result = " << TSresult.result << endl;
 
    
 /*
    cout << "---------- computing 1-loop power spectrum ----------" << endl;
-   double PSresult = PS.loopSPT(k1mag);
-   cout << "1 loop SPT PS result = " << PSresult << endl;
+   IntegralResult PSresult = PS.loopSPT(k1mag);
+   cout << "1 loop SPT PS result = " << PSresult.result << endl;
    cout << "press any key to continue" << endl;
    cin.get();
 
    cout << "---------- computing 1-loop bispectrum ----------" << endl;
-   double BSresult = BS.loopSPT(k1mag, k2mag, costheta12);
-   cout << "1 loop SPT BS result = " << BSresult << endl;
+   IntegralResult BSresult = BS.loopSPT(k1mag, k2mag, costheta12);
+   cout << "1 loop SPT BS result = " << BSresult.result << endl;
    cout << "press any key to continue" << endl;
    cin.get();
 
    cout << "---------- computing 1-loop trispectrum ----------" << endl;
-   double TSresult = TS.cov_loopSPT(k1mag, k2mag, costheta12);
-   cout << "1 loop SPT TS result = " << TSresult << endl;
+   IntegralResult TSresult = TS.cov_loopSPT(k1mag, k2mag, costheta12);
+   cout << "1 loop SPT TS result = " << TSresult.result << endl;
    cout << "press any key to continue" << endl;
    cin.get();
 
    cout << "---------- computing tree level trispectrum ----------" << endl;
-   double TSresult_tree = TS.cov_tree(k1mag, k2mag);
-   cout << "tree-level TS result = " << TSresult_tree << endl;
+   IntegralResult TSresult_tree = TS.cov_tree(k1mag, k2mag);
+   cout << "tree-level TS result = " << TSresult_tree.result << endl;
    cout << "press any key to continue" << endl;
    cin.get();
 
    cout << "---------- computing 1-loop trispectrum, angular integrated ----------" << endl;
-   double TSresult_loop = TS.cov_loopSPT(k1mag, k2mag);
-   cout << "1-loop TS result = " << TSresult_loop << endl;
+   IntegralResult TSresult_loop = TS.cov_loopSPT(k1mag, k2mag);
+   cout << "1-loop TS result = " << TSresult_loop.result << endl;
    cout << "press any key to continue" << endl;
    cin.get();
 */

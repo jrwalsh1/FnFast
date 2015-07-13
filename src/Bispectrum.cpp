@@ -172,7 +172,7 @@ double Bispectrum::loopSPT_excl(ThreeVector k1, ThreeVector k2, ThreeVector q)
 }
 
 //------------------------------------------------------------------------------
-double Bispectrum::loopSPT(double k1, double k2, double costheta12)
+IntegralResult Bispectrum::loopSPT(double k1, double k2, double costheta12)
 {
    // options passed into the integration
    LoopIntegrationOptions data;
@@ -195,12 +195,10 @@ double Bispectrum::loopSPT(double k1, double k2, double costheta12)
    const int nvec = 1; // no vectorization
    // absolute uncertainty (safeguard)
    const double epsrel = 1e-4;
-   const double epsabs = 1e-12;
+   const double epsabs = 0;
    // min, max number of points
    const int mineval = 0;
-   const int maxeval = 100000;
-//   const int mineval = 10;
-//   const int maxeval = 100000;
+   const int maxeval = 250000;
    // starting number of points
    const int nstart = 1000;
    // increment per iteration
@@ -211,8 +209,6 @@ double Bispectrum::loopSPT(double k1, double k2, double costheta12)
    // grid number
    // 1-10 saves the grid for another integration
    const int gridnum = 0;
-   // cubature rule degree
-//   int key = 13;
    // file for the state of the integration
    const char *statefile = NULL;
    // spin
@@ -231,7 +227,7 @@ double Bispectrum::loopSPT(double k1, double k2, double costheta12)
    // current flag setting: 1038 = 10000001110
    int flags = 1038;
    // number of regions, evaluations, fail code
-   int nregions, neval, fail;
+   int neval, fail;
 
    // containers for output
    double integral[ncomp], error[ncomp], prob[ncomp];
@@ -243,29 +239,10 @@ double Bispectrum::loopSPT(double k1, double k2, double costheta12)
        gridnum, statefile, spin,
        &neval, &fail, integral, error, prob);
 
-   /*
-   int nnew = 2000;
-   int nmin = 100;
-   double flatness = 5;
+   // save the results in a container
+   IntegralResult result(integral[0], error[0], prob[0]);
 
-   Suave(ndim, ncomp, loop_integrand, &data, nvec,
-      epsrel, epsabs, flags, vegasseed,
-      mineval, maxeval, nnew, nmin, flatness,
-      statefile, spin, &nregions,
-      &neval, &fail, integral, error, prob);
-   */
-   /*
-   // run Cuhre
-   Cuhre(ndim, ncomp, loop_integrand, &data, nvec,
-       epsrel, epsabs, flags,
-       mineval, maxeval,
-       key, statefile, spin, &nregions,
-       &neval, &fail, integral, error, prob);
-   */
-
-   cout << "integral, error, prob = " << integral[0] << ", " << error[0] << ", " << prob[0] << endl;
-
-   return integral[0];
+   return result;
 }
 
 //------------------------------------------------------------------------------

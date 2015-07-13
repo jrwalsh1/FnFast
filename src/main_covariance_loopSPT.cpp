@@ -47,12 +47,12 @@ int main(int argc, const char* argv[])
    TS.set_seed(seed);
 
    // do the calculation
-   double TSresult_loopSPT = TS.cov_loopSPT(k, kp);
+   IntegralResult TSresult_loopSPT = TS.cov_loopSPT(k, kp);
    
    // save the result
    ofstream outfile(outfilename.c_str());
    outfile.precision(30);
-   outfile << fixed << TSresult_loopSPT << endl;
+   outfile << fixed << TSresult_loopSPT.result << "\t" << TSresult_loopSPT.error << "\t" << TSresult_loopSPT.prob << endl;
    outfile.close();
 
    return 0;

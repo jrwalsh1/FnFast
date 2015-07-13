@@ -27,6 +27,7 @@
 #include "SPTkernels.hpp"
 #include "EFTkernels.hpp"
 #include "WindowFunctionBase.hpp"
+#include "Integration.hpp"
 
 using namespace std;
 
@@ -152,17 +153,17 @@ class Trispectrum
       /// tree level
       double cov_tree(double k, double kp, double costheta);
       /// one loop integrated in q
-      double cov_loopSPT(double k, double kp, double costheta);
+      IntegralResult cov_loopSPT(double k, double kp, double costheta);
       /// one loop counterterms
       double cov_ctermsEFT(double k, double kp, double costheta);
 
       /// covariance limit integrated over angles
       /// tree level
-      double cov_tree(double k, double kp);
+      IntegralResult cov_tree(double k, double kp);
       /// full one loop integrated in q
-      double cov_loopSPT(double k, double kp);
+      IntegralResult cov_loopSPT(double k, double kp);
       /// one loop counterterms
-      double cov_ctermsEFT(double k, double kp);
+      IntegralResult cov_ctermsEFT(double k, double kp);
 
       /// Averaged over k bins
       /// tree level

@@ -26,6 +26,7 @@
 #include "SPTkernels.hpp"
 #include "EFTkernels.hpp"
 #include "WindowFunctionBase.hpp"
+#include "Integration.hpp"
 
 using namespace std;
 
@@ -133,7 +134,7 @@ class PowerSpectrum
       double tree(double k);
       /// one loop differential in q and integrated in q
       double loopSPT_excl(ThreeVector k, ThreeVector q);
-      double loopSPT(double k);
+      IntegralResult loopSPT(double k);
       /// one loop counterterms
       double ctermsEFT(double k);
     
