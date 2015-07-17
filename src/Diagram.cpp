@@ -248,7 +248,7 @@ vector<unordered_map<Momenta::MomentumLabel, Momenta::MomentumLabel> > Diagram::
    // Since we will be applying the same permutation to momentum labels and vertex labels,
    // we index permutations with a simple list of integers
    vector<int> indices;
-   for (size_t i = 0; i < _vertices.size(); i++) { indices.push_back(i); }
+   for (int i = 0; i < _vertices.size(); i++) { indices.push_back(i); }
    // make sure it's sorted...
    sort(indices.begin(), indices.end());
    do {
@@ -266,10 +266,6 @@ vector<unordered_map<Momenta::MomentumLabel, Momenta::MomentumLabel> > Diagram::
       }
       // now sort this object and compare it to existing ones
       sort(vertexpairs.begin(), vertexpairs.end());
-//      cout << "-----permutation-----" << endl;
-//      for (size_t i = 0; i < vertexpairs.size(); i++) {
-//         cout << "vertex pair: " << vertexpairs[i].vA << " , " << vertexpairs[i].vB << endl;
-//      }
       bool newitem = true;
       for (size_t i = 0; i < vertexconnections.size(); i++) {
          if (vertexpairs == vertexconnections[i]) { newitem = false; break; }

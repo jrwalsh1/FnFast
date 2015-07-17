@@ -40,14 +40,8 @@ using namespace std;
 class KernelBase
 {
    public:
-      virtual double alpha(ThreeVector p1, ThreeVector p2) = 0;      ///< kernel function alpha
-      virtual double beta(ThreeVector p1, ThreeVector p2) = 0;       ///< kernel function alpha
-
-      virtual double Fn(vector<ThreeVector> p) = 0;                  ///< kernel Fn (q1, ..., qn)
-      virtual double Gn(vector<ThreeVector> p) = 0;                  ///< kernel Gn (q1, ..., qn)
-      
-      double Fn_sym(vector<ThreeVector> p);                          ///< symmetrized kernel Fn
-      double Gn_sym(vector<ThreeVector> p);                          ///< symmetrized kernel Gn
+      virtual double Fn_sym(vector<ThreeVector>& p) = 0;                ///< symmetrized kernel Fn
+      virtual double Gn_sym(vector<ThreeVector>& p) = 0;                ///< symmetrized kernel Gn
 };
 
 #endif // KERNEL_BASE_HPP

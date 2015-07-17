@@ -13,15 +13,15 @@ GSLLIB=/Users/jwalsh/Desktop/Research/HEP/gsl/lib
 # executables
 all: test main_covariance_loopSPT example
 
-test: test.o KernelBase.o SPTkernels.o EFTkernels.o Diagram.o Random.o Labels.o Momentum.o Propagator.o LinearPowerSpectrumCAMB.o PowerSpectrum.o Bispectrum.o Trispectrum.o
+test: test.o SPTkernels.o EFTkernels.o Diagram.o Random.o Labels.o Momentum.o Propagator.o LinearPowerSpectrumCAMB.o PowerSpectrum.o Bispectrum.o Trispectrum.o
 	mkdir -p bin
 	$(CXX) -o bin/$@ $^ $(CXXFLAGS) -L$(CUBA) -lcuba -L$(GSLLIB) -lgsl
 
-main_covariance_loopSPT: main_covariance_loopSPT.o KernelBase.o SPTkernels.o EFTkernels.o Diagram.o Random.o Labels.o Momentum.o Propagator.o LinearPowerSpectrumCAMB.o PowerSpectrum.o Bispectrum.o Trispectrum.o
+main_covariance_loopSPT: main_covariance_loopSPT.o SPTkernels.o EFTkernels.o Diagram.o Random.o Labels.o Momentum.o Propagator.o LinearPowerSpectrumCAMB.o PowerSpectrum.o Bispectrum.o Trispectrum.o
 	mkdir -p bin
 	$(CXX) -o bin/$@ $^ $(CXXFLAGS) -L$(CUBA) -lcuba -L$(GSLLIB) -lgsl
 
-example: example.o KernelBase.o SPTkernels.o EFTkernels.o Diagram.o Random.o Labels.o Momentum.o Propagator.o LinearPowerSpectrumCAMB.o PowerSpectrum.o Bispectrum.o Trispectrum.o
+example: example.o SPTkernels.o EFTkernels.o Diagram.o Random.o Labels.o Momentum.o Propagator.o LinearPowerSpectrumCAMB.o PowerSpectrum.o Bispectrum.o Trispectrum.o
 	mkdir -p bin
 	$(CXX) -o bin/$@ $^ $(CXXFLAGS) -L$(CUBA) -lcuba -L$(GSLLIB) -lgsl
 

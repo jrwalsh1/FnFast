@@ -475,7 +475,7 @@ IntegralResult Trispectrum::cov_loopSPT(double k, double kp, double costheta)
    const double epsabs = 0;
    // min, max number of points
    const int mineval = 0;
-   const int maxeval = 250000;
+   const int maxeval = 25000;
    // starting number of points
    const int nstart = 1000;
    // increment per iteration
@@ -547,7 +547,6 @@ double Trispectrum::LoopPhaseSpace::set_loopPS(double qpts[3], double x12)
    double qphi = 2*pi * qpts[2];
    */
    // ----- END OF BLOCK FOR SPHERICAL COORDINATES -----
-
 
    // jacobian
    // qmax from the magnitude integral,

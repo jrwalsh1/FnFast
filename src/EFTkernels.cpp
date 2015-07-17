@@ -194,7 +194,7 @@ double EFTkernels::_dot_product(vector<double> a, vector<double> b)
 }
 
 //------------------------------------------------------------------------------
-double EFTkernels::Fn(vector<ThreeVector> p)
+double EFTkernels::Fn(vector<ThreeVector>& p)
 {
     int n = p.size();
    
@@ -217,8 +217,8 @@ double EFTkernels::Fn(vector<ThreeVector> p)
 
         
         Fnval= cF_1(2)*alpha(p[0],p[1])*(Gn(p0)+Fn(p1))-cF_2(2)*beta(p[0],p[1])*(Gn(p0)+Gn(p1))
-        +cF_2(2)*(*_coefficients)[EFTcoefficients::cs]*_lo_shapes(p[0]+p[1])[0]*_sptkernels.Fn(p01)
-        +cF_1(2)*(*_coefficients)[EFTcoefficients::ch]*_lo_shapes(p[0]+p[1])[0]*_sptkernels.Fn(p01)
+        +cF_2(2)*(*_coefficients)[EFTcoefficients::cs]*_lo_shapes(p[0]+p[1])[0]*_sptkernels.Fn_sym(p01)
+        +cF_1(2)*(*_coefficients)[EFTcoefficients::ch]*_lo_shapes(p[0]+p[1])[0]*_sptkernels.Fn_sym(p01)
         +cF_2(2)*_dot_product(c_vals_2,_nlo_shapes(p[0],p[1]))
         +cF_1(2)*_dot_product(ch_vals_2,_nlo_shapes(p[0],p[1]));
     }
@@ -238,19 +238,20 @@ double EFTkernels::Fn(vector<ThreeVector> p)
         vector<ThreeVector> p12={p[1],p[2]};
         vector<ThreeVector> p012={p[0],p[1],p[2]};
         
-        
-        Fnval= cF_1(3)*alpha(p[0],p[1]+p[2])*(Gn(p0)*_sptkernels.Fn(p12)+Fn(p12))
-        +cF_1(3)*alpha(p[0]+p[1],p[2])*(Gn(p01)+_sptkernels.Gn(p01)*Fn(p2))
-        -cF_2(3)*beta(p[0],p[1]+p[2])*(Gn(p0)*_sptkernels.Gn(p12)+Gn(p12))
-        -cF_2(3)*beta(p[0]+p[1],p[2])*(Gn(p01)+_sptkernels.Gn(p01)*Gn(p2))
-        +cF_2(3)*(*_coefficients)[EFTcoefficients::cs]*_lo_shapes(p[0]+p[1]+p[2])[0]*_sptkernels.Fn(p012)
-        +cF_1(3)*(*_coefficients)[EFTcoefficients::ch]*_lo_shapes(p[0]+p[1]+p[2])[0]*_sptkernels.Fn(p012)
-        +cF_2(3)*_dot_product(cdelta_vals_3,_nlo_shapes(p[0],p[1]+p[2]))*_sptkernels.Fn(p12)
-        -cF_2(3)*_dot_product(ctheta_vals_3,_nlo_shapes(p[0],p[1]+p[2]))*_sptkernels.Gn(p12)
-        +cF_2(3)*_dot_product(cdelta_vals_3,_nlo_shapes(p[0]+p[1],p[2]))*_sptkernels.Fn(p01)
-        -cF_2(3)*_dot_product(ctheta_vals_3,_nlo_shapes(p[0]+p[1],p[2]))*_sptkernels.Fn(p01)
-        +cF_1(3)*_dot_product(ch_vals_3,_nlo_shapes(p[0],p[1]+p[2]))*_sptkernels.Fn(p12)
-        +cF_1(3)*_dot_product(ch_vals_3,_nlo_shapes(p[0]+p[1],p[2]))*_sptkernels.Fn(p01)
+        ThreeVector p_01 = p[0] + p[1];
+        ThreeVector p_12 = p[1] + p[2];
+        Fnval= cF_1(3)*alpha(p[0],p_12)*(Gn(p0)*_sptkernels.Fn_sym(p12)+Fn(p12))
+        +cF_1(3)*alpha(p_01,p[2])*(Gn(p01)+_sptkernels.Gn_sym(p01)*Fn(p2))
+        -cF_2(3)*beta(p[0],p_12)*(Gn(p0)*_sptkernels.Gn_sym(p12)+Gn(p12))
+        -cF_2(3)*beta(p_01,p[2])*(Gn(p01)+_sptkernels.Gn_sym(p01)*Gn(p2))
+        +cF_2(3)*(*_coefficients)[EFTcoefficients::cs]*_lo_shapes(p[0]+p[1]+p[2])[0]*_sptkernels.Fn_sym(p012)
+        +cF_1(3)*(*_coefficients)[EFTcoefficients::ch]*_lo_shapes(p[0]+p[1]+p[2])[0]*_sptkernels.Fn_sym(p012)
+        +cF_2(3)*_dot_product(cdelta_vals_3,_nlo_shapes(p[0],p[1]+p[2]))*_sptkernels.Fn_sym(p12)
+        -cF_2(3)*_dot_product(ctheta_vals_3,_nlo_shapes(p[0],p[1]+p[2]))*_sptkernels.Gn_sym(p12)
+        +cF_2(3)*_dot_product(cdelta_vals_3,_nlo_shapes(p[0]+p[1],p[2]))*_sptkernels.Fn_sym(p01)
+        -cF_2(3)*_dot_product(ctheta_vals_3,_nlo_shapes(p[0]+p[1],p[2]))*_sptkernels.Fn_sym(p01)
+        +cF_1(3)*_dot_product(ch_vals_3,_nlo_shapes(p[0],p[1]+p[2]))*_sptkernels.Fn_sym(p12)
+        +cF_1(3)*_dot_product(ch_vals_3,_nlo_shapes(p[0]+p[1],p[2]))*_sptkernels.Fn_sym(p01)
         +cF_2(3)*_dot_product(d_vals_3,_nnlo_shapes(p[0],p[1],p[2]));
     }
 
@@ -258,7 +259,7 @@ double EFTkernels::Fn(vector<ThreeVector> p)
 }
 
 //------------------------------------------------------------------------------
-double EFTkernels::Gn(vector<ThreeVector> p)
+double EFTkernels::Gn(vector<ThreeVector>& p)
 {
     int n = p.size();
     
@@ -280,11 +281,43 @@ double EFTkernels::Gn(vector<ThreeVector> p)
         vector<ThreeVector> p01={p[0],p[1]};
         
         Gnval= cG_1(2)*alpha(p[0],p[1])*(Gn(p0)+Fn(p1))-cG_2(2)*beta(p[0],p[1])*(Gn(p0)+Gn(p1))
-        +cG_2(2)*(*_coefficients)[EFTcoefficients::cs]*_lo_shapes(p[0]+p[1])[0]*_sptkernels.Fn(p01)
-        +cG_1(2)*(*_coefficients)[EFTcoefficients::ch]*_lo_shapes(p[0]+p[1])[0]*_sptkernels.Fn(p01)
+        +cG_2(2)*(*_coefficients)[EFTcoefficients::cs]*_lo_shapes(p[0]+p[1])[0]*_sptkernels.Fn_sym(p01)
+        +cG_1(2)*(*_coefficients)[EFTcoefficients::ch]*_lo_shapes(p[0]+p[1])[0]*_sptkernels.Fn_sym(p01)
         +cG_2(2)*_dot_product(c_vals_2,_nlo_shapes(p[0],p[1]))
         +cG_1(2)*_dot_product(ch_vals_2,_nlo_shapes(p[0],p[1]));
     }
     
    return Gnval;
+}
+
+//------------------------------------------------------------------------------
+double EFTkernels::Fn_sym(vector<ThreeVector>& p)
+{
+   double value = 0;
+   int nperm = 0; // count the permutations
+   // use the next_permutation algorithm together with the comparison operator
+   // in ThreeVector to generate permutations
+   sort(p.begin(),p.end());
+   do {
+      nperm++;
+      value += Fn(p);
+   } while (next_permutation(p.begin(), p.end()));
+
+   return value / nperm;
+}
+
+//------------------------------------------------------------------------------
+double EFTkernels::Gn_sym(vector<ThreeVector>& p)
+{
+   double value = 0;
+   int nperm = 0; // count the permutations
+   // use the next_permutation algorithm together with the comparison operator
+   // in ThreeVector to generate permutations
+   sort(p.begin(),p.end());
+   do {
+      nperm++;
+      value += Gn(p);
+   } while (next_permutation(p.begin(), p.end()));
+
+   return value / nperm;
 }

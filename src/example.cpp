@@ -39,10 +39,10 @@ int main()
 
    // create an object that will calculate SPT kernels
    SPTkernels kernels;
-   // compute an example: F3^s
-   vector<ThreeVector> momenta {k1, k2, k3};
-   double F3s = kernels.Fn_sym(momenta);
-   cout << "F3^s: " << F3s << endl;
+   // compute an example: F5^s
+   vector<ThreeVector> momenta {k1, k2, k3, k4, q};
+   double F5s = kernels.Fn_sym(momenta);
+   cout << "F5^s: " << F5s << endl;
 
    // create linear power spectra
    // power law (in this case P_L(k) = k)

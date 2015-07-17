@@ -99,12 +99,15 @@ class EFTkernels : public KernelBase {
         double cG_2(int n);
 
 
-        double alpha(ThreeVector p1, ThreeVector p2){return _sptkernels.alpha(p1,p2);}      ///< kernel function alpha
-        double beta(ThreeVector p1, ThreeVector p2){return _sptkernels.beta(p1,p2);}        ///< kernel function alpha
+        double alpha(ThreeVector& p1, ThreeVector& p2) {return _sptkernels.alpha(p1,p2);}      ///< kernel function alpha
+        double beta(ThreeVector& p1, ThreeVector& p2) {return _sptkernels.beta(p1,p2);}        ///< kernel function alpha
 
-        double Fn(vector<ThreeVector> p);                  ///< EFT kernel Fn (q1, ..., qn)
-        double Gn(vector<ThreeVector> p);                  ///< EFT kernel Gn (q1, ..., qn)
-    
+        double Fn(vector<ThreeVector>& p);                  ///< EFT kernel Fn (q1, ..., qn)
+        double Gn(vector<ThreeVector>& p);                  ///< EFT kernel Gn (q1, ..., qn)
+
+         double Fn_sym(vector<ThreeVector>& p);                ///< symmetrized EFT kernel Fn (q1, ..., qn)
+         double Gn_sym(vector<ThreeVector>& p);                ///< symmetrized EFT kernel Gn (q1, ..., qn)
+
     private:
     
         EFTcoefficients* _coefficients;
