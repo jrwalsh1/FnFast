@@ -106,7 +106,7 @@ class Trispectrum
             virtual ~LoopPhaseSpace() {}
 
             /// set the loop phase space, returns the jacobian
-            double set_loopPS(double qpts[3]);
+            double set_loopPS(double qpts[3], double x12);
 
             /// returns the loop momentum
             ThreeVector q() { return _q; }

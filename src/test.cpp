@@ -30,8 +30,8 @@ int main()
 
    PowerSpectrum PS(kOneLoop, &PL, &coeffs);
    Bispectrum BS(kOneLoop, &PL, &coeffs);
-   Trispectrum TS(kOneLoop, &PL, &coeffs);
-   TS.set_qmax(2.);
+   Trispectrum TS(kOneLoop, &PLcamb, &coeffs);
+   TS.set_qmax(12.);
    TS.set_seed(37);
 
    double qmag = 0.01;

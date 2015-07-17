@@ -523,13 +523,31 @@ IntegralResult Trispectrum::cov_loopSPT(double k, double kp, double costheta)
 }
 
 //------------------------------------------------------------------------------
-double Trispectrum::LoopPhaseSpace::set_loopPS(double qpts[3])
+double Trispectrum::LoopPhaseSpace::set_loopPS(double qpts[3], double x12)
 {
+   // ----- COMMENT/UNCOMMENT TO SWITCH TO NON-ORTHOGONAL COORDINATES FOR PHASE SPACE SAMPLING -----
+   // we sample q in non-orthogonal coordinates centered on the two principal directions
+   // sample the coordinates
+   double qmag = qpts[0] * _qmax;
+   double s = qpts[1];
+   double alpha = 2*pi * qpts[2];
+   // convert to spherical coordinates to define q
+   double theta12 = acos(x12);
+   double qcosth = sqrt(abs(1 - s*s)) * cos(0.5*theta12 - alpha);
+   double qphi = acos((1. / sqrt(abs(1 - qcosth*qcosth))) * sqrt(abs(1 - s*s)) * sin(0.5*theta12 - alpha));
+   // ----- END OF BLOCK FOR NON-ORTHOGONAL COORDINATES -----
+
+
+   // ----- COMMENT/UNCOMMENT TO SWITCH TO SPHERICAL COORDINATES FOR PHASE SPACE SAMPLING -----
+   /*
    // we sample q flat in spherical coordinates, setting k along the z-axis, kp in the x-z plane
    // q components
    double qmag = qpts[0] * _qmax;
    double qcosth = 2 * qpts[1] - 1.;
    double qphi = 2*pi * qpts[2];
+   */
+   // ----- END OF BLOCK FOR SPHERICAL COORDINATES -----
+
 
    // jacobian
    // qmax from the magnitude integral,
@@ -559,7 +577,7 @@ int Trispectrum::loop_integrand(const int *ndim, const double xx[], const int *n
    double qpts[3] = {xx[0], xx[1], xx[2]};
 
    // set the PS point and return the integrand
-   double jacobian = data->loopPS->set_loopPS(qpts);
+   double jacobian = data->loopPS->set_loopPS(qpts, costheta);
    double integrand = 0;
    if (jacobian > 0) {
       ThreeVector q = data->loopPS->q();
@@ -682,7 +700,7 @@ int Trispectrum::angular_loop_integrand(const int *ndim, const double xx[], cons
 
    // set the PS point and return the integrand
    double jacobian_costh = 2;
-   double jacobian_loop = data->loopPS->set_loopPS(qpts);
+   double jacobian_loop = data->loopPS->set_loopPS(qpts, costheta);
    double integrand = 0;
    if (jacobian_loop > 0) {
       ThreeVector q = data->loopPS->q();

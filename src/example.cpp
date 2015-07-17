@@ -88,6 +88,10 @@ int main()
    TS.set_qmax(2.);
    // set the random number seed for VEGAS
    TS.set_seed(37);
+
+   // work with individual diagrams from the trispectrum
+   cout << "T4211a diagram value: " << TS[Trispectrum::T4211a]->value_base(diagmom) << endl;
+
    // compute the 1-loop SPT trispectrum, integrated over the loop momentum
    double k1mag = k1.magnitude();
    double k2mag = k2.magnitude();
