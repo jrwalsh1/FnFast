@@ -65,7 +65,7 @@ Diagram::Diagram(vector<Line> lines, unordered_map<Vertices::VertexLabel, Kernel
 }
 
 //------------------------------------------------------------------------------
-double Diagram::value_base(DiagramMomenta mom)
+double Diagram::value_base(DiagramMomenta& mom)
 {
    // check to see if the loop momentum is above the cutoff, if so return 0
    // first check whether the diagram has a loop or not
@@ -100,7 +100,7 @@ double Diagram::value_base(DiagramMomenta mom)
 }
 
 //------------------------------------------------------------------------------
-double Diagram::value_base_IRreg(DiagramMomenta mom)
+double Diagram::value_base_IRreg(DiagramMomenta& mom)
 {
    // no IR regulation necessary if there are no poles away from q = 0
    if (_IRpoles.empty()) return value_base(mom);
@@ -151,7 +151,7 @@ double Diagram::value_base_IRreg(DiagramMomenta mom)
 }
 
 //------------------------------------------------------------------------------
-double Diagram::value_IRreg(DiagramMomenta mom)
+double Diagram::value_IRreg(DiagramMomenta& mom)
 {
    /* 
     * To return the IR regulated diagram symmetrized over external momenta,

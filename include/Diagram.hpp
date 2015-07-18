@@ -72,13 +72,13 @@ class Diagram
       void setKernels(unordered_map<Vertices::VertexLabel, KernelBase*> kernels);
 
       /// returns the diagram value with the input momentum routing
-      double value_base(DiagramMomenta mom);
+      double value_base(DiagramMomenta& mom);
 
       /// returns the IR regulated diagram value with the input momentum routing
-      double value_base_IRreg(DiagramMomenta mom);
+      double value_base_IRreg(DiagramMomenta& mom);
 
       /// returns the IR regulated diagram value, symmetrized over external momenta
-      double value_IRreg(DiagramMomenta mom);
+      double value_IRreg(DiagramMomenta& mom);
 
       /// set a cutoff on the magnitude of the loop momentum
       void set_qmax(double qmax) { _qmax = qmax; }

@@ -185,7 +185,7 @@ class Trispectrum
       /// tree level
       double tree(ThreeVector k1, ThreeVector k2, ThreeVector k3);
       /// one loop differential in q and integrated in q
-      double loopSPT_excl(ThreeVector k1, ThreeVector k2, ThreeVector k3, ThreeVector q);
+      double loopSPT_excl(ThreeVector& k1, ThreeVector& k2, ThreeVector& k3, ThreeVector& q);
       double loopSPT(ThreeVector k1, ThreeVector k2, ThreeVector k3);
       /// one loop counterterms
       double ctermsEFT(ThreeVector k1, ThreeVector k2, ThreeVector k3);

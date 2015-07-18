@@ -421,7 +421,7 @@ int Trispectrum::tree_angular_integrand(const int *ndim, const double xx[], cons
 //******************************************************************************
 
 //------------------------------------------------------------------------------
-double Trispectrum::loopSPT_excl(ThreeVector k1, ThreeVector k2, ThreeVector k3, ThreeVector q)
+double Trispectrum::loopSPT_excl(ThreeVector& k1, ThreeVector& k2, ThreeVector& k3, ThreeVector& q)
 {
    // set the external momenta
    DiagramMomenta momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, k1}, {Momenta::k2, k2}, {Momenta::k3, k3},  {Momenta::k4, -k1-k2-k3}, {Momenta::q, q}});
