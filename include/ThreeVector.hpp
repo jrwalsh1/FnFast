@@ -74,7 +74,7 @@ class ThreeVector
       ThreeVector(const ThreeVector& other);
 
       /// %ThreeVector assignment operator
-      ThreeVector& operator=(const ThreeVector& rhs);
+      const ThreeVector& operator=(const ThreeVector& rhs);
 
       ~ThreeVector() {}
       ///@}
@@ -354,7 +354,7 @@ inline ThreeVector::ThreeVector(const ThreeVector& other)
 
 //------------------------------------------------------------------------------
 // ThreeVector assignment operator
-inline ThreeVector& ThreeVector::operator=(const ThreeVector& rhs)
+inline const ThreeVector& ThreeVector::operator=(const ThreeVector& rhs)
 {
    _p1 = rhs._p1;
    _p2 = rhs._p2;
@@ -447,7 +447,7 @@ inline bool ThreeVector::operator!=(const ThreeVector& rhs) const
 /**
  * \brief %ThreeVector less than comparison operator, to generate ordering
  * \param rhs The %ThreeVector to compare to.
- * \return \c true if magnitude is smaller, or 
+ * \return \c true if magnitude is smaller, or
  *              checks if p1, p2, then p3 are smaller recursively.
  *         \c false otherwise.
  *

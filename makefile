@@ -11,17 +11,9 @@ GSLLIB=/Users/jwalsh/Desktop/Research/HEP/gsl/lib
 	$(CXX) -c $(CXXFLAGS) $(INCLUDE) -I$(CUBA) -I$(GSLINC) $< -o $@ -L$(CUBA) -lcuba -L$(GSLLIB) -lgsl
 
 # executables
-all: test main_covariance_loopSPT example
+all: test
 
-test: test.o SPTkernels.o EFTkernels.o Diagram.o Random.o Labels.o Momentum.o Propagator.o LinearPowerSpectrumCAMB.o PowerSpectrum.o Bispectrum.o Trispectrum.o
-	mkdir -p bin
-	$(CXX) -o bin/$@ $^ $(CXXFLAGS) -L$(CUBA) -lcuba -L$(GSLLIB) -lgsl
-
-main_covariance_loopSPT: main_covariance_loopSPT.o SPTkernels.o EFTkernels.o Diagram.o Random.o Labels.o Momentum.o Propagator.o LinearPowerSpectrumCAMB.o PowerSpectrum.o Bispectrum.o Trispectrum.o
-	mkdir -p bin
-	$(CXX) -o bin/$@ $^ $(CXXFLAGS) -L$(CUBA) -lcuba -L$(GSLLIB) -lgsl
-
-example: example.o SPTkernels.o EFTkernels.o Diagram.o Random.o Labels.o Momentum.o Propagator.o LinearPowerSpectrumCAMB.o PowerSpectrum.o Bispectrum.o Trispectrum.o
+test: test.o ThreeVector.o SPTkernels.o EFTkernels.o DiagramBase.o DiagramTree.o DiagramOneLoop.o Random.o Labels.o MomentumMap.o VertexMap.o Propagator.o LinearPowerSpectrumCAMB.o PowerSpectrum.o
 	mkdir -p bin
 	$(CXX) -o bin/$@ $^ $(CXXFLAGS) -L$(CUBA) -lcuba -L$(GSLLIB) -lgsl
 

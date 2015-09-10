@@ -22,74 +22,74 @@
 #include "cuba.h"
 
 //------------------------------------------------------------------------------
-PowerSpectrum::PowerSpectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficients* eftcoefficients) : _order(order), _PL(PL), _SPTkernels(new SPTkernels), _EFTkernels(new EFTkernels), _eftcoefficients(eftcoefficients), _UVcutoff(10.), _kBin(0), _W(NULL)
+PowerSpectrum::PowerSpectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficients* eftcoefficients)
+: _order(order), _PL(PL), _SPTkernels(new SPTkernels), _EFTkernels(new EFTkernels), _eftcoefficients(eftcoefficients), _UVcutoff(10.), _kBin(0), _W(NULL)
 {
    // Diagram momenta
-   _labels = { Momenta::k1, Momenta::k2, Momenta::q };
+   _labels = { MomentumLabel::k1, MomentumLabel::k2, MomentumLabel::q };
 
    // vertex kernels
    // SPT
-   unordered_map<Vertices::VertexLabel, KernelBase*> kernels_SPT = {{Vertices::v1, _SPTkernels}, {Vertices::v2, _SPTkernels}};
+   VertexMap<KernelBase*> kernels_SPT = {{VertexLabel::v1, _SPTkernels}, {VertexLabel::v2, _SPTkernels}};
    // counterterms
    _EFTkernels->set_coefficients(*_eftcoefficients);
-   unordered_map<Vertices::VertexLabel, KernelBase*> kernels_EFTSPT = {{Vertices::v1, _EFTkernels}, {Vertices::v2, _SPTkernels}};
+   VertexMap<KernelBase*> kernels_EFTSPT = {{VertexLabel::v1, _EFTkernels}, {VertexLabel::v2, _SPTkernels}};
 
    // set up the diagrams, starting with the tree level
    // P11
    // propagators
-   Propagator prop_P11_k2(unordered_map<Momenta::MomentumLabel, double> {{Momenta::k2, 1}});
+   Propagator prop_P11_k2(MomentumMap<Propagator::LabelFlow> {{MomentumLabel::k2, Propagator::LabelFlow::kPlus}});
    // lines
-   Line line_P11_12(Vertices::v1, Vertices::v2, prop_P11_k2);
+   Line line_P11_12(VertexLabel::v1, VertexLabel::v2, prop_P11_k2);
    vector<Line> lines_P11 {line_P11_12};
    // define the diagram
-   Diagram* P11 = new Diagram(lines_P11, kernels_SPT, _PL);
+   DiagramTree* P11 = new DiagramTree(lines_P11, kernels_SPT, _PL);
 
    // define the tree diagrams
    _tree = {P11};
    _diagrams[Graphs::P11] = P11;
-    
-   if (_order == kOneLoop) {
+
+   if (_order == Order::kOneLoop) {
       // P31
       // propagators
-      Propagator prop_P31_q(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, 1}});
-      Propagator prop_P31_k2(unordered_map<Momenta::MomentumLabel, double> {{Momenta::k2, 1}});
+      Propagator prop_P31_q(MomentumMap<Propagator::LabelFlow> {{MomentumLabel::q, Propagator::LabelFlow::kPlus}});
+      Propagator prop_P31_k2(MomentumMap<Propagator::LabelFlow> {{MomentumLabel::k2, Propagator::LabelFlow::kPlus}});
       // lines
-      Line line_P31_11(Vertices::v1, Vertices::v1, prop_P31_q);
-      Line line_P31_12(Vertices::v1, Vertices::v2, prop_P31_k2);
+      Line line_P31_11(VertexLabel::v1, VertexLabel::v1, prop_P31_q);
+      Line line_P31_12(VertexLabel::v1, VertexLabel::v2, prop_P31_k2);
       vector<Line> lines_P31 {line_P31_11, line_P31_12};
       // define the diagram
-      Diagram* P31 = new Diagram(lines_P31, kernels_SPT, _PL);
+      DiagramOneLoop* P31 = new DiagramOneLoop(lines_P31, kernels_SPT, _PL);
 
       // P22
       // propagators
-      Propagator prop_P22_q(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, 1}});
-      Propagator prop_P22_qk2(unordered_map<Momenta::MomentumLabel, double> {{Momenta::q, -1}, {Momenta::k2, 1}});
+      Propagator prop_P22_q(MomentumMap<Propagator::LabelFlow> {{MomentumLabel::q, Propagator::LabelFlow::kPlus}});
+      Propagator prop_P22_qk2(MomentumMap<Propagator::LabelFlow> {{MomentumLabel::q, Propagator::LabelFlow::kMinus}, {MomentumLabel::k2, Propagator::LabelFlow::kPlus}});
       // lines
-      Line line_P22_12a(Vertices::v1, Vertices::v2, prop_P22_q);
-      Line line_P22_12b(Vertices::v1, Vertices::v2, prop_P22_qk2);
+      Line line_P22_12a(VertexLabel::v1, VertexLabel::v2, prop_P22_q);
+      Line line_P22_12b(VertexLabel::v1, VertexLabel::v2, prop_P22_qk2);
       vector<Line> lines_P22 {line_P22_12a, line_P22_12b};
       // define the diagram
-      Diagram* P22 = new Diagram(lines_P22, kernels_SPT, _PL);
-       
+      DiagramOneLoop* P22 = new DiagramOneLoop(lines_P22, kernels_SPT, _PL);
+
       // define the loop diagrams
       _loop = {P31, P22};
       _diagrams[Graphs::P31] = P31;
       _diagrams[Graphs::P22] = P22;
-       
+
       // P31x
       // propagators
-      Propagator prop_P31x_k2(unordered_map<Momenta::MomentumLabel, double> {{Momenta::k2, 1}});
+      Propagator prop_P31x_k2(MomentumMap<Propagator::LabelFlow> {{MomentumLabel::k2, Propagator::LabelFlow::kPlus}});
       // lines
-      Line line_P31x_12(Vertices::v1, Vertices::v2, prop_P31x_k2);
+      Line line_P31x_12(VertexLabel::v1, VertexLabel::v2, prop_P31x_k2);
       vector<Line> lines_P31x {line_P31x_12};
       // define the diagram
-      Diagram* P31x = new Diagram(lines_P31x, kernels_EFTSPT, _PL);
+      DiagramTree* P31x = new DiagramTree(lines_P31x, kernels_EFTSPT, _PL);
       P31x->set_perms(P31->get_perms());
 
       // define the counterterm diagrams
       _cterms = {P31x};
       _diagrams[Graphs::P31x] = P31x;
-       
    }
 }
 
@@ -98,12 +98,12 @@ double PowerSpectrum::tree(double k)
 {
    // set the external momenta
    ThreeVector k2(0, 0, k);
-   DiagramMomenta momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, -k2}, {Momenta::k2, k2}});
+   MomentumMap<ThreeVector> momenta(unordered_map<MomentumLabel, ThreeVector> {{MomentumLabel::k1, -k2}, {MomentumLabel::k2, k2}});
 
    double value = 0;
    // sum the tree level diagrams
    for (size_t i = 0; i < _tree.size(); i++) {
-      value += _tree[i]->value_IRreg(momenta);
+      value += _tree[i]->value(momenta);
    }
    return value;
 }
@@ -112,12 +112,12 @@ double PowerSpectrum::tree(double k)
 double PowerSpectrum::loopSPT_excl(ThreeVector k, ThreeVector q)
 {
    // set the external momenta
-   DiagramMomenta momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, -k}, {Momenta::k2, k}, {Momenta::q, q}});
-    
+   MomentumMap<ThreeVector> momenta(unordered_map<MomentumLabel, ThreeVector> {{MomentumLabel::k1, -k}, {MomentumLabel::k2, k}, {MomentumLabel::q, q}});
+
    double value = 0;
    // sum the loop diagrams
    for (size_t i = 0; i < _loop.size(); i++) {
-      value += _loop[i]->value_IRreg(momenta);
+      value += _loop[i]->value(momenta);
    }
    return value;
 }
@@ -199,11 +199,11 @@ double PowerSpectrum::ctermsEFT(double k)
 {
    // set the external momenta
    ThreeVector k2(0, 0, k);
-   DiagramMomenta momenta(unordered_map<Momenta::MomentumLabel, ThreeVector> {{Momenta::k1, -k2}, {Momenta::k2, k2}});
+   MomentumMap<ThreeVector> momenta(unordered_map<MomentumLabel, ThreeVector> {{MomentumLabel::k1, -k2}, {MomentumLabel::k2, k2}});
 
    double value = 0;
    for (size_t i = 0; i < _cterms.size(); i++) {
-      value += _cterms[i]->value_IRreg(momenta);
+      value += _cterms[i]->value(momenta);
    }
    return value;
 }

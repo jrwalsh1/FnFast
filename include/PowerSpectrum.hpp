@@ -21,8 +21,10 @@
 
 #include <map>
 
-#include "Momentum.hpp"
-#include "Diagram.hpp"
+#include "MomentumMap.hpp"
+#include "VertexMap.hpp"
+#include "DiagramTree.hpp"
+#include "DiagramOneLoop.hpp"
 #include "SPTkernels.hpp"
 #include "EFTkernels.hpp"
 #include "WindowFunctionBase.hpp"
@@ -67,12 +69,12 @@ class PowerSpectrum
       LinearPowerSpectrumBase* _PL;                   ///< the linear power spectrum used in the calculation
       SPTkernels* _SPTkernels;                        ///< SPT kernels instance
       EFTkernels* _EFTkernels;                        ///< EFT kernels instance
-      vector<Diagram*> _tree;                         ///< tree level diagrams
-      vector<Diagram*> _loop;                         ///< loop diagrams
-      vector<Diagram*> _cterms;                       ///< counterterms
-      map<Graphs, Diagram*> _diagrams;                ///< container for diagrams
+      vector<DiagramTree*> _tree;                     ///< tree level diagrams
+      vector<DiagramOneLoop*> _loop;                  ///< loop diagrams
+      vector<DiagramTree*> _cterms;                   ///< counterterms
+      map<Graphs, DiagramBase*> _diagrams;            ///< container for diagrams
       EFTcoefficients* _eftcoefficients;              ///< EFT coefficients
-      vector<Momenta::MomentumLabel> _labels;         ///< external momenta labels
+      vector<MomentumLabel> _labels;                  ///< external momenta labels
       double _UVcutoff;                               ///< UV cutoff for loop integrations
       double _kBin;                                   ///< size of k bins
       WindowFunctionBase* _W;                         ///< Window function
@@ -115,7 +117,7 @@ class PowerSpectrum
       virtual ~PowerSpectrum() {}
 
       /// access diagrams
-      Diagram* operator[](Graphs graph) { return _diagrams[graph]; }
+      DiagramBase* operator[](Graphs graph) { return _diagrams[graph]; }
 
       /// set size of k bins
       void set_kBinSize(double kBin) { _kBin = kBin; }
@@ -137,7 +139,7 @@ class PowerSpectrum
       IntegralResult loopSPT(double k);
       /// one loop counterterms
       double ctermsEFT(double k);
-    
+
       /// Averaged over k bins
       /// tree level
       double tree_kbin(double k);
@@ -145,7 +147,7 @@ class PowerSpectrum
       double loopSPT_kbin(double k);
       /// one loop counterterms
       double ctermsEFT_kbin(double k);
-    
+
       /// Averaged over k bins + convolution with window function
       /// tree level
       double tree_kbin_win(double k);

@@ -22,7 +22,8 @@
 #include <vector>
 #include <map>
 
-#include "Momentum.hpp"
+#include "MomentumMap.hpp"
+#include "ThreeVector.hpp"
 
 using namespace std;
 
@@ -34,7 +35,7 @@ using namespace std;
  *
  * Propagator(vector<pair<MomentumLabel, double> > components)
  *
- * Container that is an abstract representation of a linear combination 
+ * Container that is an abstract representation of a linear combination
  * of loop and external momenta.  A method is provided to input actual
  * 3-momenta and obtain a ThreeVector of the momentum of the propagator
  * Instantiated with a vector of pairs, where:
@@ -48,40 +49,65 @@ using namespace std;
 
 class Propagator
 {
+   public:
+      /// label determining the sign of the momentum in a propagator
+      enum class LabelFlow : int {
+         kMinus = -1,
+         kNull = 0,
+         kPlus = 1
+      };
+
    private:
-      unordered_map<Momenta::MomentumLabel, double> _components;        ///< components of the momenta and their scale factors
+      MomentumMap<LabelFlow> _components;        ///< components of the momenta and their scale factors
 
    public:
       /// constructor
-      Propagator(unordered_map<Momenta::MomentumLabel, double> components);
+      Propagator(MomentumMap<LabelFlow> components);
       /// destructor
       virtual ~Propagator() {}
 
       /// accessors
-      unordered_map<Momenta::MomentumLabel, double> components() { return _components; }
+      MomentumMap<LabelFlow> components() const { return _components; }
 
       /// get the momentum given values for the loop, external momenta
-      ThreeVector p(DiagramMomenta mom);
+      ThreeVector p(MomentumMap<ThreeVector> mom) const;
 
       /// check if a given label is present in the propagator
-      bool hasLabel(Momenta::MomentumLabel label);
+      bool hasLabel(MomentumLabel label) const;
 
       /// check if the propagator is null (has any nonzero contributions)
-      bool isNull();
+      bool isNull() const;
 
-      /// reverses the momentum in the propagator
-      Propagator reverse();
+      /// returns a propagator with the momentum reversed
+      Propagator reverse() const;
 
       /*
        * return a momentum object from the current instance where we
        * solve for the momentum of label given the total momentum = 0
        * e.g. if we have the momentum -q + k2 + k3, then solveNull(q) = k2 + k3
        */
-      Propagator IRpole(Momenta::MomentumLabel label);
+      Propagator IRpole(MomentumLabel label) const;
+
+      /// Propagator stream insertion operator
+      friend ostream& operator<<(ostream& out, const Propagator& prop);
+
+   private:
+      /// helper function to reverse sign of a propagator coefficient
+      static LabelFlow reverse_flow(LabelFlow sign);
+
+   protected:
+      /// Streams a string to \a out.
+      ostream& print(ostream& out) const;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 // Inline Declarations
 ////////////////////////////////////////////////////////////////////////////////
+
+//------------------------------------------------------------------------------
+inline ostream& operator<<(ostream& out, const Propagator& prop)
+{
+   return prop.print(out);
+}
 
 #endif // PROPAGATOR_HPP

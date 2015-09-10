@@ -17,91 +17,105 @@
 //------------------------------------------------------------------------------
 
 #include <iostream>
+#include <sstream>
 
 #include "Propagator.hpp"
 
 //------------------------------------------------------------------------------
-Propagator::Propagator(unordered_map<Momenta::MomentumLabel, double> components)
-: _components(components)
-{
-   // assign any missing keys to 0 using map::insert
-   // exisiting keys will not be replaced
-   for (size_t c = 0; c < Momenta::momentumlabels.size(); c++) {
-      _components.insert(pair<Momenta::MomentumLabel, double>(Momenta::momentumlabels[c], 0));
-   }
-}
+Propagator::Propagator(MomentumMap<LabelFlow> components)
+: _components(components) {}
 
 //------------------------------------------------------------------------------
-ThreeVector Propagator::p(DiagramMomenta mom)
+ThreeVector Propagator::p(MomentumMap<ThreeVector> mom) const
 {
    // output container
    ThreeVector pvec;
-   // handle the case where the momentum has no components
-   if (_components.size() == 0) {
-      return pvec;
+   // loop and add momentum components
+   for (auto const& label : _components.labels()) {
+      pvec += static_cast<int>(_components[label]) * mom[label];
    }
-   // loop over components, add to p
-   for (size_t c = 0; c < mom.labels.size(); c++) {
-      double fac = _components[mom.labels[c]];
-      pvec += fac * mom[mom.labels[c]];
-   }
-   
+
    return pvec;
 }
 
 //------------------------------------------------------------------------------
-bool Propagator::hasLabel(Momenta::MomentumLabel label)
+bool Propagator::hasLabel(MomentumLabel label) const
 {
-   return (_components[label] != 0);
+   return _components.hasLabel(label);
 }
 
 //------------------------------------------------------------------------------
-bool Propagator::isNull()
+bool Propagator::isNull() const
 {
    // return true if any label has nonzero coefficient
-   for (size_t c = 0; c < Momenta::momentumlabels.size(); c++) {
-      if (_components[Momenta::momentumlabels[c]] != 0) { return false; }
+   for (auto const& label : _components.labels()) {
+      if (_components[label] != LabelFlow::kNull) { return false; }
    }
 
    return true;
 }
 
 //------------------------------------------------------------------------------
-Propagator Propagator::reverse()
+Propagator Propagator::reverse() const
 {
-   // get the map
-   unordered_map<Momenta::MomentumLabel, double> comp = _components;
-   // multiply all factors (values) by -1
-   for (size_t c = 0; c < Momenta::momentumlabels.size(); c++) {
-      comp[Momenta::momentumlabels[c]] *= -1;
+   // copy the underlying MomentumMap, reverse labels
+   MomentumMap<LabelFlow> rev_comp = _components;
+   for (auto label : rev_comp.labels()) {
+      rev_comp[label] = reverse_flow(rev_comp[label]);
    }
 
-   // return the propagator
-   Propagator prop(comp);
-   return prop;
+   return Propagator(rev_comp);
 }
 
 //------------------------------------------------------------------------------
-Propagator Propagator::IRpole(Momenta::MomentumLabel label)
+Propagator Propagator::IRpole(MomentumLabel label) const
 {
+   // set up the map for the new propagator
+   unordered_map<MomentumLabel, LabelFlow> pole;
    // first check to make sure the label we're solving for is present in the propagator
    if ( !hasLabel(label) ) {
       cout << "Propagator::IRpole : no component of propagator with given label!" << endl;
-      unordered_map<Momenta::MomentumLabel, double> nullcomp;
-      Propagator nullprop(nullcomp);
-      return nullprop;
+      return Propagator(MomentumMap<LabelFlow>(pole));
    }
-   
+
    // now the case where the label is present
-   unordered_map<Momenta::MomentumLabel, double> comp = _components;
-   // get the factor for the label, then set the label factor to 0
-   int fac = _components[label];
-   comp[label] = 0;
-   // now scale all factors by -1 / fac
-   for (size_t c = 0; c < Momenta::momentumlabels.size(); c++) {
-      comp[Momenta::momentumlabels[c]] *= (-1. / fac);
+   LabelFlow pole_flow = _components[label];
+   // if the component has flow = 0, we also return a null propagator
+   if (pole_flow == LabelFlow::kNull) {
+      cout << "Propagator::IRpole : component of propagator has flow 0!" << endl;
+      return Propagator(MomentumMap<LabelFlow>(pole));
    }
-   Propagator prop(comp);
-   
-   return comp;
+   // otherwise solve for the pole (effectively scale all factors by -1 / fac)
+   for (auto const& proplabel : _components.labels()) {
+      if (proplabel != label) {
+         if (pole_flow == LabelFlow::kMinus) {
+            pole[proplabel] = _components[proplabel];
+         } else {
+            pole[proplabel] = reverse_flow(_components[proplabel]);
+         }
+      }
+   }
+
+   return Propagator(MomentumMap<LabelFlow>(pole));
+}
+
+//------------------------------------------------------------------------------
+Propagator::LabelFlow Propagator::reverse_flow(Propagator::LabelFlow sign) {
+   return (sign == LabelFlow::kMinus) ? LabelFlow::kPlus  :
+          (sign == LabelFlow::kPlus)  ? LabelFlow::kMinus :
+                                        LabelFlow::kNull;
+}
+
+//------------------------------------------------------------------------------
+std::ostream& Propagator::print(std::ostream& out) const
+{
+   stringstream ss;
+   ss << "propagator: ";
+   for (auto const& label : _components.labels()) {
+      string sign = (_components[label] == LabelFlow::kPlus) ? " + k" :
+                    (_components[label] == LabelFlow::kMinus) ? " - k" :
+                                                               " 0 k";
+      ss << sign << static_cast<int>(label);
+   }
+   return out << ss.str();
 }

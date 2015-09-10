@@ -26,40 +26,35 @@ using namespace std;
 
 //------------------------------------------------------------------------------
 /**
- * \enum Order
+ * \enum class Order
  *
  * \brief Defines constants to label the order of a diagram / calculation.
  *
  * One of kTree or kOneLoop.
  */
 //------------------------------------------------------------------------------
-enum Order
+enum class Order
 {
-   kTree  = 0,
-   kOneLoop = 1
+   kTree,
+   kOneLoop
 };
 
 //------------------------------------------------------------------------------
 /**
- * \struct Vertices
+ * \enum class VertexLabel
  *
- * \brief Defines constants to label the vertices and a vector of all values
+ * \brief Defines constants to label the vertices
  *
  * Current labels are v1, v2, v3, v4.
  * If desired, more slots for vertices may be added.
  */
 //------------------------------------------------------------------------------
-struct Vertices
+enum class VertexLabel : int
 {
-   enum VertexLabel
-   {
-      v1 = 1,
-      v2 = 2,
-      v3 = 3,
-      v4 = 4
-   };
-
-   static const vector<VertexLabel> vertexlabels;
+   v1 = 1,
+   v2 = 2,
+   v3 = 3,
+   v4 = 4
 };
 
 //------------------------------------------------------------------------------
@@ -73,11 +68,11 @@ struct Vertices
 //------------------------------------------------------------------------------
 struct VertexPair
 {
-   Vertices::VertexLabel vA;     ///< label A
-   Vertices::VertexLabel vB;     ///< label B
+   VertexLabel vA;     ///< label A
+   VertexLabel vB;     ///< label B
 
    /// constructor
-   VertexPair(Vertices::VertexLabel vxA, Vertices::VertexLabel vxB) : vA(vxA), vB(vxB) {}
+   VertexPair(VertexLabel vxA, VertexLabel vxB) : vA(vxA), vB(vxB) {}
 
    /// equality operator
    bool operator==(const VertexPair& rhs) const {
@@ -98,25 +93,21 @@ struct VertexPair
 
 //------------------------------------------------------------------------------
 /**
- * \struct MomentumLabels
+ * \enum class MomentumLabel
  *
- * \brief Defines constants to label the momenta and a vector of all values
+ * \brief Defines constants to label the momenta
  *
  * Current labels are q (loop momentum), k1, k2, k3, k4 (external momenta).
  * If desired, more slots for loop and external momenta may be added.
  */
 //------------------------------------------------------------------------------
-struct Momenta{
-   enum MomentumLabel
-   {
-      q  = 0,
-      k1 = 1,
-      k2 = 2,
-      k3 = 3,
-      k4 = 4
-   };
-
-   static const vector<MomentumLabel> momentumlabels;
+enum class MomentumLabel : int
+{
+   q = 0,
+   k1 = 1,
+   k2 = 2,
+   k3 = 3,
+   k4 = 4
 };
 
 /// hash functions for label objects
@@ -124,12 +115,12 @@ namespace std
 {
    /// hash function for VertexLabel
    template <>
-   struct hash<Vertices::VertexLabel>
+   struct hash<VertexLabel>
    {
-      size_t operator()(const Vertices::VertexLabel &v) const
+      size_t operator()(const VertexLabel &v) const
       {
          // Compute individual hash values for VertexLabel
-         return ((hash<int>()(v)) >> 1);
+         return ((hash<int>()(static_cast<int>(v))) >> 1);
       }
    };
 
@@ -140,21 +131,20 @@ namespace std
       size_t operator()(const VertexPair& vp) const
       {
          // Compute individual hash values for two data members and combine them using XOR and bit shifting
-         return ((hash<int>()(vp.vA) ^ (hash<int>()(vp.vB) << 1)) >> 1);
+         return ((hash<int>()(static_cast<int>(vp.vA)) ^ (hash<int>()(static_cast<int>(vp.vB)) << 1)) >> 1);
       }
    };
 
    /// hash function for MomentumLabel
    template <>
-   struct hash<Momenta::MomentumLabel>
+   struct hash<MomentumLabel>
    {
-      size_t operator()(const Momenta::MomentumLabel& k) const
+      size_t operator()(const MomentumLabel& k) const
       {
          // Compute individual hash values for MomentumLabel
-         return ((hash<int>()(k)) >> 1);
+         return ((hash<int>()(static_cast<int>(k))) >> 1);
       }
    };
 }
-
 
 #endif // LABELS_HPP

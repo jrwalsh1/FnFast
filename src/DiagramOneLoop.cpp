@@ -1,0 +1,153 @@
+//------------------------------------------------------------------------------
+/// \file DiagramOneLoop.cpp
+//
+// Author(s):
+//    Jon Walsh
+//
+// Copyright:
+//    Copyright (C) 2015  LBL
+//
+//    This file is part of the EFTofLSS library. EFTofLSS is distributed under the
+//    terms of the GNU General Public License version 3 (GPLv3), see the COPYING
+//    file that comes with this distribution for details.
+//    Please respect the academic usage guidelines in the GUIDELINES file.
+//
+// Description:
+//    Implementation of class DiagramOneLoop
+//------------------------------------------------------------------------------
+
+#include <limits>
+#include <cassert>
+
+#include "DiagramOneLoop.hpp"
+
+//------------------------------------------------------------------------------
+DiagramOneLoop::DiagramOneLoop(vector<Line> lines, VertexMap<KernelBase*> kernels, LinearPowerSpectrumBase* PL) : DiagramBase(lines, kernels, PL), _qmax(numeric_limits<double>::infinity())
+{
+   _order = Order::kOneLoop;
+   // check to ensure that the diagram is really one loop
+   bool isLoop = false;
+   // find the nontrivial poles
+   for (auto line : _lines) {
+      // check if the line has the loop momentum in it
+      // if so, it has an IR pole that must be regulated if it is away from 0
+      if (line.propagator.hasLabel(MomentumLabel::q)) {
+         isLoop = true;
+         _order = Order::kOneLoop;
+         Propagator pole = line.propagator.IRpole(MomentumLabel::q);
+         if (!pole.isNull()) {
+            _IRpoles.push_back(pole);
+         }
+      }
+   }
+   assert(isLoop);
+}
+
+//------------------------------------------------------------------------------
+double DiagramOneLoop::value_base(const MomentumMap<ThreeVector>& mom) const
+{
+   // check to see if the loop momentum is above the cutoff, if so return 0
+   // first check whether the diagram has a loop or not
+   bool has_loop = mom.hasLabel(MomentumLabel::q);
+   if (has_loop) {
+      if (mom[MomentumLabel::q].magnitude() > _qmax) { return 0; }
+   }
+
+   // the diagram value is:
+   // symmetry factor * propagators * vertices
+   double value = _symfac;
+   // iterate over lines
+   for (auto line : _lines) {
+      value *= (*_PL)(line.propagator.p(mom).magnitude());
+   }
+   // now do vertex factors
+   for (auto vertex : _vertices) {
+      vector<ThreeVector> p;
+      // loop over propagators attached to the vertex
+      for (auto vx_prop : _vertexmomenta[vertex]) {
+         p.push_back(vx_prop.p(mom));
+      }
+      value *= _kernels[vertex]->Fn_sym(p);
+   }
+   return value;
+}
+
+//------------------------------------------------------------------------------
+double DiagramOneLoop::value_base_IRreg(const MomentumMap<ThreeVector>& mom) const
+{
+   // no IR regulation necessary if there are no poles away from q = 0
+   if (_IRpoles.empty()) return value_base(mom);
+
+   // To regulate the diagram in the IR, we map each region with
+   // an IR pole at q = qIR != 0 onto coordinates with the pole at q = 0
+   double value = 0;
+   // need to regulate only the unique IR poles
+   // e.g. in the covariance limit, two IR poles can be degenerate
+   // and we should treat them simultaneously
+   vector<ThreeVector> uniqueIRpoles;
+   // pole at q = 0
+   uniqueIRpoles.push_back(ThreeVector(0, 0, 0));
+   // loop over the nonzero poles
+   for (auto& pole_prop : _IRpoles) {
+      // check if pole is unique
+      bool is_unique = true;
+      ThreeVector pole = pole_prop.p(mom);
+      for (auto unique_pole : uniqueIRpoles) {
+         if (pole == unique_pole) {
+            is_unique = false;
+            break;
+         }
+      }
+      if (is_unique) { uniqueIRpoles.push_back(pole); }
+   }
+   // now loop over all the unique IR poles
+   for (size_t i = 0; i < uniqueIRpoles.size(); i++) {
+      // for these poles we change variables: q -> q + pole
+      // so that the pole maps to 0 and we exclude all other poles
+      ThreeVector pole = uniqueIRpoles[i];
+      double PSregion = 1;
+      // loop over all other poles and make PS cuts for each
+      for (size_t j = 0; j < uniqueIRpoles.size(); j++) {
+         if (j != i) {
+            ThreeVector pole_j = uniqueIRpoles[j];
+            PSregion *= theta(mom[MomentumLabel::q], mom[MomentumLabel::q] + pole - pole_j);
+         }
+      }
+      // copy and shift the diagram momentum for the pole
+      MomentumMap<ThreeVector> mom_shift = mom;
+      MomentumLabel loopq = MomentumLabel::q;
+      mom_shift[loopq] = mom[MomentumLabel::q] + pole;
+      // add the diagram value for this shifted momentum, times the PS factor
+      value += PSregion * value_base(mom_shift);
+   }
+
+   return value;
+}
+
+//------------------------------------------------------------------------------
+double DiagramOneLoop::value(const MomentumMap<ThreeVector>& mom) const
+{
+   /*
+    * To return the IR regulated diagram symmetrized over external momenta,
+    * we symmetrize the IR regulated diagram with the input momentum routing
+    * over external momentum configurations.
+    * To make the symmetrization more efficient, we compute only the
+    * momentum configurations giving distinct diagram values,
+    * and multiply each by the appropriate symmetry factor
+    */
+
+   double value = 0;
+   // loop over external momentum permutations
+   // symmetrize over q -> -q
+   for (auto perm : _perms) {
+      MomentumMap<ThreeVector> mom_perm = mom;
+      mom_perm.permute(perm);
+      value += 0.5 * value_base_IRreg(mom_perm);
+      ThreeVector mq = -1 * mom_perm[MomentumLabel::q];
+      MomentumLabel loopq = MomentumLabel::q;
+      mom_perm[loopq] = mq;
+      value += 0.5 * value_base_IRreg(mom_perm);
+   }
+
+   return value;
+}
