@@ -24,9 +24,8 @@ int main()
 {
    LinearPowerSpectrumAnalytic PL(1);
    LinearPowerSpectrumCAMB PLcamb("data/LIdata.txt");
-   EFTcoefficients coeffs;
 
-   PowerSpectrum PS(Order::kOneLoop, &PL, &coeffs);
+   PowerSpectrum PS(Order::kOneLoop);
    PS.set_qmax(12.);
    PS.set_seed(37);
 
@@ -41,7 +40,9 @@ int main()
    cout << "q: " << q << endl;
 
    cout << "---------- computing 1-loop power spectrum ----------" << endl;
-   IntegralResult PSresult = PS.loopSPT(k1mag);
+   SPTkernels* kernelsSPT = new SPTkernels();
+   VertexMap<KernelBase*> kernels_SPT {{VertexLabel::v1, kernelsSPT}, {VertexLabel::v2, kernelsSPT}};
+   IntegralResult PSresult = PS.oneLoop(k1mag, kernels_SPT, &PL);
    cout << "1 loop SPT PS result = " << PSresult.result << endl;
    cout << "press any key to continue" << endl;
    cin.get();

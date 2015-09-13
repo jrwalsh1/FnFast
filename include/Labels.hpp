@@ -30,13 +30,14 @@ using namespace std;
  *
  * \brief Defines constants to label the order of a diagram / calculation.
  *
- * One of kTree or kOneLoop.
+ * One of kTree, kOneLoop, kTwoLoop.
  */
 //------------------------------------------------------------------------------
 enum class Order
 {
    kTree,
-   kOneLoop
+   kOneLoop,
+   kTwoLoop
 };
 
 //------------------------------------------------------------------------------
@@ -97,12 +98,15 @@ struct VertexPair
  *
  * \brief Defines constants to label the momenta
  *
- * Current labels are q (loop momentum), k1, k2, k3, k4 (external momenta).
+ * Current labels are q, q2 (loop momenta), k1, k2, k3, k4 (external momenta).
+ * q2 should only be used in two-loop diagrams (as the 2nd loop momentum),
+ * q should be used as the loop momentum in one-loop diagrams.
  * If desired, more slots for loop and external momenta may be added.
  */
 //------------------------------------------------------------------------------
 enum class MomentumLabel : int
 {
+   q2 = -1,
    q = 0,
    k1 = 1,
    k2 = 2,

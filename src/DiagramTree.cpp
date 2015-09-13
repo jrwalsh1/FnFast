@@ -21,13 +21,13 @@
 #include "DiagramTree.hpp"
 
 //------------------------------------------------------------------------------
-DiagramTree::DiagramTree(vector<Line> lines, VertexMap<KernelBase*> kernels, LinearPowerSpectrumBase* PL) : DiagramBase(lines, kernels, PL)
+DiagramTree::DiagramTree(vector<Line> lines) : DiagramBase(lines)
 {
    _order = Order::kTree;
    // check to ensure that the diagram is really tree level (no loop momentum)
    bool isLoop = false;
    for (auto line : _lines) {
-      if (line.propagator.hasLabel(MomentumLabel::q)) {
+      if (line.propagator.hasLabel(MomentumLabel::q) || line.propagator.hasLabel(MomentumLabel::q)) {
          isLoop = true;
       }
    }
@@ -35,23 +35,24 @@ DiagramTree::DiagramTree(vector<Line> lines, VertexMap<KernelBase*> kernels, Lin
 }
 
 //------------------------------------------------------------------------------
-double DiagramTree::value(const MomentumMap<ThreeVector>& mom) const
+double DiagramTree::value(const MomentumMap<ThreeVector>& mom, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
 {
    // the diagram value is:
    // symmetry factor * propagators * vertices
    double value = _symfac;
    // iterate over lines
    for (auto line : _lines) {
-      value *= (*_PL)(line.propagator.p(mom).magnitude());
+      value *= (*PL)(line.propagator.p(mom).magnitude());
    }
    // now do vertex factors
    for (auto vertex : _vertices) {
       vector<ThreeVector> p;
+      p.reserve(_vertexmomenta[vertex].size());
       // loop over propagators attached to the vertex
       for (auto vx_prop : _vertexmomenta[vertex]) {
          p.push_back(vx_prop.p(mom));
       }
-      value *= _kernels[vertex]->Fn_sym(p);
+      value *= kernels[vertex]->Fn_sym(p);
    }
    return value;
 }

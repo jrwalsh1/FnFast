@@ -72,6 +72,9 @@ class Propagator
       /// get the momentum given values for the loop, external momenta
       ThreeVector p(MomentumMap<ThreeVector> mom) const;
 
+      /// get the list of labels with coefficients != kNull in the propagator
+      vector<MomentumLabel> labels() const;
+
       /// check if a given label is present in the propagator
       bool hasLabel(MomentumLabel label) const;
 

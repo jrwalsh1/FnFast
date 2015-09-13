@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-/// \file DiagramOneLoop.cpp
+/// \file DiagramTwoLoop.cpp
 //
 // Author(s):
 //    Jon Walsh
@@ -13,45 +13,41 @@
 //    Please respect the academic usage guidelines in the GUIDELINES file.
 //
 // Description:
-//    Implementation of class DiagramOneLoop
+//    Implementation of class DiagramTwoLoop
 //------------------------------------------------------------------------------
 
 #include <limits>
 #include <cassert>
 
-#include "DiagramOneLoop.hpp"
+#include "DiagramTwoLoop.hpp"
 
 //------------------------------------------------------------------------------
-DiagramOneLoop::DiagramOneLoop(vector<Line> lines) : DiagramBase(lines), _qmax(numeric_limits<double>::infinity())
+DiagramTwoLoop::DiagramTwoLoop(vector<Line> lines) : DiagramBase(lines), _qmax(numeric_limits<double>::infinity())
 {
-   _order = Order::kOneLoop;
-   // check to ensure that the diagram is really one loop
-   bool isLoop = false;
+   _order = Order::kTwoLoop;
+   // check to ensure that the diagram is really two loop
    bool is2Loop = false;
    // find the nontrivial poles
    for (auto line : _lines) {
       // check if the line has the loop momentum in it
       // if so, it has an IR pole that must be regulated if it is away from 0
       if (line.propagator.hasLabel(MomentumLabel::q)) {
-         isLoop = true;
+         is2Loop = true;
          _order = Order::kOneLoop;
          Propagator pole = line.propagator.IRpole(MomentumLabel::q);
          if (!pole.isNull()) {
             _IRpoles.push_back(pole);
          }
       }
-      if (line.propagator.hasLabel(MomentumLabel::q2)) {
-         is2Loop = true;
-      }
    }
-   assert(isLoop && !is2Loop);
+   assert(is2Loop);
 }
 
 //------------------------------------------------------------------------------
-double DiagramOneLoop::value_base(const MomentumMap<ThreeVector>& mom, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
+double DiagramTwoLoop::value_base(const MomentumMap<ThreeVector>& mom, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
 {
-   // check to see if the loop momentum is above the cutoff, if so return 0
-   if (mom[MomentumLabel::q].magnitude() > _qmax) { return 0; }
+   // check to see if either of the loop momenta are above the cutoff, if so return 0
+   if ((mom[MomentumLabel::q].magnitude() > _qmax) || (mom[MomentumLabel::q2].magnitude() > _qmax)) { return 0; }
 
    // the diagram value is:
    // symmetry factor * propagators * vertices
@@ -74,7 +70,7 @@ double DiagramOneLoop::value_base(const MomentumMap<ThreeVector>& mom, const Ver
 }
 
 //------------------------------------------------------------------------------
-double DiagramOneLoop::value_base_IRreg(const MomentumMap<ThreeVector>& mom, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
+double DiagramTwoLoop::value_base_IRreg(const MomentumMap<ThreeVector>& mom, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
 {
    // no IR regulation necessary if there are no poles away from q = 0
    if (_IRpoles.empty()) return value_base(mom, kernels, PL);
@@ -126,7 +122,7 @@ double DiagramOneLoop::value_base_IRreg(const MomentumMap<ThreeVector>& mom, con
 }
 
 //------------------------------------------------------------------------------
-double DiagramOneLoop::value(const MomentumMap<ThreeVector>& mom, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
+double DiagramTwoLoop::value(const MomentumMap<ThreeVector>& mom, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
 {
    /*
     * To return the IR regulated diagram symmetrized over external momenta,

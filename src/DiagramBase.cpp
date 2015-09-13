@@ -20,10 +20,9 @@
 #include <limits>
 
 #include "DiagramBase.hpp"
-#include "SPTkernels.hpp"
 
 //------------------------------------------------------------------------------
-DiagramBase::DiagramBase(vector<Line> lines, VertexMap<KernelBase*> kernels, LinearPowerSpectrumBase* PL) : _lines(lines), _kernels(kernels), _PL(PL)
+DiagramBase::DiagramBase(vector<Line> lines) : _lines(lines)
 {
    // construct the vertex momenta map
    unordered_map<VertexLabel, vector<Propagator> > vx_momenta;
@@ -37,15 +36,15 @@ DiagramBase::DiagramBase(vector<Line> lines, VertexMap<KernelBase*> kernels, Lin
    }
    _vertexmomenta.set_map(vx_momenta);
 
-   // store the vertex and momentum label list
-   _vertices = _kernels.labels();
+   // store the vertex label list
+   _vertices = _vertexmomenta.labels();
 
    // calculate the symmetry factor
    _symfac = calc_symmetry_factor();
 
    // assumes the momenta are canonically ordered,
-   // {k1, k2, k3} for a bispectrum graph and not {k2, k3, k4}
-   size_t nvertices = kernels.size();
+   // e.g. {k1, k2, k3} for a 3-point graph and not {k2, k3, k4}
+   size_t nvertices = _vertices.size();
    for (size_t i = 1; i <= nvertices; i++) {
       _extmomlabels.push_back(static_cast<MomentumLabel>(i));
    }
@@ -65,7 +64,6 @@ double DiagramBase::calc_symmetry_factor()
     * where N_i is the number of lines from vertex i,
     * and P_ij is the number of lines between vertices i and j
     */
-
    // count the number of lines for each vertex
    unordered_map<VertexLabel, int> vertexcounts;
    for (auto vertex : _vertices) { vertexcounts[vertex] = 0; }
@@ -78,7 +76,6 @@ double DiagramBase::calc_symmetry_factor()
    for (auto vertex : _vertices) {
       numerator *= factorial(vertexcounts[vertex]);
    }
-
    // calculate the number of lines between each vertex pair
    unordered_map<VertexPair, int> linecounts;
    int denominator = 1;
@@ -99,7 +96,6 @@ double DiagramBase::calc_symmetry_factor()
          denominator *= factorial(linecounts[vxpair]);
       }
    }
-
    // the symmetry factor
    double symfac = numerator * 1. / denominator;
 

@@ -74,6 +74,11 @@ template <typename T>
 void MomentumMap<T>::set_map(unordered_map<MomentumLabel, T> mom_map)
 {
    _map = mom_map;
+   // save the keys from the map
+   _labels.clear();
+   for (auto item : _map) {
+      _labels.push_back(item.first);
+   }
 }
 
 //------------------------------------------------------------------------------

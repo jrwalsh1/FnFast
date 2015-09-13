@@ -39,6 +39,19 @@ ThreeVector Propagator::p(MomentumMap<ThreeVector> mom) const
 }
 
 //------------------------------------------------------------------------------
+vector<MomentumLabel> Propagator::labels() const
+{
+   vector<MomentumLabel> labels;
+   // add label if its coefficient is not kNull
+   for (auto const& label : _components.labels()) {
+      if (_components[label] != LabelFlow::kNull) {
+         labels.push_back(label);
+      }
+   }
+   return labels;
+}
+
+//------------------------------------------------------------------------------
 bool Propagator::hasLabel(MomentumLabel label) const
 {
    return _components.hasLabel(label);

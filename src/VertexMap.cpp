@@ -74,6 +74,11 @@ template <typename T>
 void VertexMap<T>::set_map(unordered_map<VertexLabel, T> vx_map)
 {
    _map = vx_map;
+   // save the keys from the map
+   _labels.clear();
+   for (auto item : _map) {
+      _labels.push_back(item.first);
+   }
 }
 
 //------------------------------------------------------------------------------

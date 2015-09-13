@@ -22,108 +22,34 @@
 #include "cuba.h"
 
 //------------------------------------------------------------------------------
-PowerSpectrum::PowerSpectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficients* eftcoefficients)
-: _order(order), _PL(PL), _SPTkernels(new SPTkernels), _EFTkernels(new EFTkernels), _eftcoefficients(eftcoefficients), _UVcutoff(10.), _kBin(0), _W(NULL)
-{
-   // Diagram momenta
-   _labels = { MomentumLabel::k1, MomentumLabel::k2, MomentumLabel::q };
-
-   // vertex kernels
-   // SPT
-   VertexMap<KernelBase*> kernels_SPT = {{VertexLabel::v1, _SPTkernels}, {VertexLabel::v2, _SPTkernels}};
-   // counterterms
-   _EFTkernels->set_coefficients(*_eftcoefficients);
-   VertexMap<KernelBase*> kernels_EFTSPT = {{VertexLabel::v1, _EFTkernels}, {VertexLabel::v2, _SPTkernels}};
-
-   // set up the diagrams, starting with the tree level
-   // P11
-   // propagators
-   Propagator prop_P11_k2(MomentumMap<Propagator::LabelFlow> {{MomentumLabel::k2, Propagator::LabelFlow::kPlus}});
-   // lines
-   Line line_P11_12(VertexLabel::v1, VertexLabel::v2, prop_P11_k2);
-   vector<Line> lines_P11 {line_P11_12};
-   // define the diagram
-   DiagramTree* P11 = new DiagramTree(lines_P11, kernels_SPT, _PL);
-
-   // define the tree diagrams
-   _tree = {P11};
-   _diagrams[Graphs::P11] = P11;
-
-   if (_order == Order::kOneLoop) {
-      // P31
-      // propagators
-      Propagator prop_P31_q(MomentumMap<Propagator::LabelFlow> {{MomentumLabel::q, Propagator::LabelFlow::kPlus}});
-      Propagator prop_P31_k2(MomentumMap<Propagator::LabelFlow> {{MomentumLabel::k2, Propagator::LabelFlow::kPlus}});
-      // lines
-      Line line_P31_11(VertexLabel::v1, VertexLabel::v1, prop_P31_q);
-      Line line_P31_12(VertexLabel::v1, VertexLabel::v2, prop_P31_k2);
-      vector<Line> lines_P31 {line_P31_11, line_P31_12};
-      // define the diagram
-      DiagramOneLoop* P31 = new DiagramOneLoop(lines_P31, kernels_SPT, _PL);
-
-      // P22
-      // propagators
-      Propagator prop_P22_q(MomentumMap<Propagator::LabelFlow> {{MomentumLabel::q, Propagator::LabelFlow::kPlus}});
-      Propagator prop_P22_qk2(MomentumMap<Propagator::LabelFlow> {{MomentumLabel::q, Propagator::LabelFlow::kMinus}, {MomentumLabel::k2, Propagator::LabelFlow::kPlus}});
-      // lines
-      Line line_P22_12a(VertexLabel::v1, VertexLabel::v2, prop_P22_q);
-      Line line_P22_12b(VertexLabel::v1, VertexLabel::v2, prop_P22_qk2);
-      vector<Line> lines_P22 {line_P22_12a, line_P22_12b};
-      // define the diagram
-      DiagramOneLoop* P22 = new DiagramOneLoop(lines_P22, kernels_SPT, _PL);
-
-      // define the loop diagrams
-      _loop = {P31, P22};
-      _diagrams[Graphs::P31] = P31;
-      _diagrams[Graphs::P22] = P22;
-
-      // P31x
-      // propagators
-      Propagator prop_P31x_k2(MomentumMap<Propagator::LabelFlow> {{MomentumLabel::k2, Propagator::LabelFlow::kPlus}});
-      // lines
-      Line line_P31x_12(VertexLabel::v1, VertexLabel::v2, prop_P31x_k2);
-      vector<Line> lines_P31x {line_P31x_12};
-      // define the diagram
-      DiagramTree* P31x = new DiagramTree(lines_P31x, kernels_EFTSPT, _PL);
-      P31x->set_perms(P31->get_perms());
-
-      // define the counterterm diagrams
-      _cterms = {P31x};
-      _diagrams[Graphs::P31x] = P31x;
-   }
-}
+PowerSpectrum::PowerSpectrum(Order order)
+: _order(order), _diagrams(DiagramSet2point(order)), _UVcutoff(10.)
+{}
 
 //------------------------------------------------------------------------------
-double PowerSpectrum::tree(double k)
+double PowerSpectrum::tree(double k, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
 {
    // set the external momenta
    ThreeVector k2(0, 0, k);
    MomentumMap<ThreeVector> momenta(unordered_map<MomentumLabel, ThreeVector> {{MomentumLabel::k1, -k2}, {MomentumLabel::k2, k2}});
 
-   double value = 0;
-   // sum the tree level diagrams
-   for (size_t i = 0; i < _tree.size(); i++) {
-      value += _tree[i]->value(momenta);
-   }
-   return value;
+   return _diagrams.value_tree(momenta, kernels, PL);
 }
 
 //------------------------------------------------------------------------------
-double PowerSpectrum::loopSPT_excl(ThreeVector k, ThreeVector q)
+double PowerSpectrum::oneLoop_excl(const MomentumMap<ThreeVector>& mom, VertexMap<KernelBase*> kernels, LinearPowerSpectrumBase* PL) const
 {
-   // set the external momenta
-   MomentumMap<ThreeVector> momenta(unordered_map<MomentumLabel, ThreeVector> {{MomentumLabel::k1, -k}, {MomentumLabel::k2, k}, {MomentumLabel::q, q}});
-
-   double value = 0;
-   // sum the loop diagrams
-   for (size_t i = 0; i < _loop.size(); i++) {
-      value += _loop[i]->value(momenta);
-   }
-   return value;
+   return _diagrams.value_oneLoop(mom, kernels, PL);
 }
 
 //------------------------------------------------------------------------------
-IntegralResult PowerSpectrum::loopSPT(double k)
+double PowerSpectrum::twoLoop_excl(const MomentumMap<ThreeVector>& mom, VertexMap<KernelBase*> kernels, LinearPowerSpectrumBase* PL) const
+{
+   return _diagrams.value_twoLoop(mom, kernels, PL);
+}
+
+//------------------------------------------------------------------------------
+IntegralResult PowerSpectrum::oneLoop(double k, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
 {
    // options passed into the integration
    LoopIntegrationOptions data;
@@ -132,6 +58,8 @@ IntegralResult PowerSpectrum::loopSPT(double k)
    double qmax = 10;
    LoopPhaseSpace loopPS(qmax);
    data.loopPS = &loopPS;
+   data.kernels = &kernels;
+   data.PL = PL;
 
    // Integration
    // VEGAS parameters
@@ -182,7 +110,7 @@ IntegralResult PowerSpectrum::loopSPT(double k)
    double integral[ncomp], error[ncomp], prob[ncomp];
 
    // run VEGAS
-   Vegas(ndim, ncomp, loop_integrand, &data, nvec,
+   Vegas(ndim, ncomp, oneLoop_integrand, &data, nvec,
        epsrel, epsabs, flags, vegasseed,
        mineval, maxeval, nstart, nincrease, nbatch,
        gridnum, statefile, spin,
@@ -192,20 +120,6 @@ IntegralResult PowerSpectrum::loopSPT(double k)
    IntegralResult result(integral[0], error[0], prob[0]);
 
    return result;
-}
-
-//------------------------------------------------------------------------------
-double PowerSpectrum::ctermsEFT(double k)
-{
-   // set the external momenta
-   ThreeVector k2(0, 0, k);
-   MomentumMap<ThreeVector> momenta(unordered_map<MomentumLabel, ThreeVector> {{MomentumLabel::k1, -k2}, {MomentumLabel::k2, k2}});
-
-   double value = 0;
-   for (size_t i = 0; i < _cterms.size(); i++) {
-      value += _cterms[i]->value(momenta);
-   }
-   return value;
 }
 
 //------------------------------------------------------------------------------
@@ -230,13 +144,17 @@ double PowerSpectrum::LoopPhaseSpace::setPS(double qpts[2])
 }
 
 //------------------------------------------------------------------------------
-int PowerSpectrum::loop_integrand(const int *ndim, const double xx[], const int *ncomp, double ff[], void *userdata)
+int PowerSpectrum::oneLoop_integrand(const int *ndim, const double xx[], const int *ncomp, double ff[], void *userdata)
 {
    // get the options
    LoopIntegrationOptions* data = static_cast<LoopIntegrationOptions*>(userdata);
 
    // external momentum magnitude
    double k = data->k;
+
+   // linear power spectrum and vertex kernels
+   const VertexMap<KernelBase*>* kernels = data->kernels;
+   LinearPowerSpectrumBase* PL = data->PL;
 
    // define the variables needed for the PS point
    double qpts[2] = {xx[0], xx[1]};
@@ -247,7 +165,8 @@ int PowerSpectrum::loop_integrand(const int *ndim, const double xx[], const int 
    if (jacobian > 0) {
       ThreeVector q = data->loopPS->q();
       ThreeVector k2(0, 0, k);
-      integrand = data->powerspectrum->loopSPT_excl(k2, q);
+      MomentumMap<ThreeVector> mom {{MomentumLabel::q, q}, {MomentumLabel::k1, -k2}, {MomentumLabel::k2, k2}};
+      integrand = data->powerspectrum->oneLoop_excl(mom, *kernels, PL);
    }
 
    // loop calculation

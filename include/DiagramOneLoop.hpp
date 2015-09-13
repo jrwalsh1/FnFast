@@ -32,18 +32,18 @@ class DiagramOneLoop : public DiagramBase
 
    public:
       /// constructor
-      DiagramOneLoop(vector<Line> lines, VertexMap<KernelBase*> kernels, LinearPowerSpectrumBase* PL);
+      DiagramOneLoop(vector<Line> lines);
       /// destructor
       virtual ~DiagramOneLoop() {}
 
       /// returns the diagram value with the input momentum routing
-      double value_base(const MomentumMap<ThreeVector>& mom) const;
+      double value_base(const MomentumMap<ThreeVector>& mom, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
 
       /// returns the IR regulated diagram value with the input momentum routing
-      double value_base_IRreg(const MomentumMap<ThreeVector>& mom) const;
+      double value_base_IRreg(const MomentumMap<ThreeVector>& mom, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
 
       /// returns the IR regulated diagram value, symmetrized over external momenta
-      double value(const MomentumMap<ThreeVector>& mom) const;
+      double value(const MomentumMap<ThreeVector>& mom, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
 
       /// set a cutoff on the magnitude of the loop momentum
       void set_qmax(double qmax) { _qmax = qmax; }

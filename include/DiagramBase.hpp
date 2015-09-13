@@ -39,15 +39,13 @@ class DiagramBase
       double _symfac;                                   ///< symmetry factor
       vector<Line> _lines;                              ///< lines in the graph
       VertexMap<vector<Propagator> > _vertexmomenta;    ///< vertex factors
-      VertexMap<KernelBase*> _kernels;                  ///< pointer to a kernel instance
-      LinearPowerSpectrumBase* _PL;                     ///< pointer to a linear power spectrum instance
       vector<VertexPair> _vertexpairs;                  ///< container for endpoint vertices of lines
       vector<MomentumLabel> _extmomlabels;              ///< momentum labels in the graph
       vector<MomentumMap<MomentumLabel> > _perms;       ///< permutations of external momenta for the graph
 
    public:
       /// constructor
-      DiagramBase(vector<Line> lines, VertexMap<KernelBase*> kernels, LinearPowerSpectrumBase* PL);
+      DiagramBase(vector<Line> lines);
       /// destructor
       virtual ~DiagramBase() {}
 
@@ -63,14 +61,8 @@ class DiagramBase
       /// set the external momentum permutations to be used in the diagram calculation
       void set_perms(vector<MomentumMap<MomentumLabel> > perms) { _perms = perms; }
 
-      /// set the linear power spectrum
-      void setLinearPowerSpectrum(LinearPowerSpectrumBase* PL) { _PL = PL; }
-
-      /// set the kernels
-      void setKernels(VertexMap<KernelBase*> kernels) { _kernels = kernels; }
-
       /// returns the diagram value with the input momentum routing
-      virtual double value(const MomentumMap<ThreeVector>& mom) const = 0;
+      virtual double value(const MomentumMap<ThreeVector>& mom, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const = 0;
 
    protected:
       /// function theta(|p1| < |p2|)
@@ -89,17 +81,6 @@ class DiagramBase
 ////////////////////////////////////////////////////////////////////////////////
 // Inline Declarations
 ////////////////////////////////////////////////////////////////////////////////
-
-/*
-//------------------------------------------------------------------------------
-inline Diagram::~Diagram()
-{
-   delete _PL;
-   for (auto kern : _kernels) {
-      delete kern.second;
-   }
-}
-*/
 
 //------------------------------------------------------------------------------
 inline double DiagramBase::theta(ThreeVector p1, ThreeVector p2)

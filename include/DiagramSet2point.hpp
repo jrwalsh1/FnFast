@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-/// \file DiagramTree.hpp
+/// \file DiagramSet2point.hpp
 //
 // Author(s):
 //    Jon Walsh
@@ -13,33 +13,45 @@
 //    Please respect the academic usage guidelines in the GUIDELINES file.
 //
 // Description:
-//    Interface of class DiagramTree
+//    Definition of base class DiagramSet2point
 //------------------------------------------------------------------------------
 
-#ifndef DIAGRAM_TREE_HPP
-#define DIAGRAM_TREE_HPP
+#ifndef DIAGRAM_SET_2_POINT_HPP
+#define DIAGRAM_SET_2_POINT_HPP
 
-#include "DiagramBase.hpp"
+#include "DiagramSetBase.hpp"
 
 using namespace std;
 
-class DiagramTree : public DiagramBase
+class DiagramSet2point : public DiagramSetBase
 {
+   public:
+      /// graph labels
+      enum class Graphs_2point : int {
+         P11,
+         P31,
+         P22,
+         P51,
+         P42,
+         P33a,
+         P33b
+      };
+
    private:
-      Order _order;     ///< order of the calculation
+      map<Graphs_2point, DiagramBase*> _diagrams;      ///< container for diagrams
 
    public:
       /// constructor
-      DiagramTree(vector<Line> lines);
+      DiagramSet2point(Order order);
       /// destructor
-      virtual ~DiagramTree() {}
+      virtual ~DiagramSet2point() {}
 
-      /// returns the diagram value with the input momentum routing
-      double value(const MomentumMap<ThreeVector>& mom, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
+      /// access diagrams
+      DiagramBase* operator[](const Graphs_2point& graph) const { return NULL; } //_diagrams[graph]; }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 // Inline Declarations
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // DIAGRAM_TREE_HPP
+#endif // DIAGRAM_SET_2_POINT_HPP

@@ -19,15 +19,10 @@
 #ifndef POWER_SPECTRUM_HPP
 #define POWER_SPECTRUM_HPP
 
-#include <map>
-
 #include "MomentumMap.hpp"
 #include "VertexMap.hpp"
-#include "DiagramTree.hpp"
-#include "DiagramOneLoop.hpp"
-#include "SPTkernels.hpp"
-#include "EFTkernels.hpp"
-#include "WindowFunctionBase.hpp"
+#include "DiagramSet2point.hpp"
+#include "KernelBase.hpp"
 #include "Integration.hpp"
 
 using namespace std;
@@ -43,11 +38,12 @@ using namespace std;
  * Contains the power spectrum at various levels:
  * - tree level:
  *    - differential in k
- *    - integrated over k
- * - one loop (only available if called with Order oneLoop)
+ * - one loop
  *    - differential in k, q
  *    - integrated over q, differential in k
- *    - integrated over q, k
+ * - two loop
+ *    - differential in k, q
+ *    - integrated over q, differential in k
  *
  * Provides functions for access to the power spectrum at these levels
  */
@@ -55,30 +51,11 @@ using namespace std;
 
 class PowerSpectrum
 {
-   public:
-      /// graph labels
-      enum Graphs {
-         P11,
-         P31,
-         P22,
-         P31x
-      };
-
    private:
-      Order _order;                                   ///< order of the calculation
-      LinearPowerSpectrumBase* _PL;                   ///< the linear power spectrum used in the calculation
-      SPTkernels* _SPTkernels;                        ///< SPT kernels instance
-      EFTkernels* _EFTkernels;                        ///< EFT kernels instance
-      vector<DiagramTree*> _tree;                     ///< tree level diagrams
-      vector<DiagramOneLoop*> _loop;                  ///< loop diagrams
-      vector<DiagramTree*> _cterms;                   ///< counterterms
-      map<Graphs, DiagramBase*> _diagrams;            ///< container for diagrams
-      EFTcoefficients* _eftcoefficients;              ///< EFT coefficients
-      vector<MomentumLabel> _labels;                  ///< external momenta labels
-      double _UVcutoff;                               ///< UV cutoff for loop integrations
-      double _kBin;                                   ///< size of k bins
-      WindowFunctionBase* _W;                         ///< Window function
-      int _seed;                                      ///< random number seed for VEGAS
+      Order _order;                       ///< order of the calculation
+      DiagramSet2point _diagrams;         ///< 2-point diagrams
+      double _UVcutoff;                   ///< UV cutoff for loop integrations
+      int _seed;                          ///< random number seed for VEGAS
 
       /// phase space for the loop momentum
       class LoopPhaseSpace {
@@ -106,70 +83,46 @@ class PowerSpectrum
       /// container for the integration options
       struct LoopIntegrationOptions {
          double k;
-         PowerSpectrum* powerspectrum;
+         const PowerSpectrum* powerspectrum;
          LoopPhaseSpace* loopPS;
+         const VertexMap<KernelBase*>* kernels;
+         LinearPowerSpectrumBase* PL;
       };
 
    public:
       /// constructor
-      PowerSpectrum(Order order, LinearPowerSpectrumBase* PL, EFTcoefficients* eftcoefficients);
+      PowerSpectrum(Order order);
       /// destructor
       virtual ~PowerSpectrum() {}
 
       /// access diagrams
-      DiagramBase* operator[](Graphs graph) { return _diagrams[graph]; }
-
-      /// set size of k bins
-      void set_kBinSize(double kBin) { _kBin = kBin; }
-      /// set window function
-      void set_windowFunction(WindowFunctionBase* W) { _W = W; }
+      DiagramBase* operator[](DiagramSet2point::Graphs_2point graph) { return _diagrams[graph]; }
 
       /// set the loop momentum cutoff
-      void set_qmax(double qmax);
+      void set_qmax(double qmax) { _diagrams.set_qmax(qmax); }
 
       /// set the random number seed
       void set_seed(int seed) { _seed = seed; }
 
-      /// get results
-      /// Differential in k
+      /// get results differential in k
       /// tree level
-      double tree(double k);
-      /// one loop differential in q and integrated in q
-      double loopSPT_excl(ThreeVector k, ThreeVector q);
-      IntegralResult loopSPT(double k);
-      /// one loop counterterms
-      double ctermsEFT(double k);
-
-      /// Averaged over k bins
-      /// tree level
-      double tree_kbin(double k);
-      /// one loop integrated in q
-      double loopSPT_kbin(double k);
-      /// one loop counterterms
-      double ctermsEFT_kbin(double k);
-
-      /// Averaged over k bins + convolution with window function
-      /// tree level
-      double tree_kbin_win(double k);
-      /// one loop integrated in q
-      double loopSPT_kbin_win(double k);
-      /// one loop counterterms
-      double ctermsEFT_kbin_win(double k);
+      double tree(double k, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
+      /// one loop differential in q and integrated over q
+      double oneLoop_excl(const MomentumMap<ThreeVector>& mom, VertexMap<KernelBase*> kernels, LinearPowerSpectrumBase* PL) const;
+      IntegralResult oneLoop(double k, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
+      /// two loop differential in q, q2 and integrated over q, q2
+      double twoLoop_excl(const MomentumMap<ThreeVector>& mom, VertexMap<KernelBase*> kernels, LinearPowerSpectrumBase* PL) const;
+      IntegralResult twoLoop(double k, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
 
    private:
-      /// loop integrand function
-      static int loop_integrand(const int *ndim, const double xx[], const int *ncomp, double ff[], void *userdata);
+      /// one loop integrand
+      static int oneLoop_integrand(const int *ndim, const double xx[], const int *ncomp, double ff[], void *userdata);
+      /// two loop integrand
+      static int twoLoop_integrand(const int *ndim, const double xx[], const int *ncomp, double ff[], void *userdata);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 // Inline Declarations
 ////////////////////////////////////////////////////////////////////////////////
-
-//------------------------------------------------------------------------------
-inline void PowerSpectrum::set_qmax(double qmax) {
-   for (size_t c = 0; c < _loop.size(); c++) {
-      _loop[c]->set_qmax(qmax);
-   }
-}
 
 #endif // POWER_SPECTRUM_HPP
