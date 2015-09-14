@@ -75,7 +75,7 @@ class MomentumMap
 
       /// the subscript operator
       const T& operator[](const MomentumLabel& label) const;
-      T& operator[](MomentumLabel& label);
+      T& operator[](const MomentumLabel& label);
 
       /// permute objects using a map on the labels
       void permute(MomentumMap<MomentumLabel> perm);

@@ -116,8 +116,7 @@ double DiagramOneLoop::value_base_IRreg(const MomentumMap<ThreeVector>& mom, con
       }
       // copy and shift the diagram momentum for the pole
       MomentumMap<ThreeVector> mom_shift = mom;
-      MomentumLabel loopq = MomentumLabel::q;
-      mom_shift[loopq] = mom[MomentumLabel::q] + pole;
+      mom_shift[MomentumLabel::q] = mom[MomentumLabel::q] + pole;
       // add the diagram value for this shifted momentum, times the PS factor
       value += PSregion * value_base(mom_shift, kernels, PL);
    }
@@ -145,8 +144,7 @@ double DiagramOneLoop::value(const MomentumMap<ThreeVector>& mom, const VertexMa
       mom_perm.permute(perm);
       value += 0.5 * value_base_IRreg(mom_perm, kernels, PL);
       ThreeVector mq = -1 * mom_perm[MomentumLabel::q];
-      MomentumLabel loopq = MomentumLabel::q;
-      mom_perm[loopq] = mq;
+      mom_perm[MomentumLabel::q] = mq;
       value += 0.5 * value_base_IRreg(mom_perm, kernels, PL);
    }
 

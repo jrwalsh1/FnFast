@@ -28,9 +28,12 @@ class DiagramSet2point : public DiagramSetBase
    public:
       /// graph labels
       enum class Graphs_2point : int {
+         // tree
          P11,
+         // one loop
          P31,
          P22,
+         // two loop
          P51,
          P42,
          P33a,

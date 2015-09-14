@@ -95,7 +95,7 @@ const T& MomentumMap<T>::operator[](const MomentumLabel& label) const
 
 //------------------------------------------------------------------------------
 template <typename T>
-T& MomentumMap<T>::operator[](MomentumLabel& label)
+T& MomentumMap<T>::operator[](const MomentumLabel& label)
 {
    // throw an exception if there is no key found
    if (_map.find(label) == _map.end()) {

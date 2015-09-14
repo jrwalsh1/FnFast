@@ -36,8 +36,6 @@ int main()
 
    ThreeVector k1(0.5, 0, 0.1);
    double k1mag = k1.magnitude();
-   cout << "k1: " << k1 << endl;
-   cout << "q: " << q << endl;
 
    cout << "---------- computing 1-loop power spectrum ----------" << endl;
    SPTkernels* kernelsSPT = new SPTkernels();

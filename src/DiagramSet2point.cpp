@@ -68,7 +68,6 @@ DiagramSet2point::DiagramSet2point(Order order) : DiagramSetBase(order)
       _oneLoop = {P31, P22};
       _diagrams[Graphs_2point::P31] = P31;
       _diagrams[Graphs_2point::P22] = P22;
-      cout << "PS symmetry factors: " << P11->symmetry_factor() << ", " << P31->symmetry_factor() << ", " << P22->symmetry_factor() << endl;
    }
 
    // add the two loop graphs (if requested)
@@ -124,5 +123,12 @@ DiagramSet2point::DiagramSet2point(Order order) : DiagramSetBase(order)
       vector<Line> lines_P33b {line_P33b_12a, line_P33b_12b, line_P33b_12c};
       // define the diagram
       DiagramTwoLoop* P33b = new DiagramTwoLoop(lines_P33b);
+
+      // define the two loop diagrams
+      _twoLoop = {P51, P42, P33a, P33b};
+      _diagrams[Graphs_2point::P51] = P51;
+      _diagrams[Graphs_2point::P42] = P42;
+      _diagrams[Graphs_2point::P33a] = P33a;
+      _diagrams[Graphs_2point::P33b] = P33b;
    }
 }

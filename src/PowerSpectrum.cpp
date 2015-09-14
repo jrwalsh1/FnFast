@@ -51,15 +51,8 @@ double PowerSpectrum::twoLoop_excl(const MomentumMap<ThreeVector>& mom, VertexMa
 //------------------------------------------------------------------------------
 IntegralResult PowerSpectrum::oneLoop(double k, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
 {
-   // options passed into the integration
-   LoopIntegrationOptions data;
-   data.k = k;
-   data.powerspectrum = this;
-   double qmax = 10;
-   LoopPhaseSpace loopPS(qmax);
-   data.loopPS = &loopPS;
-   data.kernels = &kernels;
-   data.PL = PL;
+   // integration method
+   OneLoopIntegrator integrator(k, _UVcutoff, &kernels, PL, this);
 
    // Integration
    // VEGAS parameters
@@ -110,7 +103,7 @@ IntegralResult PowerSpectrum::oneLoop(double k, const VertexMap<KernelBase*>& ke
    double integral[ncomp], error[ncomp], prob[ncomp];
 
    // run VEGAS
-   Vegas(ndim, ncomp, oneLoop_integrand, &data, nvec,
+   Vegas(ndim, ncomp, oneLoop_integrand, &integrator, nvec,
        epsrel, epsabs, flags, vegasseed,
        mineval, maxeval, nstart, nincrease, nbatch,
        gridnum, statefile, spin,
@@ -123,11 +116,11 @@ IntegralResult PowerSpectrum::oneLoop(double k, const VertexMap<KernelBase*>& ke
 }
 
 //------------------------------------------------------------------------------
-double PowerSpectrum::LoopPhaseSpace::setPS(double qpts[2])
+pair<double, MomentumMap<ThreeVector>* const> PowerSpectrum::OneLoopIntegrator::generate_point(double qpts[2])
 {
    // we sample q flat in spherical coordinates
    // q components
-   double qmag = qpts[0] * _qmax;
+   double qmag = qpts[0] * qmax;
    double qcosth = 2 * qpts[1] - 1.;
 
    // jacobian
@@ -135,42 +128,28 @@ double PowerSpectrum::LoopPhaseSpace::setPS(double qpts[2])
    // 2 from the cos theta jacobian,
    // pick up a 2pi from the phi integral,
    // and a 1/(2pi)^3 from the measure
-   _jacobian = qmag * qmag * _qmax / (2 * pi*pi);
+   double jacobian = qmag * qmag * qmax / (2 * pi*pi);
 
    // 3-vector for the loop momentum
-   _q = ThreeVector(qmag * sqrt(1. - qcosth*qcosth), 0, qmag * qcosth);
+   momenta[MomentumLabel::q] = ThreeVector(qmag * sqrt(1. - qcosth*qcosth), 0, qmag * qcosth);
 
-   return _jacobian;
+   return pair<double, MomentumMap<ThreeVector>* const>(jacobian, &momenta);
 }
 
 //------------------------------------------------------------------------------
 int PowerSpectrum::oneLoop_integrand(const int *ndim, const double xx[], const int *ncomp, double ff[], void *userdata)
 {
-   // get the options
-   LoopIntegrationOptions* data = static_cast<LoopIntegrationOptions*>(userdata);
+   // get the integrator
+   OneLoopIntegrator* integrator = static_cast<OneLoopIntegrator*>(userdata);
 
-   // external momentum magnitude
-   double k = data->k;
-
-   // linear power spectrum and vertex kernels
-   const VertexMap<KernelBase*>* kernels = data->kernels;
-   LinearPowerSpectrumBase* PL = data->PL;
-
-   // define the variables needed for the PS point
+   // generate the PS points
    double qpts[2] = {xx[0], xx[1]};
+   pair<double, MomentumMap<ThreeVector>* const> PSpoint = integrator->generate_point(qpts);
 
-   // set the PS point and return the integrand
-   double jacobian = data->loopPS->setPS(qpts);
-   double integrand = 0;
-   if (jacobian > 0) {
-      ThreeVector q = data->loopPS->q();
-      ThreeVector k2(0, 0, k);
-      MomentumMap<ThreeVector> mom {{MomentumLabel::q, q}, {MomentumLabel::k1, -k2}, {MomentumLabel::k2, k2}};
-      integrand = data->powerspectrum->oneLoop_excl(mom, *kernels, PL);
-   }
+   // calculate the integrand
+   double integrand = PSpoint.first * (integrator->powerspectrum->diagrams()->value_oneLoop(*(PSpoint.second), *(integrator->kernels), integrator->PL));
 
-   // loop calculation
-   ff[0] = jacobian * integrand;
+   ff[0] = integrand;
 
    return 0;
 }

@@ -57,36 +57,21 @@ class PowerSpectrum
       double _UVcutoff;                   ///< UV cutoff for loop integrations
       int _seed;                          ///< random number seed for VEGAS
 
-      /// phase space for the loop momentum
-      class LoopPhaseSpace {
-         private:
-            double _qmax;           ///< upper limit on q integral
-            double _jacobian;       ///< jacobian for the phase space point
-            ThreeVector _q;         ///< loop momentum value
-
-         public:
-            static constexpr double pi = 3.14159265358979;      ///< pi
-
-         public:
-            /// constructor
-            LoopPhaseSpace(double qmax) : _qmax(qmax) {}
-            /// destructor
-            virtual ~LoopPhaseSpace() {}
-
-            /// set the loop phase space, returns the jacobian
-            double setPS(double qpts[2]);
-
-            /// returns the loop momentum
-            ThreeVector q() { return _q; }
-      };
-
       /// container for the integration options
-      struct LoopIntegrationOptions {
+      struct OneLoopIntegrator {
          double k;
-         const PowerSpectrum* powerspectrum;
-         LoopPhaseSpace* loopPS;
+         MomentumMap<ThreeVector> momenta;
+         double qmax;
          const VertexMap<KernelBase*>* kernels;
          LinearPowerSpectrumBase* PL;
+         const PowerSpectrum* powerspectrum;
+         static constexpr double pi = 3.14159265358979;
+
+         /// constructor
+         OneLoopIntegrator(double k, double qlim, const VertexMap<KernelBase*>* kern, LinearPowerSpectrumBase* linPS, const PowerSpectrum* powerspec);
+
+         /// sample phase space; return the point along with the jacobian
+         pair<double, MomentumMap<ThreeVector>* const> generate_point(double qpts[2]);
       };
 
    public:
@@ -96,6 +81,7 @@ class PowerSpectrum
       virtual ~PowerSpectrum() {}
 
       /// access diagrams
+      const DiagramSetBase* diagrams() const { return &_diagrams; }
       DiagramBase* operator[](DiagramSet2point::Graphs_2point graph) { return _diagrams[graph]; }
 
       /// set the loop momentum cutoff
@@ -124,5 +110,10 @@ class PowerSpectrum
 ////////////////////////////////////////////////////////////////////////////////
 // Inline Declarations
 ////////////////////////////////////////////////////////////////////////////////
+
+//------------------------------------------------------------------------------
+inline PowerSpectrum::OneLoopIntegrator::OneLoopIntegrator(double kmag, double qlim, const VertexMap<KernelBase*>* kern, LinearPowerSpectrumBase* linPS, const PowerSpectrum* powerspec)
+: k(kmag), momenta(MomentumMap<ThreeVector> {{MomentumLabel::k1, ThreeVector(0, 0, -k)}, {MomentumLabel::k2, ThreeVector(0, 0, -k)}, {MomentumLabel::q, ThreeVector()}}), qmax(qlim), kernels(kern), PL(linPS), powerspectrum(powerspec)
+{}
 
 #endif // POWER_SPECTRUM_HPP
