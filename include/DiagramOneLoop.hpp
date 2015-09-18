@@ -21,29 +21,29 @@
 
 #include "DiagramBase.hpp"
 
-using namespace std;
+namespace fnfast {
 
 class DiagramOneLoop : public DiagramBase
 {
    private:
-      Order _order;                   ///< order of the calculation
-      vector<Propagator> _IRpoles;    ///< IR poles
-      double _qmax;                   ///< upper limit on the magnitude of the loop momentum (default is infinity)
+      Order _order;                        ///< order of the calculation
+      std::vector<Propagator> _IRpoles;    ///< IR poles
+      double _qmax;                        ///< upper limit on the magnitude of the loop momentum (default is infinity)
 
    public:
       /// constructor
-      DiagramOneLoop(vector<Line> lines);
+      DiagramOneLoop(std::vector<Line> lines);
       /// destructor
       virtual ~DiagramOneLoop() {}
 
       /// returns the diagram value with the input momentum routing
-      double value_base(const MomentumMap<ThreeVector>& mom, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
+      double value_base(const LabelMap<Momentum, ThreeVector>& mom, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
 
       /// returns the IR regulated diagram value with the input momentum routing
-      double value_base_IRreg(const MomentumMap<ThreeVector>& mom, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
+      double value_base_IRreg(const LabelMap<Momentum, ThreeVector>& mom, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
 
       /// returns the IR regulated diagram value, symmetrized over external momenta
-      double value(const MomentumMap<ThreeVector>& mom, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
+      double value(const LabelMap<Momentum, ThreeVector>& mom, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
 
       /// set a cutoff on the magnitude of the loop momentum
       void set_qmax(double qmax) { _qmax = qmax; }
@@ -52,5 +52,7 @@ class DiagramOneLoop : public DiagramBase
 ////////////////////////////////////////////////////////////////////////////////
 // Inline Declarations
 ////////////////////////////////////////////////////////////////////////////////
+
+} // namespace fnfast
 
 #endif // DIAGRAM_ONE_LOOP_HPP

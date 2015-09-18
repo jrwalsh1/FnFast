@@ -17,17 +17,20 @@
 //------------------------------------------------------------------------------
 
 #include <cassert>
+#include <iostream>
 
 #include "DiagramTree.hpp"
 
+namespace fnfast {
+
 //------------------------------------------------------------------------------
-DiagramTree::DiagramTree(vector<Line> lines) : DiagramBase(lines)
+DiagramTree::DiagramTree(std::vector<Line> lines) : DiagramBase(lines)
 {
    _order = Order::kTree;
    // check to ensure that the diagram is really tree level (no loop momentum)
    bool isLoop = false;
    for (auto line : _lines) {
-      if (line.propagator.hasLabel(MomentumLabel::q) || line.propagator.hasLabel(MomentumLabel::q)) {
+      if (line.propagator.hasLabel(Momentum::q) || line.propagator.hasLabel(Momentum::q)) {
          isLoop = true;
       }
    }
@@ -35,24 +38,34 @@ DiagramTree::DiagramTree(vector<Line> lines) : DiagramBase(lines)
 }
 
 //------------------------------------------------------------------------------
-double DiagramTree::value(const MomentumMap<ThreeVector>& mom, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
+double DiagramTree::value(const LabelMap<Momentum, ThreeVector>& mom, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
 {
    // the diagram value is:
    // symmetry factor * propagators * vertices
-   double value = _symfac;
-   // iterate over lines
-   for (auto line : _lines) {
-      value *= (*PL)(line.propagator.p(mom).magnitude());
-   }
-   // now do vertex factors
-   for (auto vertex : _vertices) {
-      vector<ThreeVector> p;
-      p.reserve(_vertexmomenta[vertex].size());
-      // loop over propagators attached to the vertex
-      for (auto vx_prop : _vertexmomenta[vertex]) {
-         p.push_back(vx_prop.p(mom));
+   // summed over external momentum permutations
+   double value = 0;
+   for (auto perm : _perms) {
+      // get the momentum permutation
+      LabelMap<Momentum, ThreeVector> mom_perm = mom;
+      mom_perm.permute(perm);
+      double diagvalue = _symfac;
+      // iterate over lines
+      for (auto line : _lines) {
+         diagvalue *= (*PL)(line.propagator.p(mom_perm).magnitude());
       }
-      value *= kernels[vertex]->Fn_sym(p);
+      // now do vertex factors
+      for (auto vertex : _vertices) {
+         std::vector<ThreeVector> p;
+         p.reserve(_vertexmomenta[vertex].size());
+         // loop over propagators attached to the vertex
+         for (auto vx_prop : _vertexmomenta[vertex]) {
+            p.push_back(vx_prop.p(mom_perm));
+         }
+         diagvalue *= kernels[vertex]->Fn_sym(p);
+      }
+      value += diagvalue;
    }
    return value;
 }
+
+} // namespace fnfast

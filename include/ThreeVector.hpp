@@ -22,7 +22,7 @@
 #include <iosfwd>
 #include <cmath>
 
-using namespace std;
+namespace fnfast {
 
 //------------------------------------------------------------------------------
 /**
@@ -161,12 +161,12 @@ class ThreeVector
       /// \name Output
       ///@{
       // ThreeVector stream insertion operator
-      friend ostream& operator<<(ostream& out, const ThreeVector& p);
+      friend std::ostream& operator<<(std::ostream& out, const ThreeVector& p);
       ///@}
 
    protected:
       /// Streams a string in the format (p1, p2, p3) to \a out.
-      ostream& print(ostream& out) const;
+      std::ostream& print(std::ostream& out) const;
 };
 
 // ThreeVector addition operator
@@ -258,7 +258,7 @@ inline int compare(const double x1, const double x2,
 
    // check the relative precision
    int exponent;
-   frexp(abs(x1) > abs(x2) ? x1 : x2, &exponent);
+   frexp(std::abs(x1) > std::abs(x2) ? x1 : x2, &exponent);
    const double eps = ldexp(delta, exponent);
    if (difference <= eps)
       return 0;
@@ -327,7 +327,7 @@ inline int compareRelative(const double x1, const double x2,
                            const double delta = 1e-10)
 {
    int exponent;
-   frexp(abs(x1) > abs(x2) ? x1 : x2, &exponent);
+   frexp(std::abs(x1) > std::abs(x2) ? x1 : x2, &exponent);
    const double eps = ldexp(delta, exponent);
    return compareToZero(x1 - x2, eps);
 }
@@ -680,7 +680,7 @@ inline double ThreeVector::square() const
  */
 inline double ThreeVector::magnitude() const
 {
-   return sqrt(square());
+   return std::sqrt(square());
 }
 
 //------------------------------------------------------------------------------
@@ -690,7 +690,7 @@ inline double ThreeVector::magnitude() const
  */
 inline double ThreeVector::perp() const
 {
-   return sqrt(perp2());
+   return std::sqrt(perp2());
 }
 
 //------------------------------------------------------------------------------
@@ -784,9 +784,11 @@ inline double cosAngleBetween(const ThreeVector& lhs, const ThreeVector& rhs)
  *
  * Streams a string in the format "(p1, p2, p3)" to \a out.
  */
-inline ostream& operator<<(ostream& out, const ThreeVector& p)
+inline std::ostream& operator<<(std::ostream& out, const ThreeVector& p)
 {
    return p.print(out);
 }
+
+} // namespace fnfast
 
 #endif // THREE_VECTOR_HPP

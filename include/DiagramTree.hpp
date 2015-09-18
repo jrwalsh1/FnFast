@@ -21,7 +21,7 @@
 
 #include "DiagramBase.hpp"
 
-using namespace std;
+namespace fnfast {
 
 class DiagramTree : public DiagramBase
 {
@@ -30,16 +30,18 @@ class DiagramTree : public DiagramBase
 
    public:
       /// constructor
-      DiagramTree(vector<Line> lines);
+      DiagramTree(std::vector<Line> lines);
       /// destructor
       virtual ~DiagramTree() {}
 
       /// returns the diagram value with the input momentum routing
-      double value(const MomentumMap<ThreeVector>& mom, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
+      double value(const LabelMap<Momentum, ThreeVector>& mom, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 // Inline Declarations
 ////////////////////////////////////////////////////////////////////////////////
+
+} // namespace fnfast
 
 #endif // DIAGRAM_TREE_HPP

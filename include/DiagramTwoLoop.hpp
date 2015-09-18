@@ -21,29 +21,29 @@
 
 #include "DiagramBase.hpp"
 
-using namespace std;
+namespace fnfast {
 
 class DiagramTwoLoop : public DiagramBase
 {
    private:
-      Order _order;                   ///< order of the calculation
-      vector<Propagator> _IRpoles;    ///< IR poles
-      double _qmax;                   ///< upper limit on the magnitude of the loop momentum (default is infinity)
+      Order _order;                        ///< order of the calculation
+      std::vector<Propagator> _IRpoles;    ///< IR poles
+      double _qmax;                        ///< upper limit on the magnitude of the loop momentum (default is infinity)
 
    public:
       /// constructor
-      DiagramTwoLoop(vector<Line> lines);
+      DiagramTwoLoop(std::vector<Line> lines);
       /// destructor
       virtual ~DiagramTwoLoop() {}
 
       /// returns the diagram value with the input momentum routing
-      double value_base(const MomentumMap<ThreeVector>& mom, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
+      double value_base(const LabelMap<Momentum, ThreeVector>& mom, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
 
       /// returns the IR regulated diagram value with the input momentum routing
-      double value_base_IRreg(const MomentumMap<ThreeVector>& mom, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
+      double value_base_IRreg(const LabelMap<Momentum, ThreeVector>& mom, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
 
       /// returns the IR regulated diagram value, symmetrized over external momenta
-      double value(const MomentumMap<ThreeVector>& mom, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
+      double value(const LabelMap<Momentum, ThreeVector>& mom, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
 
       /// set a cutoff on the magnitude of the loop momentum
       void set_qmax(double qmax) { _qmax = qmax; }
@@ -52,5 +52,7 @@ class DiagramTwoLoop : public DiagramBase
 ////////////////////////////////////////////////////////////////////////////////
 // Inline Declarations
 ////////////////////////////////////////////////////////////////////////////////
+
+} // namespace fnfast
 
 #endif // DIAGRAM_TWO_LOOP_HPP

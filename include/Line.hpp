@@ -21,6 +21,8 @@
 
 #include "Propagator.hpp"
 
+namespace fnfast {
+
 //------------------------------------------------------------------------------
 /**
  * \class Line
@@ -38,12 +40,12 @@
 class Line
 {
    public:
-      VertexLabel start;      ///< label of the starting vertex
-      VertexLabel end;        ///< label of the ending vertex
+      Vertex start;           ///< label of the starting vertex
+      Vertex end;             ///< label of the ending vertex
       Propagator propagator;  ///< propagator
 
       /// constructor
-      Line(VertexLabel start, VertexLabel end, Propagator prop);
+      Line(Vertex start, Vertex end, Propagator prop);
       /// destructor
       virtual ~Line() {}
 };
@@ -52,7 +54,9 @@ class Line
 // Inline Declarations
 ////////////////////////////////////////////////////////////////////////////////
 
-inline Line::Line(VertexLabel vstart, VertexLabel vend, Propagator prop) :
+inline Line::Line(Vertex vstart, Vertex vend, Propagator prop) :
 start(vstart), end(vend), propagator(prop) {}
+
+} // namespace fnfast
 
 #endif // LINE_HPP

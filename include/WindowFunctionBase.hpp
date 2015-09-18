@@ -21,7 +21,7 @@
 
 #include "ThreeVector.hpp"
 
-using namespace std;
+namespace fnfast {
 
 //------------------------------------------------------------------------------
 /**
@@ -44,5 +44,7 @@ class WindowFunctionBase
 ////////////////////////////////////////////////////////////////////////////////
 // Inline Declarations
 ////////////////////////////////////////////////////////////////////////////////
+
+} // namespace std
 
 #endif // WINDOW_FUNCTION_BASE_HPP

@@ -23,7 +23,7 @@
 
 #include "ThreeVector.hpp"
 
-using namespace std;
+namespace fnfast {
 
 //class ThreeVector;
 
@@ -40,8 +40,10 @@ using namespace std;
 class KernelBase
 {
    public:
-      virtual double Fn_sym(vector<ThreeVector>& p) = 0;                ///< symmetrized kernel Fn
-      virtual double Gn_sym(vector<ThreeVector>& p) = 0;                ///< symmetrized kernel Gn
+      virtual double Fn_sym(std::vector<ThreeVector>& p) = 0;    ///< symmetrized kernel Fn
+      virtual double Gn_sym(std::vector<ThreeVector>& p) = 0;    ///< symmetrized kernel Gn
 };
+
+} // namespace fnfast
 
 #endif // KERNEL_BASE_HPP

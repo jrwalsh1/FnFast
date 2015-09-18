@@ -22,10 +22,10 @@
 #include <vector>
 #include <map>
 
-#include "MomentumMap.hpp"
+#include "LabelMap.hpp"
 #include "ThreeVector.hpp"
 
-using namespace std;
+namespace fnfast {
 
 //------------------------------------------------------------------------------
 /**
@@ -33,7 +33,7 @@ using namespace std;
  *
  * \brief class for propagators
  *
- * Propagator(vector<pair<MomentumLabel, double> > components)
+ * Propagator(vector<pair<Momentum, double> > components)
  *
  * Container that is an abstract representation of a linear combination
  * of loop and external momenta.  A method is provided to input actual
@@ -58,25 +58,25 @@ class Propagator
       };
 
    private:
-      MomentumMap<LabelFlow> _components;        ///< components of the momenta and their scale factors
+      LabelMap<Momentum, LabelFlow> _components;     ///< components of the momenta and their scale factors
 
    public:
       /// constructor
-      Propagator(MomentumMap<LabelFlow> components);
+      Propagator(LabelMap<Momentum, LabelFlow> components);
       /// destructor
       virtual ~Propagator() {}
 
       /// accessors
-      MomentumMap<LabelFlow> components() const { return _components; }
+      LabelMap<Momentum, LabelFlow> components() const { return _components; }
 
       /// get the momentum given values for the loop, external momenta
-      ThreeVector p(MomentumMap<ThreeVector> mom) const;
+      ThreeVector p(LabelMap<Momentum, ThreeVector> mom) const;
 
       /// get the list of labels with coefficients != kNull in the propagator
-      vector<MomentumLabel> labels() const;
+      std::vector<Momentum> labels() const;
 
       /// check if a given label is present in the propagator
-      bool hasLabel(MomentumLabel label) const;
+      bool hasLabel(Momentum label) const;
 
       /// check if the propagator is null (has any nonzero contributions)
       bool isNull() const;
@@ -89,10 +89,10 @@ class Propagator
        * solve for the momentum of label given the total momentum = 0
        * e.g. if we have the momentum -q + k2 + k3, then solveNull(q) = k2 + k3
        */
-      Propagator IRpole(MomentumLabel label) const;
+      Propagator IRpole(Momentum label) const;
 
       /// Propagator stream insertion operator
-      friend ostream& operator<<(ostream& out, const Propagator& prop);
+      friend std::ostream& operator<<(std::ostream& out, const Propagator& prop);
 
    private:
       /// helper function to reverse sign of a propagator coefficient
@@ -100,7 +100,7 @@ class Propagator
 
    protected:
       /// Streams a string to \a out.
-      ostream& print(ostream& out) const;
+      std::ostream& print(std::ostream& out) const;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -108,9 +108,11 @@ class Propagator
 ////////////////////////////////////////////////////////////////////////////////
 
 //------------------------------------------------------------------------------
-inline ostream& operator<<(ostream& out, const Propagator& prop)
+inline std::ostream& operator<<(std::ostream& out, const Propagator& prop)
 {
    return prop.print(out);
 }
+
+} // namespace fnfast
 
 #endif // PROPAGATOR_HPP

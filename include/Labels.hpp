@@ -13,7 +13,7 @@
 //    Please respect the academic usage guidelines in the GUIDELINES file.
 //
 // Description:
-//    Definition of Order, MomentumLabel constants
+//    Definition of Order, Momentum, Vertex constants
 //------------------------------------------------------------------------------
 
 #ifndef LABELS_HPP
@@ -22,7 +22,7 @@
 #include <vector>
 #include <functional>
 
-using namespace std;
+namespace fnfast {
 
 //------------------------------------------------------------------------------
 /**
@@ -42,7 +42,7 @@ enum class Order
 
 //------------------------------------------------------------------------------
 /**
- * \enum class VertexLabel
+ * \enum class Vertex
  *
  * \brief Defines constants to label the vertices
  *
@@ -50,7 +50,7 @@ enum class Order
  * If desired, more slots for vertices may be added.
  */
 //------------------------------------------------------------------------------
-enum class VertexLabel : int
+enum class Vertex : int
 {
    v1 = 1,
    v2 = 2,
@@ -62,18 +62,18 @@ enum class VertexLabel : int
 /**
  * \struct VertexPair
  *
- * \brief A container for a pair of VertexLabels
+ * \brief A container for a pair of Vertex labels
  *
  * Defines equality operator for use in maps, comparisons
  */
 //------------------------------------------------------------------------------
 struct VertexPair
 {
-   VertexLabel vA;     ///< label A
-   VertexLabel vB;     ///< label B
+   Vertex vA;     ///< label A
+   Vertex vB;     ///< label B
 
    /// constructor
-   VertexPair(VertexLabel vxA, VertexLabel vxB) : vA(vxA), vB(vxB) {}
+   VertexPair(Vertex vxA, Vertex vxB) : vA(vxA), vB(vxB) {}
 
    /// equality operator
    bool operator==(const VertexPair& rhs) const {
@@ -83,9 +83,9 @@ struct VertexPair
 
    /// comparison operator
    bool operator<(const VertexPair& rhs) const {
-      if (min(vA, vB) < min(rhs.vA, rhs.vB)) {
+      if (std::min(vA, vB) < std::min(rhs.vA, rhs.vB)) {
          return true;
-      } else if ((min(vA, vB) == min(rhs.vA, rhs.vB)) && (max(vA, vB) < max(rhs.vA, rhs.vB))) {
+      } else if ((std::min(vA, vB) == std::min(rhs.vA, rhs.vB)) && (std::max(vA, vB) < std::max(rhs.vA, rhs.vB))) {
          return true;
       }
       return false;
@@ -94,7 +94,7 @@ struct VertexPair
 
 //------------------------------------------------------------------------------
 /**
- * \enum class MomentumLabel
+ * \enum class Momentum
  *
  * \brief Defines constants to label the momenta
  *
@@ -104,7 +104,7 @@ struct VertexPair
  * If desired, more slots for loop and external momenta may be added.
  */
 //------------------------------------------------------------------------------
-enum class MomentumLabel : int
+enum class Momentum : int
 {
    q2 = -1,
    q = 0,
@@ -114,41 +114,41 @@ enum class MomentumLabel : int
    k4 = 4
 };
 
+} // namespace fnfast
+
 /// hash functions for label objects
-namespace std
+//------------------------------------------------------------------------------
+/// hash function for Vertex
+template <>
+struct std::hash<fnfast::Vertex>
 {
-   /// hash function for VertexLabel
-   template <>
-   struct hash<VertexLabel>
+   size_t operator()(const fnfast::Vertex &v) const
    {
-      size_t operator()(const VertexLabel &v) const
-      {
-         // Compute individual hash values for VertexLabel
-         return ((hash<int>()(static_cast<int>(v))) >> 1);
-      }
-   };
+      // Compute individual hash values for Vertex
+      return ((std::hash<int>()(static_cast<int>(v))) >> 1);
+   }
+};
 
-   /// hash function for VertexPair
-   template <>
-   struct hash<VertexPair>
+/// hash function for VertexPair
+template <>
+struct std::hash<fnfast::VertexPair>
+{
+   size_t operator()(const fnfast::VertexPair& vp) const
    {
-      size_t operator()(const VertexPair& vp) const
-      {
-         // Compute individual hash values for two data members and combine them using XOR and bit shifting
-         return ((hash<int>()(static_cast<int>(vp.vA)) ^ (hash<int>()(static_cast<int>(vp.vB)) << 1)) >> 1);
-      }
-   };
+      // Compute individual hash values for two data members and combine them using XOR and bit shifting
+      return ((std::hash<int>()(static_cast<int>(vp.vA)) ^ (std::hash<int>()(static_cast<int>(vp.vB)) << 1)) >> 1);
+   }
+};
 
-   /// hash function for MomentumLabel
-   template <>
-   struct hash<MomentumLabel>
+/// hash function for Momentum
+template <>
+struct std::hash<fnfast::Momentum>
+{
+   size_t operator()(const fnfast::Momentum& k) const
    {
-      size_t operator()(const MomentumLabel& k) const
-      {
-         // Compute individual hash values for MomentumLabel
-         return ((hash<int>()(static_cast<int>(k))) >> 1);
-      }
-   };
-}
+      // Compute individual hash values for Momentum
+      return ((std::hash<int>()(static_cast<int>(k))) >> 1);
+   }
+};
 
 #endif // LABELS_HPP

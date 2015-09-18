@@ -21,6 +21,8 @@
 #include <iostream>
 #include <ostream>
 
+namespace fnfast {
+
 //------------------------------------------------------------------------------
 // Accessing and Querying Components
 //------------------------------------------------------------------------------
@@ -38,7 +40,7 @@ double ThreeVector::operator[](int mu) const
    if (mu == 2)
       return _p2;
    if (mu != 3)
-      cout << "ThreeVector::operator[] : mu index " << mu << " is out of range" << endl;
+      std::cout << "ThreeVector::operator[] : mu index " << mu << " is out of range" << std::endl;
    return _p3;
 }
 
@@ -57,7 +59,7 @@ double& ThreeVector::operator[](int mu)
    if (mu == 2)
       return _p2;
    if (mu != 3)
-      cout << "ThreeVector::operator[] : mu index " << mu << " is out of range" << endl;
+      std::cout << "ThreeVector::operator[] : mu index " << mu << " is out of range" << std::endl;
    return _p3;
 }
 
@@ -71,3 +73,5 @@ std::ostream& ThreeVector::print(std::ostream& out) const
 {
    return out << "(" << _p1 << ", " << _p2 << ", " << _p3 << ")";
 }
+
+} // namespace fnfast

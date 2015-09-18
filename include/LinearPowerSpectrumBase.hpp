@@ -19,7 +19,7 @@
 #ifndef LINEAR_POWER_SPECTRUM_BASE_HPP
 #define LINEAR_POWER_SPECTRUM_BASE_HPP
 
-using namespace std;
+namespace fnfast {
 
 //------------------------------------------------------------------------------
 /**
@@ -42,5 +42,7 @@ class LinearPowerSpectrumBase
 ////////////////////////////////////////////////////////////////////////////////
 // Inline Declarations
 ////////////////////////////////////////////////////////////////////////////////
+
+} // namespace fnfast
 
 #endif // LINEAR_POWER_SPECTRUM_BASE_HPP

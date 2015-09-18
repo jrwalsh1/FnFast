@@ -13,7 +13,7 @@
 //    Please respect the academic usage guidelines in the GUIDELINES file.
 //
 // Description:
-//    Implementation of classes Propagator
+//    Implementation of class Propagator
 //------------------------------------------------------------------------------
 
 #include <iostream>
@@ -21,12 +21,14 @@
 
 #include "Propagator.hpp"
 
+namespace fnfast {
+
 //------------------------------------------------------------------------------
-Propagator::Propagator(MomentumMap<LabelFlow> components)
+Propagator::Propagator(LabelMap<Momentum, LabelFlow> components)
 : _components(components) {}
 
 //------------------------------------------------------------------------------
-ThreeVector Propagator::p(MomentumMap<ThreeVector> mom) const
+ThreeVector Propagator::p(LabelMap<Momentum, ThreeVector> mom) const
 {
    // output container
    ThreeVector pvec;
@@ -39,9 +41,9 @@ ThreeVector Propagator::p(MomentumMap<ThreeVector> mom) const
 }
 
 //------------------------------------------------------------------------------
-vector<MomentumLabel> Propagator::labels() const
+std::vector<Momentum> Propagator::labels() const
 {
-   vector<MomentumLabel> labels;
+   std::vector<Momentum> labels;
    // add label if its coefficient is not kNull
    for (auto const& label : _components.labels()) {
       if (_components[label] != LabelFlow::kNull) {
@@ -52,7 +54,7 @@ vector<MomentumLabel> Propagator::labels() const
 }
 
 //------------------------------------------------------------------------------
-bool Propagator::hasLabel(MomentumLabel label) const
+bool Propagator::hasLabel(Momentum label) const
 {
    return _components.hasLabel(label);
 }
@@ -71,8 +73,8 @@ bool Propagator::isNull() const
 //------------------------------------------------------------------------------
 Propagator Propagator::reverse() const
 {
-   // copy the underlying MomentumMap, reverse labels
-   MomentumMap<LabelFlow> rev_comp = _components;
+   // copy the underlying Momentum map, reverse labels
+   LabelMap<Momentum, LabelFlow> rev_comp = _components;
    for (auto label : rev_comp.labels()) {
       rev_comp[label] = reverse_flow(rev_comp[label]);
    }
@@ -81,22 +83,22 @@ Propagator Propagator::reverse() const
 }
 
 //------------------------------------------------------------------------------
-Propagator Propagator::IRpole(MomentumLabel label) const
+Propagator Propagator::IRpole(Momentum label) const
 {
    // set up the map for the new propagator
-   unordered_map<MomentumLabel, LabelFlow> pole;
+   std::unordered_map<Momentum, LabelFlow> pole;
    // first check to make sure the label we're solving for is present in the propagator
    if ( !hasLabel(label) ) {
-      cout << "Propagator::IRpole : no component of propagator with given label!" << endl;
-      return Propagator(MomentumMap<LabelFlow>(pole));
+      std::cout << "Propagator::IRpole : no component of propagator with given label!" << std::endl;
+      return Propagator(LabelMap<Momentum, LabelFlow>(pole));
    }
 
    // now the case where the label is present
    LabelFlow pole_flow = _components[label];
    // if the component has flow = 0, we also return a null propagator
    if (pole_flow == LabelFlow::kNull) {
-      cout << "Propagator::IRpole : component of propagator has flow 0!" << endl;
-      return Propagator(MomentumMap<LabelFlow>(pole));
+      std::cout << "Propagator::IRpole : component of propagator has flow 0!" << std::endl;
+      return Propagator(LabelMap<Momentum, LabelFlow>(pole));
    }
    // otherwise solve for the pole (effectively scale all factors by -1 / fac)
    for (auto const& proplabel : _components.labels()) {
@@ -109,7 +111,7 @@ Propagator Propagator::IRpole(MomentumLabel label) const
       }
    }
 
-   return Propagator(MomentumMap<LabelFlow>(pole));
+   return Propagator(LabelMap<Momentum, LabelFlow>(pole));
 }
 
 //------------------------------------------------------------------------------
@@ -122,13 +124,15 @@ Propagator::LabelFlow Propagator::reverse_flow(Propagator::LabelFlow sign) {
 //------------------------------------------------------------------------------
 std::ostream& Propagator::print(std::ostream& out) const
 {
-   stringstream ss;
+   std::stringstream ss;
    ss << "propagator: ";
    for (auto const& label : _components.labels()) {
-      string sign = (_components[label] == LabelFlow::kPlus) ? " + k" :
-                    (_components[label] == LabelFlow::kMinus) ? " - k" :
-                                                               " 0 k";
+      std::string sign = (_components[label] == LabelFlow::kPlus) ? " + k" :
+                         (_components[label] == LabelFlow::kMinus) ? " - k" :
+                                                                     " 0 k";
       ss << sign << static_cast<int>(label);
    }
    return out << ss.str();
 }
+
+} // namespace fnfast

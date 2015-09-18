@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-/// \file PowerSpectrum.hpp
+/// \file Bispectrum.hpp
 //
 // Author(s):
 //    Jon Walsh
@@ -13,13 +13,13 @@
 //    Please respect the academic usage guidelines in the GUIDELINES file.
 //
 // Description:
-//    Interface of class PowerSpectrum
+//    Interface of class Bispectrum
 //------------------------------------------------------------------------------
 
-#ifndef POWER_SPECTRUM_HPP
-#define POWER_SPECTRUM_HPP
+#ifndef BISPECTRUM_HPP
+#define BISPECTRUM_HPP
 
-#include "DiagramSet2point.hpp"
+#include "DiagramSet3point.hpp"
 #include "KernelBase.hpp"
 #include "Integration.hpp"
 
@@ -27,31 +27,28 @@ namespace fnfast {
 
 //------------------------------------------------------------------------------
 /**
- * \class PowerSpectrum
+ * \class Bispectrum
  *
- * \brief class to calculate the power spectrum
+ * \brief class to calculate the bispectrum
  *
- * PowerSpectrum(Order)
+ * Bispectrum(Order)
  *
- * Contains the power spectrum at various levels:
+ * Contains the bispectrum at various levels:
  * - tree level:
- *    - differential in k
+ *    - differential in k1, k2 (magnitudes) and theta12
  * - one loop
- *    - differential in k, q
- *    - integrated over q, differential in k
- * - two loop
- *    - differential in k, q
- *    - integrated over q, differential in k
+ *    - differential in k1, k2 (magnitudes) and theta12, q
+ *    - integrated over q, differential in k1, k2 (magnitudes) and theta12
  *
- * Provides functions for access to the power spectrum at these levels
+ * Provides functions for access to the bispectrum at these levels
  */
 //------------------------------------------------------------------------------
 
-class PowerSpectrum
+class Bispectrum
 {
    private:
       Order _order;                       ///< order of the calculation
-      DiagramSet2point _diagrams;         ///< 2-point diagrams
+      DiagramSet3point _diagrams;         ///< 3-point diagrams
       double _UVcutoff;                   ///< UV cutoff for loop integrations
       int _seed;                          ///< random number seed for VEGAS
 
@@ -59,31 +56,32 @@ class PowerSpectrum
       struct LoopPhaseSpace
       {
          int ndim;
-         double k;
+         double k1;
+         double k2;
+         double theta12;
          LabelMap<Momentum, ThreeVector> momenta;
          double qmax;
          const LabelMap<Vertex, KernelBase*>* kernels;
          LinearPowerSpectrumBase* PL;
-         const PowerSpectrum* powerspectrum;
+         const Bispectrum* bispectrum;
          static constexpr double pi = 3.14159265358979;
 
          /// constructor
-         LoopPhaseSpace(double k, double qlim, const LabelMap<Vertex, KernelBase*>* kern, LinearPowerSpectrumBase* linPS, const PowerSpectrum* powerspec);
+         LoopPhaseSpace(double k1, double k2, double theta12, double qlim, const LabelMap<Vertex, KernelBase*>* kern, LinearPowerSpectrumBase* linPS, const Bispectrum* bispec);
 
          /// sample phase space; return the point along with the jacobian
          std::pair<double, LabelMap<Momentum, ThreeVector>* const> generate_point_oneLoop(std::vector<double> xpts);
-         std::pair<double, LabelMap<Momentum, ThreeVector>* const> generate_point_twoLoop(std::vector<double> xpts);
       };
 
    public:
       /// constructor
-      PowerSpectrum(Order order);
+      Bispectrum(Order order);
       /// destructor
-      virtual ~PowerSpectrum() {}
+      virtual ~Bispectrum() {}
 
       /// access diagrams
       const DiagramSetBase* diagrams() const { return &_diagrams; }
-      DiagramBase* operator[](DiagramSet2point::Graphs_2point graph) { return _diagrams[graph]; }
+      DiagramBase* operator[](DiagramSet3point::Graphs_3point graph) { return _diagrams[graph]; }
 
       /// set the loop momentum cutoff
       void set_qmax(double qmax) { _diagrams.set_qmax(qmax); }
@@ -93,17 +91,13 @@ class PowerSpectrum
 
       /// get results differential in k
       /// tree level
-      double tree(double k, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
+      double tree(double k1, double k2, double theta12, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
       /// one loop integrated over q
-      IntegralResult oneLoop(double k, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
-      /// two loop integrated over q, q2
-      IntegralResult twoLoop(double k, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
+      IntegralResult oneLoop(double k1, double k2, double theta12, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
 
    private:
       /// one loop integrand
       static int oneLoop_integrand(const int *ndim, const double xx[], const int *ncomp, double ff[], void *userdata);
-      /// two loop integrand
-      static int twoLoop_integrand(const int *ndim, const double xx[], const int *ncomp, double ff[], void *userdata);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -111,10 +105,15 @@ class PowerSpectrum
 ////////////////////////////////////////////////////////////////////////////////
 
 //------------------------------------------------------------------------------
-inline PowerSpectrum::LoopPhaseSpace::LoopPhaseSpace(double kmag, double qlim, const LabelMap<Vertex, KernelBase*>* kern, LinearPowerSpectrumBase* linPS, const PowerSpectrum* powerspec)
-: ndim(2), k(kmag), momenta(LabelMap<Momentum, ThreeVector> {{Momentum::k1, ThreeVector(0, 0, -k)}, {Momentum::k2, ThreeVector(0, 0, -k)}, {Momentum::q, ThreeVector()}}), qmax(qlim), kernels(kern), PL(linPS), powerspectrum(powerspec)
-{}
+inline Bispectrum::LoopPhaseSpace::LoopPhaseSpace(double k1mag, double k2mag, double theta12val, double qlim, const LabelMap<Vertex, KernelBase*>* kern, LinearPowerSpectrumBase* linPS, const Bispectrum* bispec)
+: ndim(3), k1(k1mag), k2(k2mag), theta12(theta12val), momenta(LabelMap<Momentum, ThreeVector> {{Momentum::k1, ThreeVector()}, {Momentum::k2, ThreeVector()}, {Momentum::k3, ThreeVector()}, {Momentum::q, ThreeVector()}}), qmax(qlim), kernels(kern), PL(linPS), bispectrum(bispec)
+{
+   // set the external momenta
+   momenta[Momentum::k1] = ThreeVector(0, 0, k1);
+   momenta[Momentum::k2] = ThreeVector(k2 * sin(theta12val), 0, k2 * cos(theta12val));
+   momenta[Momentum::k3] = -momenta[Momentum::k1] - momenta[Momentum::k2];
+}
 
 } // namespace fnfast
 
-#endif // POWER_SPECTRUM_HPP
+#endif // BISPECTRUM_HPP

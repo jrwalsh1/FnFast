@@ -21,8 +21,10 @@
 
 #include "DiagramOneLoop.hpp"
 
+namespace fnfast {
+
 //------------------------------------------------------------------------------
-DiagramOneLoop::DiagramOneLoop(vector<Line> lines) : DiagramBase(lines), _qmax(numeric_limits<double>::infinity())
+DiagramOneLoop::DiagramOneLoop(std::vector<Line> lines) : DiagramBase(lines), _qmax(std::numeric_limits<double>::infinity())
 {
    _order = Order::kOneLoop;
    // check to ensure that the diagram is really one loop
@@ -32,15 +34,15 @@ DiagramOneLoop::DiagramOneLoop(vector<Line> lines) : DiagramBase(lines), _qmax(n
    for (auto line : _lines) {
       // check if the line has the loop momentum in it
       // if so, it has an IR pole that must be regulated if it is away from 0
-      if (line.propagator.hasLabel(MomentumLabel::q)) {
+      if (line.propagator.hasLabel(Momentum::q)) {
          isLoop = true;
          _order = Order::kOneLoop;
-         Propagator pole = line.propagator.IRpole(MomentumLabel::q);
+         Propagator pole = line.propagator.IRpole(Momentum::q);
          if (!pole.isNull()) {
             _IRpoles.push_back(pole);
          }
       }
-      if (line.propagator.hasLabel(MomentumLabel::q2)) {
+      if (line.propagator.hasLabel(Momentum::q2)) {
          is2Loop = true;
       }
    }
@@ -48,10 +50,10 @@ DiagramOneLoop::DiagramOneLoop(vector<Line> lines) : DiagramBase(lines), _qmax(n
 }
 
 //------------------------------------------------------------------------------
-double DiagramOneLoop::value_base(const MomentumMap<ThreeVector>& mom, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
+double DiagramOneLoop::value_base(const LabelMap<Momentum, ThreeVector>& mom, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
 {
    // check to see if the loop momentum is above the cutoff, if so return 0
-   if (mom[MomentumLabel::q].magnitude() > _qmax) { return 0; }
+   if (mom[Momentum::q].magnitude() > _qmax) { return 0; }
 
    // the diagram value is:
    // symmetry factor * propagators * vertices
@@ -62,7 +64,7 @@ double DiagramOneLoop::value_base(const MomentumMap<ThreeVector>& mom, const Ver
    }
    // now do vertex factors
    for (auto vertex : _vertices) {
-      vector<ThreeVector> p;
+      std::vector<ThreeVector> p;
       p.reserve(_vertexmomenta[vertex].size());
       // loop over propagators attached to the vertex
       for (auto vx_prop : _vertexmomenta[vertex]) {
@@ -74,7 +76,7 @@ double DiagramOneLoop::value_base(const MomentumMap<ThreeVector>& mom, const Ver
 }
 
 //------------------------------------------------------------------------------
-double DiagramOneLoop::value_base_IRreg(const MomentumMap<ThreeVector>& mom, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
+double DiagramOneLoop::value_base_IRreg(const LabelMap<Momentum, ThreeVector>& mom, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
 {
    // no IR regulation necessary if there are no poles away from q = 0
    if (_IRpoles.empty()) return value_base(mom, kernels, PL);
@@ -85,7 +87,7 @@ double DiagramOneLoop::value_base_IRreg(const MomentumMap<ThreeVector>& mom, con
    // need to regulate only the unique IR poles
    // e.g. in the covariance limit, two IR poles can be degenerate
    // and we should treat them simultaneously
-   vector<ThreeVector> uniqueIRpoles;
+   std::vector<ThreeVector> uniqueIRpoles;
    // pole at q = 0
    uniqueIRpoles.push_back(ThreeVector(0, 0, 0));
    // loop over the nonzero poles
@@ -111,12 +113,12 @@ double DiagramOneLoop::value_base_IRreg(const MomentumMap<ThreeVector>& mom, con
       for (size_t j = 0; j < uniqueIRpoles.size(); j++) {
          if (j != i) {
             ThreeVector pole_j = uniqueIRpoles[j];
-            PSregion *= theta(mom[MomentumLabel::q], mom[MomentumLabel::q] + pole - pole_j);
+            PSregion *= theta(mom[Momentum::q], mom[Momentum::q] + pole - pole_j);
          }
       }
       // copy and shift the diagram momentum for the pole
-      MomentumMap<ThreeVector> mom_shift = mom;
-      mom_shift[MomentumLabel::q] = mom[MomentumLabel::q] + pole;
+      LabelMap<Momentum, ThreeVector> mom_shift = mom;
+      mom_shift[Momentum::q] = mom[Momentum::q] + pole;
       // add the diagram value for this shifted momentum, times the PS factor
       value += PSregion * value_base(mom_shift, kernels, PL);
    }
@@ -125,7 +127,7 @@ double DiagramOneLoop::value_base_IRreg(const MomentumMap<ThreeVector>& mom, con
 }
 
 //------------------------------------------------------------------------------
-double DiagramOneLoop::value(const MomentumMap<ThreeVector>& mom, const VertexMap<KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
+double DiagramOneLoop::value(const LabelMap<Momentum, ThreeVector>& mom, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
 {
    /*
     * To return the IR regulated diagram symmetrized over external momenta,
@@ -140,13 +142,15 @@ double DiagramOneLoop::value(const MomentumMap<ThreeVector>& mom, const VertexMa
    // loop over external momentum permutations
    // symmetrize over q -> -q
    for (auto perm : _perms) {
-      MomentumMap<ThreeVector> mom_perm = mom;
+      LabelMap<Momentum, ThreeVector> mom_perm = mom;
       mom_perm.permute(perm);
       value += 0.5 * value_base_IRreg(mom_perm, kernels, PL);
-      ThreeVector mq = -1 * mom_perm[MomentumLabel::q];
-      mom_perm[MomentumLabel::q] = mq;
+      ThreeVector mq = -1 * mom_perm[Momentum::q];
+      mom_perm[Momentum::q] = mq;
       value += 0.5 * value_base_IRreg(mom_perm, kernels, PL);
    }
 
    return value;
 }
+
+} // namespace fnfast

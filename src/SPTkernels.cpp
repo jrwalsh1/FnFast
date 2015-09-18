@@ -22,6 +22,8 @@
 #include "ThreeVector.hpp"
 #include "SPTkernels.hpp"
 
+namespace fnfast {
+
 //------------------------------------------------------------------------------
 SPTkernels::SPTkernels()
 {
@@ -85,13 +87,13 @@ double SPTkernels::beta(ThreeVector& p1, ThreeVector& p2)
    // handle the IR limit with an explicit cutoff
    double eps = 1e-12;
    if ((p1*p1 < eps) || (p2*p2 < eps)) { return 0; }
-   
+
    // otherwise
    return ((p1 + p2)*(p1 + p2)) * (p1*p2) / (2 * (p1*p1) * (p2*p2));
 }
 
 //------------------------------------------------------------------------------
-double SPTkernels::Fn_sym(vector<ThreeVector>& p)
+double SPTkernels::Fn_sym(std::vector<ThreeVector>& p)
 {
    size_t n = p.size();
    // handle the low multiplicity cases
@@ -102,7 +104,7 @@ double SPTkernels::Fn_sym(vector<ThreeVector>& p)
    // stash the alpha and beta function values
    // and set up the vector of index labels
    size_t np = p.size();
-   vector<int> indices;
+   std::vector<int> indices;
    for (int i = 0; i < np; i++) {
       indices.push_back(i);
       for (size_t j = 0; j < i; j++) {
@@ -116,21 +118,21 @@ double SPTkernels::Fn_sym(vector<ThreeVector>& p)
    double value = 0;
    int nperm = 0; // count the permutations
    // use the next_permutation algorithm to loop through the permutations
-   sort(indices.begin(), indices.end());
+   std::sort(indices.begin(), indices.end());
    do {
       nperm++;
-      vector<ThreeVector> pperm;
+      std::vector<ThreeVector> pperm;
       for (size_t c = 0; c < np; c++) {
          pperm.push_back(p[indices[c]]);
       }
       value += Fn(pperm, indices);
-   } while (next_permutation(indices.begin(), indices.end()));
+   } while (std::next_permutation(indices.begin(), indices.end()));
 
    return value / nperm;
 }
 
 //------------------------------------------------------------------------------
-double SPTkernels::Gn_sym(vector<ThreeVector>& p)
+double SPTkernels::Gn_sym(std::vector<ThreeVector>& p)
 {
    size_t n = p.size();
    // handle the low multiplicity cases
@@ -141,7 +143,7 @@ double SPTkernels::Gn_sym(vector<ThreeVector>& p)
    // stash the alpha and beta function values
    // and set up the vector of index labels
    size_t np = p.size();
-   vector<int> indices;
+   std::vector<int> indices;
    for (int i = 0; i < np; i++) {
       indices[i] = i;
       for (size_t j = 0; j < i; j++) {
@@ -155,17 +157,17 @@ double SPTkernels::Gn_sym(vector<ThreeVector>& p)
    double value = 0;
    int nperm = 0; // count the permutations
    // use the next_permutation algorithm to loop through the permutations
-   sort(indices.begin(), indices.end());
+   std::sort(indices.begin(), indices.end());
    do {
       nperm++;
       value += Gn(p, indices);
-   } while (next_permutation(indices.begin(), indices.end()));
+   } while (std::next_permutation(indices.begin(), indices.end()));
 
    return value / nperm;
 }
 
 //------------------------------------------------------------------------------
-double SPTkernels::Fn(vector<ThreeVector>& p, vector<int>& indices)
+double SPTkernels::Fn(std::vector<ThreeVector>& p, std::vector<int>& indices)
 {
    size_t n = indices.size();
    // handle the nonsense and trivial case
@@ -179,15 +181,15 @@ double SPTkernels::Fn(vector<ThreeVector>& p, vector<int>& indices)
    double Fnval = 0;
    for (int k = 1; k < n; k++) {
       // split the vector list for the recursion
-      vector<ThreeVector> p_k(p.begin(), p.begin() + k);
-      vector<ThreeVector> p_nk(p.begin() + k, p.end());
+      std::vector<ThreeVector> p_k(p.begin(), p.begin() + k);
+      std::vector<ThreeVector> p_nk(p.begin() + k, p.end());
       // split the index list for the recursion
-      vector<int> indices_k(indices.begin(), indices.begin() + k);
-      vector<int> indices_nk(indices.begin() + k, indices.end());
+      std::vector<int> indices_k(indices.begin(), indices.begin() + k);
+      std::vector<int> indices_nk(indices.begin() + k, indices.end());
       // sum the subsets of momenta (start with p0 = 0)
       ThreeVector p0;
-      ThreeVector pktot = accumulate(p_k.begin(), p_k.end(), p0);
-      ThreeVector pnktot = accumulate(p_nk.begin(), p_nk.end(), p0);
+      ThreeVector pktot = std::accumulate(p_k.begin(), p_k.end(), p0);
+      ThreeVector pnktot = std::accumulate(p_nk.begin(), p_nk.end(), p0);
       // add term to the sum
       Fnval += Gn(p_k, indices_k) * (_cFalpha[n] * alpha(pktot, pnktot) * Fn(p_nk, indices_nk) + _cFbeta[n] * beta(pktot, pnktot) * Gn(p_nk, indices_nk));
    }
@@ -196,7 +198,7 @@ double SPTkernels::Fn(vector<ThreeVector>& p, vector<int>& indices)
 
 
 //------------------------------------------------------------------------------
-double SPTkernels::Gn(vector<ThreeVector>& p, vector<int>& indices)
+double SPTkernels::Gn(std::vector<ThreeVector>& p, std::vector<int>& indices)
 {
    size_t n = indices.size();
    // handle the nonsense and trivial case
@@ -210,17 +212,19 @@ double SPTkernels::Gn(vector<ThreeVector>& p, vector<int>& indices)
    double Gnval = 0;
    for (int k = 1; k < n; k++) {
       // split the vector list for the recursion
-      vector<ThreeVector> p_k(p.begin(), p.begin() + k);
-      vector<ThreeVector> p_nk(p.begin() + k, p.end());
+      std::vector<ThreeVector> p_k(p.begin(), p.begin() + k);
+      std::vector<ThreeVector> p_nk(p.begin() + k, p.end());
       // split the index list for the recursion
-      vector<int> indices_k(indices.begin(), indices.begin() + k);
-      vector<int> indices_nk(indices.begin() + k, indices.end());
+      std::vector<int> indices_k(indices.begin(), indices.begin() + k);
+      std::vector<int> indices_nk(indices.begin() + k, indices.end());
       // sum the subsets of momenta (start with p0 = 0)
       ThreeVector p0;
-      ThreeVector pktot = accumulate(p_k.begin(), p_k.end(), p0);
-      ThreeVector pnktot = accumulate(p_nk.begin(), p_nk.end(), p0);
+      ThreeVector pktot = std::accumulate(p_k.begin(), p_k.end(), p0);
+      ThreeVector pnktot = std::accumulate(p_nk.begin(), p_nk.end(), p0);
       // add term to the sum
       Gnval += Gn(p_k, indices_k) * (_cGalpha[n] * alpha(pktot, pnktot) * Fn(p_nk, indices_nk) + _cGbeta[n] * beta(pktot, pnktot) * Gn(p_nk, indices_nk));
    }
    return Gnval;
 }
+
+} // namespace fnfast

@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-/// \file DiagramSet2point.hpp
+/// \file DiagramSet3point.hpp
 //
 // Author(s):
 //    Jon Walsh
@@ -13,44 +13,41 @@
 //    Please respect the academic usage guidelines in the GUIDELINES file.
 //
 // Description:
-//    Definition of base class DiagramSet2point
+//    Definition of base class DiagramSet3point
 //------------------------------------------------------------------------------
 
-#ifndef DIAGRAM_SET_2_POINT_HPP
-#define DIAGRAM_SET_2_POINT_HPP
+#ifndef DIAGRAM_SET_3_POINT_HPP
+#define DIAGRAM_SET_3_POINT_HPP
 
 #include "DiagramSetBase.hpp"
 
 namespace fnfast {
 
-class DiagramSet2point : public DiagramSetBase
+class DiagramSet3point : public DiagramSetBase
 {
    public:
       /// graph labels
-      enum class Graphs_2point : int {
+      enum class Graphs_3point : int {
          // tree
-         P11,
+         B211,
          // one loop
-         P31,
-         P22,
-         // two loop
-         P51,
-         P42,
-         P33a,
-         P33b
+         B411,
+         B321a,
+         B321b,
+         B222
       };
 
    private:
-      std::map<Graphs_2point, DiagramBase*> _diagrams;      ///< container for diagrams
+      std::map<Graphs_3point, DiagramBase*> _diagrams;      ///< container for diagrams
 
    public:
       /// constructor
-      DiagramSet2point(Order order);
+      DiagramSet3point(Order order);
       /// destructor
-      virtual ~DiagramSet2point() {}
+      virtual ~DiagramSet3point() {}
 
       /// access diagrams
-      DiagramBase* operator[](const Graphs_2point& graph) { return _diagrams[graph]; }
+      DiagramBase* operator[](const Graphs_3point& graph) { return _diagrams[graph]; }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -59,4 +56,4 @@ class DiagramSet2point : public DiagramSetBase
 
 } // namespace fnfast
 
-#endif // DIAGRAM_SET_2_POINT_HPP
+#endif // DIAGRAM_SET_3_POINT_HPP

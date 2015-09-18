@@ -23,7 +23,7 @@
 
 #include "KernelBase.hpp"
 
-using namespace std;
+namespace fnfast {
 
 class ThreeVector;
 
@@ -62,16 +62,18 @@ class SPTkernels : public KernelBase
       double alpha(ThreeVector& p1, ThreeVector& p2);       ///< kernel function alpha
       double beta(ThreeVector& p1, ThreeVector& p2);        ///< kernel function alpha
 
-      double Fn_sym(vector<ThreeVector>& p);                ///< symmetrized SPT kernel Fn (q1, ..., qn)
-      double Gn_sym(vector<ThreeVector>& p);                ///< symmetrized SPT kernel Gn (q1, ..., qn)
+      double Fn_sym(std::vector<ThreeVector>& p);                ///< symmetrized SPT kernel Fn (q1, ..., qn)
+      double Gn_sym(std::vector<ThreeVector>& p);                ///< symmetrized SPT kernel Gn (q1, ..., qn)
 
    private:
-      double Fn(vector<ThreeVector>& p, vector<int>& indices);       ///< SPT kernel Fn, in terms of indices
-      double Gn(vector<ThreeVector>& p, vector<int>& indices);       ///< SPT kernel Gn, in terms of indices
+      double Fn(std::vector<ThreeVector>& p, std::vector<int>& indices);       ///< SPT kernel Fn, in terms of indices
+      double Gn(std::vector<ThreeVector>& p, std::vector<int>& indices);       ///< SPT kernel Gn, in terms of indices
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 // Inline Declarations
 ////////////////////////////////////////////////////////////////////////////////
+
+} // namespace fnfast
 
 #endif // SPT_KERNELS_HPP

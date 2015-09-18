@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-/// \file DiagramSet2point.hpp
+/// \file DiagramSet4point.hpp
 //
 // Author(s):
 //    Jon Walsh
@@ -13,44 +13,47 @@
 //    Please respect the academic usage guidelines in the GUIDELINES file.
 //
 // Description:
-//    Definition of base class DiagramSet2point
+//    Definition of base class DiagramSet4point
 //------------------------------------------------------------------------------
 
-#ifndef DIAGRAM_SET_2_POINT_HPP
-#define DIAGRAM_SET_2_POINT_HPP
+#ifndef DIAGRAM_SET_4_POINT_HPP
+#define DIAGRAM_SET_4_POINT_HPP
 
 #include "DiagramSetBase.hpp"
 
 namespace fnfast {
 
-class DiagramSet2point : public DiagramSetBase
+class DiagramSet4point : public DiagramSetBase
 {
    public:
       /// graph labels
-      enum class Graphs_2point : int {
+      enum class Graphs_4point : int {
          // tree
-         P11,
+         T3111,
+         T2211,
          // one loop
-         P31,
-         P22,
-         // two loop
-         P51,
-         P42,
-         P33a,
-         P33b
+         T5111,
+         T4211a,
+         T4211b,
+         T3311a,
+         T3311b,
+         T3221a,
+         T3221b,
+         T3221c,
+         T2222
       };
 
    private:
-      std::map<Graphs_2point, DiagramBase*> _diagrams;      ///< container for diagrams
+      std::map<Graphs_4point, DiagramBase*> _diagrams;      ///< container for diagrams
 
    public:
       /// constructor
-      DiagramSet2point(Order order);
+      DiagramSet4point(Order order);
       /// destructor
-      virtual ~DiagramSet2point() {}
+      virtual ~DiagramSet4point() {}
 
       /// access diagrams
-      DiagramBase* operator[](const Graphs_2point& graph) { return _diagrams[graph]; }
+      DiagramBase* operator[](const Graphs_4point& graph) { return _diagrams[graph]; }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -59,4 +62,4 @@ class DiagramSet2point : public DiagramSetBase
 
 } // namespace fnfast
 
-#endif // DIAGRAM_SET_2_POINT_HPP
+#endif // DIAGRAM_SET_4_POINT_HPP

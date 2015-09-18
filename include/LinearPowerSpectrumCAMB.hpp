@@ -20,12 +20,8 @@
 #define LINEAR_POWER_SPECTRUM_CAMB_HPP
 
 #include <cmath>
-#include <iostream>
-#include <fstream>
 #include <string>
 #include <vector>
-#include <stdio.h>
-#include <math.h>
 
 #include "LinearPowerSpectrumBase.hpp"
 
@@ -33,7 +29,7 @@
 #include <gsl/gsl_spline.h>
 #include <gsl/gsl_fit.h>
 
-using namespace std;
+namespace fnfast {
 
 //------------------------------------------------------------------------------
 /**
@@ -49,16 +45,16 @@ using namespace std;
 class LinearPowerSpectrumCAMB : public LinearPowerSpectrumBase
 {
    private:
-      string _input_file;                                ///< input file
-      vector<double> _kvec, _kvec_patches;               ///< data storage vectors
-      vector<double> _Pvec, _Pvec_patches;               ///< data storage vectors
-      gsl_interp_accel* _accel_ptr;                      ///< interpolation objects in gsl
-      gsl_spline* _spline_ptr;                           ///< interpolation objects in gsl
-      double _c0_low, _c1_low, _c0_high, _c1_high;       ///< fit parameters to define high and low k patches
+      std::string _input_file;                       ///< input file
+      std::vector<double> _kvec, _kvec_patches;      ///< data storage vectors
+      std::vector<double> _Pvec, _Pvec_patches;      ///< data storage vectors
+      gsl_interp_accel* _accel_ptr;                  ///< interpolation objects in gsl
+      gsl_spline* _spline_ptr;                       ///< interpolation objects in gsl
+      double _c0_low, _c1_low, _c0_high, _c1_high;   ///< fit parameters to define high and low k patches
 
    public:
       /// constructors
-      LinearPowerSpectrumCAMB(const string& input_file);
+      LinearPowerSpectrumCAMB(const std::string& input_file);
       /// destructor
       virtual ~LinearPowerSpectrumCAMB()
       {
@@ -71,11 +67,13 @@ class LinearPowerSpectrumCAMB : public LinearPowerSpectrumBase
 
    private:
       /// Helper function to generate points equally spaced in log
-      vector<double> _log_gen(double xmin, double xmax, int n);
+      std::vector<double> _log_gen(double xmin, double xmax, int n);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 // Inline Declarations
 ////////////////////////////////////////////////////////////////////////////////
+
+} // namespace fnfast
 
 #endif // LINEAR_POWER_SPECTRUM_CAMB_HPP
