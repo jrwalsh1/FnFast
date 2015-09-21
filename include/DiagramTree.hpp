@@ -29,8 +29,12 @@ class DiagramTree : public DiagramBase
       Order _order;     ///< order of the calculation
 
    public:
-      /// constructor
+      /// base constructor, assumes all vertices are the same type and we're computing delta correlators
       DiagramTree(std::vector<Line> lines);
+      /// constructor with vertex types specified, assumes we're computing delta correlators
+      DiagramTree(std::vector<Line> lines, LabelMap<Vertex, VertexType> vertextypes);
+      /// constructor specifying vertex and kernel types
+      DiagramTree(std::vector<Line> lines, LabelMap<Vertex, VertexType> vertextypes, LabelMap<Vertex, KernelType> kerneltypes);
       /// destructor
       virtual ~DiagramTree() {}
 

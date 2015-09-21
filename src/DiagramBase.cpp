@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-/// \file Diagram.cpp
+/// \file DiagramBase.cpp
 //
 // Author(s):
 //    Jon Walsh
@@ -25,6 +25,89 @@ namespace fnfast {
 
 //------------------------------------------------------------------------------
 DiagramBase::DiagramBase(std::vector<Line> lines) : _lines(lines)
+{
+   // construct the vertex momenta map
+   std::unordered_map<Vertex, std::vector<Propagator> > vx_momenta;
+   // iterate over lines, fill in other diagram objects
+   for (auto line : _lines) {
+      // for the start and end vertices, add the momentum to the vertex factor list
+      vx_momenta[line.start].push_back(line.propagator);
+      vx_momenta[line.end].push_back(line.propagator.reverse());
+      // store the vertex pairs for each line
+      _vertexpairs.push_back(VertexPair(line.start, line.end));
+   }
+   _vertexmomenta.set_map(vx_momenta);
+
+   // assumes the momenta and vertices are canonically ordered,
+   // e.g. {k1, k2, k3} and {v1, v2, v3} for a 3-point graph
+   // and not {k2, k3, k4} or {v2, v3, v4}
+   size_t nvertices = _vertexmomenta.labels().size();
+   for (size_t i = 1; i <= nvertices; i++) {
+      _vertices.push_back(static_cast<Vertex>(i));
+      _extmomlabels.push_back(static_cast<Momentum>(i));
+   }
+
+   // create a map of constant vertex type (since it was not passed as an argument)
+   std::unordered_map<Vertex, VertexType> vxtypes;
+   for (auto vertex : _vertices) {
+      vxtypes[vertex] = VertexType::type1;
+   }
+   _vertextypes.set_map(vxtypes);
+
+   // create a map of constant kernel type
+   std::unordered_map<Vertex, KernelType> ktypes;
+   for (auto vertex : _vertices) {
+      ktypes[vertex] = KernelType::delta;
+   }
+   _kerneltypes.set_map(ktypes);
+
+   // calculate the symmetry factor
+   _symfac = calc_symmetry_factor();
+
+   // calculate the permutations of the external momenta
+   _perms = calc_permutations();
+}
+
+//------------------------------------------------------------------------------
+DiagramBase::DiagramBase(std::vector<Line> lines, LabelMap<Vertex, VertexType> vertextypes) : _lines(lines), _vertextypes(vertextypes)
+{
+   // construct the vertex momenta map
+   std::unordered_map<Vertex, std::vector<Propagator> > vx_momenta;
+   // iterate over lines, fill in other diagram objects
+   for (auto line : _lines) {
+      // for the start and end vertices, add the momentum to the vertex factor list
+      vx_momenta[line.start].push_back(line.propagator);
+      vx_momenta[line.end].push_back(line.propagator.reverse());
+      // store the vertex pairs for each line
+      _vertexpairs.push_back(VertexPair(line.start, line.end));
+   }
+   _vertexmomenta.set_map(vx_momenta);
+
+   // assumes the momenta and vertices are canonically ordered,
+   // e.g. {k1, k2, k3} and {v1, v2, v3} for a 3-point graph
+   // and not {k2, k3, k4} or {v2, v3, v4}
+   size_t nvertices = _vertexmomenta.labels().size();
+   for (size_t i = 1; i <= nvertices; i++) {
+      _vertices.push_back(static_cast<Vertex>(i));
+      _extmomlabels.push_back(static_cast<Momentum>(i));
+   }
+
+   // create a map of constant kernel type
+   std::unordered_map<Vertex, KernelType> ktypes;
+   for (auto vertex : _vertices) {
+      ktypes[vertex] = KernelType::delta;
+   }
+   _kerneltypes.set_map(ktypes);
+
+   // calculate the symmetry factor
+   _symfac = calc_symmetry_factor();
+
+   // calculate the permutations of the external momenta
+   _perms = calc_permutations();
+}
+
+//------------------------------------------------------------------------------
+DiagramBase::DiagramBase(std::vector<Line> lines, LabelMap<Vertex, VertexType> vertextypes, LabelMap<Vertex, KernelType> kerneltypes) : _lines(lines), _vertextypes(vertextypes), _kerneltypes(kerneltypes)
 {
    // construct the vertex momenta map
    std::unordered_map<Vertex, std::vector<Propagator> > vx_momenta;
@@ -120,7 +203,7 @@ std::vector<LabelMap<Momentum, Momentum> > DiagramBase::calc_permutations()
    // a distinct relabeling of the vertices (and hence a permutation of external momenta).
    // We will iterate over vertex labeling permutations and store only those
    // which will give a unique diagram value.
-   std::vector<std::vector<VertexPair> > vertexconnections;
+   std::vector<std::vector<VertexObjectPair> > vertexconnections;
 
    // Loop over vertex permutations.
    // Since we will be applying the same permutation to momentum labels and vertex labels,
@@ -137,12 +220,14 @@ std::vector<LabelMap<Momentum, Momentum> > DiagramBase::calc_permutations()
          vertexmap[_vertices[i]] = _vertices[indices[i]];
       }
 
-      // use this map to create a vector of VertexPair objects for each line
+      // use this map to create a vector of VertexObjectPair objects for each line
       // that are the diagram lines under the vertex permutation
-      std::vector<VertexPair> vertexpairs;
+      std::vector<VertexObjectPair> vertexpairs;
       for (auto line : _lines) {
          // store the vertex pairs for each line
-         vertexpairs.push_back(VertexPair(vertexmap[line.start], vertexmap[line.end]));
+         Vertex vxstart = vertexmap[line.start];
+         Vertex vxend = vertexmap[line.end];
+         vertexpairs.push_back(VertexObjectPair(vxstart, vxend, _vertextypes[vxstart], _vertextypes[vxend], _kerneltypes[vxstart], _kerneltypes[vxend]));
       }
       // now sort this object and compare it to existing ones
       // to find unique permutations

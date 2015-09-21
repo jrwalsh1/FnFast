@@ -31,8 +31,12 @@ class DiagramOneLoop : public DiagramBase
       double _qmax;                        ///< upper limit on the magnitude of the loop momentum (default is infinity)
 
    public:
-      /// constructor
+      /// base constructor, assumes all vertices are the same type and we're computing delta correlators
       DiagramOneLoop(std::vector<Line> lines);
+      /// constructor with vertex types specified, assumes we're computing delta correlators
+      DiagramOneLoop(std::vector<Line> lines, LabelMap<Vertex, VertexType> vertextypes);
+      /// constructor specifying vertex and kernel types
+      DiagramOneLoop(std::vector<Line> lines, LabelMap<Vertex, VertexType> vertextypes, LabelMap<Vertex, KernelType> kerneltypes);
       /// destructor
       virtual ~DiagramOneLoop() {}
 

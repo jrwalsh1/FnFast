@@ -28,11 +28,11 @@ namespace fnfast {
 class DiagramSetBase
 {
    protected:
-      Order _order;                              ///< order of the calculation to work up to
-      std::vector<DiagramTree*> _tree;           ///< tree diagrams
-      std::vector<DiagramOneLoop*> _oneLoop;     ///< one loop diagrams
-      std::vector<DiagramTwoLoop*> _twoLoop;     ///< two loop diagrams
-      std::vector<Momentum> _extmomlabels;       ///< external momentum labels in the graph
+      Order _order;                                ///< order of the calculation to work up to
+      std::vector<DiagramTree*> _tree;             ///< tree diagrams
+      std::vector<DiagramOneLoop*> _oneLoop;       ///< one loop diagrams
+      std::vector<DiagramTwoLoop*> _twoLoop;       ///< two loop diagrams
+      std::vector<Momentum> _extmomlabels;         ///< external momentum labels in the graph
 
    public:
       /// constructor

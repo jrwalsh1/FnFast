@@ -46,6 +46,50 @@ DiagramTwoLoop::DiagramTwoLoop(std::vector<Line> lines) : DiagramBase(lines), _q
 }
 
 //------------------------------------------------------------------------------
+DiagramTwoLoop::DiagramTwoLoop(std::vector<Line> lines, LabelMap<Vertex, VertexType> vertextypes) : DiagramBase(lines, vertextypes), _qmax(std::numeric_limits<double>::infinity())
+{
+   _order = Order::kTwoLoop;
+   // check to ensure that the diagram is really two loop
+   bool is2Loop = false;
+   // find the nontrivial poles
+   for (auto line : _lines) {
+      // check if the line has the loop momentum in it
+      // if so, it has an IR pole that must be regulated if it is away from 0
+      if (line.propagator.hasLabel(Momentum::q)) {
+         is2Loop = true;
+         _order = Order::kOneLoop;
+         Propagator pole = line.propagator.IRpole(Momentum::q);
+         if (!pole.isNull()) {
+            _IRpoles.push_back(pole);
+         }
+      }
+   }
+   assert(is2Loop);
+}
+
+//------------------------------------------------------------------------------
+DiagramTwoLoop::DiagramTwoLoop(std::vector<Line> lines, LabelMap<Vertex, VertexType> vertextypes, LabelMap<Vertex, KernelType> kerneltypes) : DiagramBase(lines, vertextypes, kerneltypes), _qmax(std::numeric_limits<double>::infinity())
+{
+   _order = Order::kTwoLoop;
+   // check to ensure that the diagram is really two loop
+   bool is2Loop = false;
+   // find the nontrivial poles
+   for (auto line : _lines) {
+      // check if the line has the loop momentum in it
+      // if so, it has an IR pole that must be regulated if it is away from 0
+      if (line.propagator.hasLabel(Momentum::q)) {
+         is2Loop = true;
+         _order = Order::kOneLoop;
+         Propagator pole = line.propagator.IRpole(Momentum::q);
+         if (!pole.isNull()) {
+            _IRpoles.push_back(pole);
+         }
+      }
+   }
+   assert(is2Loop);
+}
+
+//------------------------------------------------------------------------------
 double DiagramTwoLoop::value_base(const LabelMap<Momentum, ThreeVector>& mom, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
 {
    // check to see if either of the loop momenta are above the cutoff, if so return 0
@@ -66,7 +110,11 @@ double DiagramTwoLoop::value_base(const LabelMap<Momentum, ThreeVector>& mom, co
       for (auto vx_prop : _vertexmomenta[vertex]) {
          p.push_back(vx_prop.p(mom));
       }
-      value *= kernels[vertex]->Fn_sym(p);
+      if (_kerneltypes[vertex] == KernelType::delta) {
+         value *= kernels[vertex]->Fn_sym(p);
+      } else {
+         value *= kernels[vertex]->Gn_sym(p);
+      }
    }
    return value;
 }

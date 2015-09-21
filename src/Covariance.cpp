@@ -24,7 +24,7 @@ namespace fnfast {
 
 //------------------------------------------------------------------------------
 Covariance::Covariance(Order order)
-: _order(order), _diagrams(DiagramSet4point(_order)), _UVcutoff(10.)
+: _order(order), _diagrams(DiagramSet4pointSPT(_order)), _UVcutoff(10.)
 {}
 
 //------------------------------------------------------------------------------

@@ -19,7 +19,7 @@
 #ifndef POWER_SPECTRUM_HPP
 #define POWER_SPECTRUM_HPP
 
-#include "DiagramSet2point.hpp"
+#include "DiagramSet2pointSPT.hpp"
 #include "KernelBase.hpp"
 #include "Integration.hpp"
 
@@ -51,7 +51,7 @@ class PowerSpectrum
 {
    private:
       Order _order;                       ///< order of the calculation
-      DiagramSet2point _diagrams;         ///< 2-point diagrams
+      DiagramSet2pointSPT _diagrams;      ///< 2-point diagrams
       double _UVcutoff;                   ///< UV cutoff for loop integrations
       int _seed;                          ///< random number seed for VEGAS
 
@@ -83,7 +83,7 @@ class PowerSpectrum
 
       /// access diagrams
       const DiagramSetBase* diagrams() const { return &_diagrams; }
-      DiagramBase* operator[](DiagramSet2point::Graphs_2point graph) { return _diagrams[graph]; }
+      DiagramBase* operator[](Graphs_2point graph) { return _diagrams[graph]; }
 
       /// set the loop momentum cutoff
       void set_qmax(double qmax) { _diagrams.set_qmax(qmax); }

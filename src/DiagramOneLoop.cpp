@@ -50,6 +50,58 @@ DiagramOneLoop::DiagramOneLoop(std::vector<Line> lines) : DiagramBase(lines), _q
 }
 
 //------------------------------------------------------------------------------
+DiagramOneLoop::DiagramOneLoop(std::vector<Line> lines, LabelMap<Vertex, VertexType> vertextypes) : DiagramBase(lines, vertextypes), _qmax(std::numeric_limits<double>::infinity())
+{
+   _order = Order::kOneLoop;
+   // check to ensure that the diagram is really one loop
+   bool isLoop = false;
+   bool is2Loop = false;
+   // find the nontrivial poles
+   for (auto line : _lines) {
+      // check if the line has the loop momentum in it
+      // if so, it has an IR pole that must be regulated if it is away from 0
+      if (line.propagator.hasLabel(Momentum::q)) {
+         isLoop = true;
+         _order = Order::kOneLoop;
+         Propagator pole = line.propagator.IRpole(Momentum::q);
+         if (!pole.isNull()) {
+            _IRpoles.push_back(pole);
+         }
+      }
+      if (line.propagator.hasLabel(Momentum::q2)) {
+         is2Loop = true;
+      }
+   }
+   assert(isLoop && !is2Loop);
+}
+
+//------------------------------------------------------------------------------
+DiagramOneLoop::DiagramOneLoop(std::vector<Line> lines, LabelMap<Vertex, VertexType> vertextypes, LabelMap<Vertex, KernelType> kerneltypes) : DiagramBase(lines, vertextypes, kerneltypes), _qmax(std::numeric_limits<double>::infinity())
+{
+   _order = Order::kOneLoop;
+   // check to ensure that the diagram is really one loop
+   bool isLoop = false;
+   bool is2Loop = false;
+   // find the nontrivial poles
+   for (auto line : _lines) {
+      // check if the line has the loop momentum in it
+      // if so, it has an IR pole that must be regulated if it is away from 0
+      if (line.propagator.hasLabel(Momentum::q)) {
+         isLoop = true;
+         _order = Order::kOneLoop;
+         Propagator pole = line.propagator.IRpole(Momentum::q);
+         if (!pole.isNull()) {
+            _IRpoles.push_back(pole);
+         }
+      }
+      if (line.propagator.hasLabel(Momentum::q2)) {
+         is2Loop = true;
+      }
+   }
+   assert(isLoop && !is2Loop);
+}
+
+//------------------------------------------------------------------------------
 double DiagramOneLoop::value_base(const LabelMap<Momentum, ThreeVector>& mom, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
 {
    // check to see if the loop momentum is above the cutoff, if so return 0
@@ -70,7 +122,11 @@ double DiagramOneLoop::value_base(const LabelMap<Momentum, ThreeVector>& mom, co
       for (auto vx_prop : _vertexmomenta[vertex]) {
          p.push_back(vx_prop.p(mom));
       }
-      value *= kernels[vertex]->Fn_sym(p);
+      if (_kerneltypes[vertex] == KernelType::delta) {
+         value *= kernels[vertex]->Fn_sym(p);
+      } else {
+         value *= kernels[vertex]->Gn_sym(p);
+      }
    }
    return value;
 }

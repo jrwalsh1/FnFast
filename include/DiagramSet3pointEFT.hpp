@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-/// \file DiagramSet4point.hpp
+/// \file DiagramSet3pointEFT.hpp
 //
 // Author(s):
 //    Jon Walsh
@@ -13,47 +13,31 @@
 //    Please respect the academic usage guidelines in the GUIDELINES file.
 //
 // Description:
-//    Definition of base class DiagramSet4point
+//    Definition of base class DiagramSet3pointEFT
 //------------------------------------------------------------------------------
 
-#ifndef DIAGRAM_SET_4_POINT_HPP
-#define DIAGRAM_SET_4_POINT_HPP
+#ifndef DIAGRAM_SET_3_POINT_EFT_HPP
+#define DIAGRAM_SET_3_POINT_EFT_HPP
 
 #include "DiagramSetBase.hpp"
 
 namespace fnfast {
 
-class DiagramSet4point : public DiagramSetBase
+class DiagramSet3pointEFT : public DiagramSetBase
 {
-   public:
-      /// graph labels
-      enum class Graphs_4point : int {
-         // tree
-         T3111,
-         T2211,
-         // one loop
-         T5111,
-         T4211a,
-         T4211b,
-         T3311a,
-         T3311b,
-         T3221a,
-         T3221b,
-         T3221c,
-         T2222
-      };
-
    private:
-      std::map<Graphs_4point, DiagramBase*> _diagrams;      ///< container for diagrams
+      LabelMap<Graphs_3point, DiagramBase*> _diagrams;      ///< container for diagrams
+      LabelMap<Vertex, VertexType> _vertextypes;            ///< vertex types
+      LabelMap<Vertex, KernelType> _kerneltypes;            ///< kernel types
 
    public:
       /// constructor
-      DiagramSet4point(Order order);
+      DiagramSet3pointEFT(Order order, LabelMap<Vertex, KernelType> kerneltypes = {{Vertex::v1, KernelType::delta}, {Vertex::v2, KernelType::delta}, {Vertex::v3, KernelType::delta}});
       /// destructor
-      virtual ~DiagramSet4point() {}
+      virtual ~DiagramSet3pointEFT() {}
 
       /// access diagrams
-      DiagramBase* operator[](const Graphs_4point& graph) { return _diagrams[graph]; }
+      DiagramBase* operator[](const Graphs_3point& graph) { return _diagrams[graph]; }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,4 +46,4 @@ class DiagramSet4point : public DiagramSetBase
 
 } // namespace fnfast
 
-#endif // DIAGRAM_SET_4_POINT_HPP
+#endif // DIAGRAM_SET_3_POINT_EFT_HPP

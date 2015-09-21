@@ -42,10 +42,16 @@ class DiagramBase
       std::vector<VertexPair> _vertexpairs;                       ///< container for endpoint vertices of lines
       std::vector<Momentum> _extmomlabels;                        ///< momentum labels in the graph
       std::vector<LabelMap<Momentum, Momentum> > _perms;          ///< permutations of external momenta for the graph
+      LabelMap<Vertex, VertexType> _vertextypes;                  ///< vertex types
+      LabelMap<Vertex, KernelType> _kerneltypes;                  ///< kernel types
 
    public:
-      /// constructor
+      /// base constructor, assumes all vertices are the same type and we're computing delta correlators
       DiagramBase(std::vector<Line> lines);
+      /// constructor with vertex types specified, assumes we're computing delta correlators
+      DiagramBase(std::vector<Line> lines, LabelMap<Vertex, VertexType> vertextypes);
+      /// constructor specifying vertex and kernel types
+      DiagramBase(std::vector<Line> lines, LabelMap<Vertex, VertexType> vertextypes, LabelMap<Vertex, KernelType> kerneltypes);
       /// destructor
       virtual ~DiagramBase() {}
 

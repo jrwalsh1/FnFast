@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-/// \file DiagramSet4point.cpp
+/// \file DiagramSet4pointSPT.cpp
 //
 // Author(s):
 //    Jon Walsh
@@ -13,20 +13,24 @@
 //    Please respect the academic usage guidelines in the GUIDELINES file.
 //
 // Description:
-//    Implementation of class DiagramSet4point
+//    Implementation of class DiagramSet4pointSPT
 //------------------------------------------------------------------------------
 
 #include <iostream>
 
-#include "DiagramSet4point.hpp"
+#include "DiagramSet4pointSPT.hpp"
 
 namespace fnfast {
 
 //------------------------------------------------------------------------------
-DiagramSet4point::DiagramSet4point(Order order) : DiagramSetBase(order)
+DiagramSet4pointSPT::DiagramSet4pointSPT(Order order, LabelMap<Vertex, KernelType> kerneltypes)
+: DiagramSetBase(order), _kerneltypes(kerneltypes)
 {
    // External momentum labels of the diagrams
    _extmomlabels = { Momentum::k1, Momentum::k2, Momentum::k3, Momentum::k4};
+
+   // set the vertex and kernel types
+   _vertextypes = LabelMap<Vertex, VertexType>({{Vertex::v1, VertexType::type1}, {Vertex::v2, VertexType::type1}, {Vertex::v3, VertexType::type1}, {Vertex::v4, VertexType::type1}});
 
    // set up the diagrams, starting with the tree level
    // T3111
@@ -40,7 +44,7 @@ DiagramSet4point::DiagramSet4point(Order order) : DiagramSetBase(order)
    Line line_T3111_14(Vertex::v1, Vertex::v4, prop_T3111_k4);
    std::vector<Line> lines_T3111 {line_T3111_12, line_T3111_13, line_T3111_14};
    // define the diagram
-   DiagramTree* T3111 = new DiagramTree(lines_T3111);
+   DiagramTree* T3111 = new DiagramTree(lines_T3111, _vertextypes, _kerneltypes);
 
    // T2211
    // propagators
@@ -53,12 +57,11 @@ DiagramSet4point::DiagramSet4point(Order order) : DiagramSetBase(order)
    Line line_T2211_14(Vertex::v1, Vertex::v4, prop_T2211_k4);
    std::vector<Line> lines_T2211 {line_T2211_12, line_T2211_23, line_T2211_14};
    // define the diagram
-   DiagramTree* T2211 = new DiagramTree(lines_T2211);
+   DiagramTree* T2211 = new DiagramTree(lines_T2211, _vertextypes, _kerneltypes);
 
    // define the tree diagrams
    _tree = {T3111, T2211};
-   _diagrams[Graphs_4point::T3111] = T3111;
-   _diagrams[Graphs_4point::T2211] = T2211;
+   _diagrams = LabelMap<Graphs_4point, DiagramBase*> {{Graphs_4point::T3111, T3111}, {Graphs_4point::T2211, T2211}};
 
    if (_order == Order::kOneLoop) {
       // T5111
@@ -74,7 +77,7 @@ DiagramSet4point::DiagramSet4point(Order order) : DiagramSetBase(order)
       Line line_T5111_14(Vertex::v1, Vertex::v4, prop_T5111_k4);
       std::vector<Line> lines_T5111 {line_T5111_11, line_T5111_12, line_T5111_13, line_T5111_14};
       // define the diagram
-      DiagramOneLoop* T5111 = new DiagramOneLoop(lines_T5111);
+      DiagramOneLoop* T5111 = new DiagramOneLoop(lines_T5111, _vertextypes, _kerneltypes);
 
       // T4211a
       // propagators
@@ -89,7 +92,7 @@ DiagramSet4point::DiagramSet4point(Order order) : DiagramSetBase(order)
       Line line_T4211a_14(Vertex::v1, Vertex::v4, prop_T4211a_k4);
       std::vector<Line> lines_T4211a {line_T4211a_11, line_T4211a_12, line_T4211a_23, line_T4211a_14};
       // define the diagram
-      DiagramOneLoop* T4211a = new DiagramOneLoop(lines_T4211a);
+      DiagramOneLoop* T4211a = new DiagramOneLoop(lines_T4211a, _vertextypes, _kerneltypes);
 
       // T4211b
       // propagators
@@ -104,7 +107,7 @@ DiagramSet4point::DiagramSet4point(Order order) : DiagramSetBase(order)
       Line line_T4211b_14(Vertex::v1, Vertex::v4, prop_T4211b_k4);
       std::vector<Line> lines_T4211b {line_T4211b_12a, line_T4211b_12b, line_T4211b_13, line_T4211b_14};
       // define the diagram
-      DiagramOneLoop* T4211b = new DiagramOneLoop(lines_T4211b);
+      DiagramOneLoop* T4211b = new DiagramOneLoop(lines_T4211b, _vertextypes, _kerneltypes);
 
       // T3311a
       // propagators
@@ -119,7 +122,7 @@ DiagramSet4point::DiagramSet4point(Order order) : DiagramSetBase(order)
       Line line_T3311a_24(Vertex::v2, Vertex::v4, prop_T3311a_k4);
       std::vector<Line> lines_T3311a {line_T3311a_11, line_T3311a_12, line_T3311a_23, line_T3311a_24};
       // define the diagram
-      DiagramOneLoop* T3311a = new DiagramOneLoop(lines_T3311a);
+      DiagramOneLoop* T3311a = new DiagramOneLoop(lines_T3311a, _vertextypes, _kerneltypes);
 
       // T3311b
       // propagators
@@ -134,7 +137,7 @@ DiagramSet4point::DiagramSet4point(Order order) : DiagramSetBase(order)
       Line line_T3311b_14(Vertex::v1, Vertex::v4, prop_T3311b_k4);
       std::vector<Line> lines_T3311b {line_T3311b_12a, line_T3311b_12b, line_T3311b_23, line_T3311b_14};
       // define the diagram
-      DiagramOneLoop* T3311b = new DiagramOneLoop(lines_T3311b);
+      DiagramOneLoop* T3311b = new DiagramOneLoop(lines_T3311b, _vertextypes, _kerneltypes);
 
       // T3221a
       // propagators
@@ -149,7 +152,7 @@ DiagramSet4point::DiagramSet4point(Order order) : DiagramSetBase(order)
       Line line_T3221a_34(Vertex::v3, Vertex::v4, prop_T3221a_k4);
       std::vector<Line> lines_T3221a {line_T3221a_11, line_T3221a_12, line_T3221a_23, line_T3221a_34};
       // define the diagram
-      DiagramOneLoop* T3221a = new DiagramOneLoop(lines_T3221a);
+      DiagramOneLoop* T3221a = new DiagramOneLoop(lines_T3221a, _vertextypes, _kerneltypes);
 
       // T3221b
       // propagators
@@ -164,7 +167,7 @@ DiagramSet4point::DiagramSet4point(Order order) : DiagramSetBase(order)
       Line line_T3221b_34(Vertex::v3, Vertex::v4, prop_T3221b_k4);
       std::vector<Line> lines_T3221b {line_T3221b_12a, line_T3221b_12b, line_T3221b_13, line_T3221b_34};
       // define the diagram
-      DiagramOneLoop* T3221b = new DiagramOneLoop(lines_T3221b);
+      DiagramOneLoop* T3221b = new DiagramOneLoop(lines_T3221b, _vertextypes, _kerneltypes);
 
       // T3221c
       // propagators
@@ -179,7 +182,7 @@ DiagramSet4point::DiagramSet4point(Order order) : DiagramSetBase(order)
       Line line_T3221c_14(Vertex::v1, Vertex::v4, prop_T3221c_k4);
       std::vector<Line> lines_T3221c {line_T3221c_12, line_T3221c_23, line_T3221c_13, line_T3221c_14};
       // define the diagram
-      DiagramOneLoop* T3221c = new DiagramOneLoop(lines_T3221c);
+      DiagramOneLoop* T3221c = new DiagramOneLoop(lines_T3221c, _vertextypes, _kerneltypes);
 
       // T2222
       // propagators
@@ -194,19 +197,12 @@ DiagramSet4point::DiagramSet4point(Order order) : DiagramSetBase(order)
       Line line_T2222_14(Vertex::v1, Vertex::v4, prop_T2222_qk234);
       std::vector<Line> lines_T2222 {line_T2222_12, line_T2222_23, line_T2222_34, line_T2222_14};
       // define the diagram
-      DiagramOneLoop* T2222 = new DiagramOneLoop(lines_T2222);
+      DiagramOneLoop* T2222 = new DiagramOneLoop(lines_T2222, _vertextypes, _kerneltypes);
 
       // define the loop diagrams
       _oneLoop = {T5111, T4211a, T4211b, T3311a, T3311b, T3221a, T3221b, T3221c, T2222};
-      _diagrams[Graphs_4point::T5111] = T5111;
-      _diagrams[Graphs_4point::T4211a] = T4211a;
-      _diagrams[Graphs_4point::T4211b] = T4211b;
-      _diagrams[Graphs_4point::T3311a] = T3311a;
-      _diagrams[Graphs_4point::T3311b] = T3311b;
-      _diagrams[Graphs_4point::T3221a] = T3221a;
-      _diagrams[Graphs_4point::T3221b] = T3221b;
-      _diagrams[Graphs_4point::T3221c] = T3221c;
-      _diagrams[Graphs_4point::T2222] = T2222;
+      _diagrams = LabelMap<Graphs_4point, DiagramBase*> {{Graphs_4point::T3111, T3111}, {Graphs_4point::T2211, T2211}, {Graphs_4point::T5111, T5111}, {Graphs_4point::T4211a, T4211a}, {Graphs_4point::T4211b, T4211b},
+            {Graphs_4point::T3311a, T3311a}, {Graphs_4point::T3311b, T3311b}, {Graphs_4point::T3221a, T3221a}, {Graphs_4point::T3221b, T3221b}, {Graphs_4point::T3221c, T3221c}, {Graphs_4point::T2222, T2222}};
    }
 }
 

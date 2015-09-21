@@ -38,6 +38,34 @@ DiagramTree::DiagramTree(std::vector<Line> lines) : DiagramBase(lines)
 }
 
 //------------------------------------------------------------------------------
+DiagramTree::DiagramTree(std::vector<Line> lines, LabelMap<Vertex, VertexType> vertextypes) : DiagramBase(lines, vertextypes)
+{
+   _order = Order::kTree;
+   // check to ensure that the diagram is really tree level (no loop momentum)
+   bool isLoop = false;
+   for (auto line : _lines) {
+      if (line.propagator.hasLabel(Momentum::q) || line.propagator.hasLabel(Momentum::q)) {
+         isLoop = true;
+      }
+   }
+   assert(!isLoop);
+}
+
+//------------------------------------------------------------------------------
+DiagramTree::DiagramTree(std::vector<Line> lines, LabelMap<Vertex, VertexType> vertextypes, LabelMap<Vertex, KernelType> kerneltypes) : DiagramBase(lines, vertextypes, kerneltypes)
+{
+   _order = Order::kTree;
+   // check to ensure that the diagram is really tree level (no loop momentum)
+   bool isLoop = false;
+   for (auto line : _lines) {
+      if (line.propagator.hasLabel(Momentum::q) || line.propagator.hasLabel(Momentum::q)) {
+         isLoop = true;
+      }
+   }
+   assert(!isLoop);
+}
+
+//------------------------------------------------------------------------------
 double DiagramTree::value(const LabelMap<Momentum, ThreeVector>& mom, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
 {
    // the diagram value is:
@@ -61,7 +89,11 @@ double DiagramTree::value(const LabelMap<Momentum, ThreeVector>& mom, const Labe
          for (auto vx_prop : _vertexmomenta[vertex]) {
             p.push_back(vx_prop.p(mom_perm));
          }
-         diagvalue *= kernels[vertex]->Fn_sym(p);
+         if (_kerneltypes[vertex] == KernelType::delta) {
+            diagvalue *= kernels[vertex]->Fn_sym(p);
+         } else {
+            diagvalue *= kernels[vertex]->Gn_sym(p);
+         }
       }
       value += diagvalue;
    }

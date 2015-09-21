@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-/// \file DiagramSet3point.cpp
+/// \file DiagramSet3pointSPT.cpp
 //
 // Author(s):
 //    Jon Walsh
@@ -13,20 +13,24 @@
 //    Please respect the academic usage guidelines in the GUIDELINES file.
 //
 // Description:
-//    Implementation of class DiagramSet3point
+//    Implementation of class DiagramSet3pointSPT
 //------------------------------------------------------------------------------
 
 #include <iostream>
 
-#include "DiagramSet3point.hpp"
+#include "DiagramSet3pointSPT.hpp"
 
 namespace fnfast {
 
 //------------------------------------------------------------------------------
-DiagramSet3point::DiagramSet3point(Order order) : DiagramSetBase(order)
+DiagramSet3pointSPT::DiagramSet3pointSPT(Order order, LabelMap<Vertex, KernelType> kerneltypes)
+: DiagramSetBase(order), _kerneltypes(kerneltypes)
 {
    // External momentum labels of the diagrams
    _extmomlabels = { Momentum::k1, Momentum::k2, Momentum::k3};
+
+   // set the vertex and kernel types
+   _vertextypes = LabelMap<Vertex, VertexType>({{Vertex::v1, VertexType::type1}, {Vertex::v2, VertexType::type1}, {Vertex::v3, VertexType::type1}});
 
    // set up the diagrams, starting with the tree level
    // B211
@@ -38,11 +42,11 @@ DiagramSet3point::DiagramSet3point(Order order) : DiagramSetBase(order)
    Line line_B211_13(Vertex::v1, Vertex::v3, prop_B211_k3);
    std::vector<Line> lines_B211 {line_B211_12, line_B211_13};
    // define the diagram
-   DiagramTree* B211 = new DiagramTree(lines_B211);
+   DiagramTree* B211 = new DiagramTree(lines_B211, _vertextypes, _kerneltypes);
 
    // define the tree diagrams
    _tree = {B211};
-   _diagrams[Graphs_3point::B211] = B211;
+   _diagrams = LabelMap<Graphs_3point, DiagramBase*> {{Graphs_3point::B211, B211}};
 
    if (_order == Order::kOneLoop) {
       // B411
@@ -56,7 +60,7 @@ DiagramSet3point::DiagramSet3point(Order order) : DiagramSetBase(order)
       Line line_B411_13(Vertex::v1, Vertex::v3, prop_B411_k3);
       std::vector<Line> lines_B411 {line_B411_11, line_B411_12, line_B411_13};
       // define the diagram
-      DiagramOneLoop* B411 = new DiagramOneLoop(lines_B411);
+      DiagramOneLoop* B411 = new DiagramOneLoop(lines_B411, _vertextypes, _kerneltypes);
 
       // B321a
       // propagators
@@ -69,7 +73,7 @@ DiagramSet3point::DiagramSet3point(Order order) : DiagramSetBase(order)
       Line line_B321a_23(Vertex::v2, Vertex::v3, prop_B321a_k3);
       std::vector<Line> lines_B321a {line_B321a_11, line_B321a_12, line_B321a_23};
       // define the diagram
-      DiagramOneLoop* B321a = new DiagramOneLoop(lines_B321a);
+      DiagramOneLoop* B321a = new DiagramOneLoop(lines_B321a, _vertextypes, _kerneltypes);
 
       // B321b
       // propagators
@@ -82,7 +86,7 @@ DiagramSet3point::DiagramSet3point(Order order) : DiagramSetBase(order)
       Line line_B321b_13(Vertex::v1, Vertex::v3, prop_B321b_k3);
       std::vector<Line> lines_B321b {line_B321b_12a, line_B321b_12b, line_B321b_13};
       // define the diagram
-      DiagramOneLoop* B321b = new DiagramOneLoop(lines_B321b);
+      DiagramOneLoop* B321b = new DiagramOneLoop(lines_B321b, _vertextypes, _kerneltypes);
 
       // B222
       // propagators
@@ -95,14 +99,11 @@ DiagramSet3point::DiagramSet3point(Order order) : DiagramSetBase(order)
       Line line_B222_13(Vertex::v1, Vertex::v3, prop_B222_qk23);
       std::vector<Line> lines_B222 {line_B222_12, line_B222_23, line_B222_13};
       // define the diagram
-      DiagramOneLoop* B222 = new DiagramOneLoop(lines_B222);
+      DiagramOneLoop* B222 = new DiagramOneLoop(lines_B222, _vertextypes, _kerneltypes);
 
       // define the loop diagrams
       _oneLoop = {B411, B321a, B321b, B222};
-      _diagrams[Graphs_3point::B411] = B411;
-      _diagrams[Graphs_3point::B321a] = B321a;
-      _diagrams[Graphs_3point::B321b] = B321b;
-      _diagrams[Graphs_3point::B222] = B222;
+      _diagrams = LabelMap<Graphs_3point, DiagramBase*> {{Graphs_3point::B211, B211}, {Graphs_3point::B411, B411}, {Graphs_3point::B321a, B321a}, {Graphs_3point::B321b, B321b}, {Graphs_3point::B222, B222}};
    }
 }
 

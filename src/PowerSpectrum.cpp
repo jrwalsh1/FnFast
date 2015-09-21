@@ -24,7 +24,7 @@ namespace fnfast {
 
 //------------------------------------------------------------------------------
 PowerSpectrum::PowerSpectrum(Order order)
-: _order(order), _diagrams(DiagramSet2point(_order)), _UVcutoff(10.)
+: _order(order), _diagrams(DiagramSet2pointSPT(_order)), _UVcutoff(10.)
 {}
 
 //------------------------------------------------------------------------------

@@ -94,6 +94,79 @@ struct VertexPair
 
 //------------------------------------------------------------------------------
 /**
+ * \enum class VertexType
+ *
+ * \brief Defines dummy types for vertices
+ *
+ * Current labels are type1, type2, type3, type4.
+ * If desired, more slots for vertex types may be added.
+ */
+//------------------------------------------------------------------------------
+enum class VertexType : int
+{
+   type1 = 1,
+   type2 = 2,
+   type3 = 3,
+   type4 = 4
+};
+
+//------------------------------------------------------------------------------
+/**
+ * \enum class KernelType
+ *
+ * \brief Defines types for kernels in N-point functions, delta or theta
+ *
+ * labels are delta, theta
+ */
+//------------------------------------------------------------------------------
+enum class KernelType : int
+{
+   delta,
+   theta
+};
+
+//------------------------------------------------------------------------------
+/**
+ * \struct VertexObjectPair
+ *
+ * \brief A container for a pair of complete vertex objects
+ *
+ * Includes the vertex label, vertex type, and kernel type
+ * for both vertices in the pair
+ */
+//------------------------------------------------------------------------------
+struct VertexObjectPair
+{
+   Vertex vertexA;            ///< vertex label for A
+   Vertex vertexB;            ///< vertex label for B
+   VertexType vertexAtype;    ///< vertex type for A
+   VertexType vertexBtype;    ///< vertex type for B
+   KernelType kernelAtype;    ///< kernel type for A
+   KernelType kernelBtype;    ///< kernel type for B
+
+   /// constructor
+   VertexObjectPair(Vertex vxA, Vertex vxB, VertexType vxAtype, VertexType vxBtype, KernelType kAtype, KernelType kBtype)
+   : vertexA(vxA), vertexB(vxB), vertexAtype(vxAtype), vertexBtype(vxBtype), kernelAtype(kAtype), kernelBtype(kBtype) {}
+
+   /// equality operator
+   bool operator==(const VertexObjectPair& rhs) const {
+      if ((((vertexA == rhs.vertexA) && (vertexB == rhs.vertexB)) || ((vertexA == rhs.vertexB) && (vertexB == rhs.vertexA)))
+            && (vertexAtype == rhs.vertexAtype) && (vertexBtype == rhs.vertexBtype)
+            && (kernelAtype == rhs.kernelAtype) && (kernelBtype == rhs.kernelBtype))
+               { return true; }
+      else { return false; }
+   }
+
+   /// comparison operator: duplicate operator< for the underlying VertexPair
+   bool operator<(const VertexObjectPair& rhs) const {
+      VertexPair vxpair(vertexA, vertexB);
+      VertexPair vxpairRHS(rhs.vertexA, rhs.vertexB);
+      return (vxpair < vxpairRHS);
+   }
+};
+
+//------------------------------------------------------------------------------
+/**
  * \enum class Momentum
  *
  * \brief Defines constants to label the momenta
@@ -112,6 +185,90 @@ enum class Momentum : int
    k2 = 2,
    k3 = 3,
    k4 = 4
+};
+
+//------------------------------------------------------------------------------
+/**
+ * \enum class Graphs_2point
+ *
+ * \brief Defines constants to label 2-point diagrams
+ *
+ * Defines constants to label 2-point diagrams
+ */
+//------------------------------------------------------------------------------
+enum class Graphs_2point : int {
+   // ---------- SPT graph labels ----------
+   // tree
+   P11,
+   // one loop
+   P31,
+   P22,
+   // two loop
+   P51,
+   P42,
+   P33a,
+   P33b,
+   // ---------- EFT graph labels ----------
+   // one loop counterterms
+   P31x,
+   // two loop counterterms
+   P51x,
+   P42x,
+   P33ax
+};
+
+//------------------------------------------------------------------------------
+/**
+ * \enum class Graphs_3point
+ *
+ * \brief Defines constants to label 3-point diagrams
+ *
+ * Defines constants to label 3-point diagrams
+ */
+//------------------------------------------------------------------------------
+enum class Graphs_3point : int {
+   // ---------- SPT graph labels ----------
+   // tree
+   B211,
+   // one loop
+   B411,
+   B321a,
+   B321b,
+   B222,
+   // ---------- EFT graph labels ----------
+   B411x,
+   B321ax
+};
+
+//------------------------------------------------------------------------------
+/**
+ * \enum class Graphs_4point
+ *
+ * \brief Defines constants to label 4-point diagrams
+ *
+ * Defines constants to label 4-point diagrams
+ */
+//------------------------------------------------------------------------------
+enum class Graphs_4point : int {
+   // ---------- SPT graph labels ----------
+   // tree
+   T3111,
+   T2211,
+   // one loop
+   T5111,
+   T4211a,
+   T4211b,
+   T3311a,
+   T3311b,
+   T3221a,
+   T3221b,
+   T3221c,
+   T2222,
+   // ---------- EFT graph labels ----------
+   T5111x,
+   T4211ax,
+   T3311ax,
+   T3221ax
 };
 
 } // namespace fnfast
@@ -147,6 +304,39 @@ struct std::hash<fnfast::Momentum>
    size_t operator()(const fnfast::Momentum& k) const
    {
       // Compute individual hash values for Momentum
+      return ((std::hash<int>()(static_cast<int>(k))) >> 1);
+   }
+};
+
+/// hash function for Graphs_2point
+template <>
+struct std::hash<fnfast::Graphs_2point>
+{
+   size_t operator()(const fnfast::Graphs_2point& k) const
+   {
+      // Compute individual hash values for Graphs_2point
+      return ((std::hash<int>()(static_cast<int>(k))) >> 1);
+   }
+};
+
+/// hash function for Graphs_3point
+template <>
+struct std::hash<fnfast::Graphs_3point>
+{
+   size_t operator()(const fnfast::Graphs_3point& k) const
+   {
+      // Compute individual hash values for Graphs_2point
+      return ((std::hash<int>()(static_cast<int>(k))) >> 1);
+   }
+};
+
+/// hash function for Graphs_4point
+template <>
+struct std::hash<fnfast::Graphs_4point>
+{
+   size_t operator()(const fnfast::Graphs_4point& k) const
+   {
+      // Compute individual hash values for Graphs_2point
       return ((std::hash<int>()(static_cast<int>(k))) >> 1);
    }
 };

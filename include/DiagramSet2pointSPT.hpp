@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-/// \file DiagramSet3point.hpp
+/// \file DiagramSet2pointSPT.hpp
 //
 // Author(s):
 //    Jon Walsh
@@ -13,41 +13,31 @@
 //    Please respect the academic usage guidelines in the GUIDELINES file.
 //
 // Description:
-//    Definition of base class DiagramSet3point
+//    Definition of base class DiagramSet2pointSPT
 //------------------------------------------------------------------------------
 
-#ifndef DIAGRAM_SET_3_POINT_HPP
-#define DIAGRAM_SET_3_POINT_HPP
+#ifndef DIAGRAM_SET_2_POINT_SPT_HPP
+#define DIAGRAM_SET_2_POINT_SPT_HPP
 
 #include "DiagramSetBase.hpp"
 
 namespace fnfast {
 
-class DiagramSet3point : public DiagramSetBase
+class DiagramSet2pointSPT : public DiagramSetBase
 {
-   public:
-      /// graph labels
-      enum class Graphs_3point : int {
-         // tree
-         B211,
-         // one loop
-         B411,
-         B321a,
-         B321b,
-         B222
-      };
-
    private:
-      std::map<Graphs_3point, DiagramBase*> _diagrams;      ///< container for diagrams
+      LabelMap<Graphs_2point, DiagramBase*> _diagrams;      ///< container for diagrams
+      LabelMap<Vertex, VertexType> _vertextypes;            ///< vertex types
+      LabelMap<Vertex, KernelType> _kerneltypes;            ///< kernel types
 
    public:
       /// constructor
-      DiagramSet3point(Order order);
+      DiagramSet2pointSPT(Order order, LabelMap<Vertex, KernelType> kerneltypes = {{Vertex::v1, KernelType::delta}, {Vertex::v2, KernelType::delta}});
       /// destructor
-      virtual ~DiagramSet3point() {}
+      virtual ~DiagramSet2pointSPT() {}
 
       /// access diagrams
-      DiagramBase* operator[](const Graphs_3point& graph) { return _diagrams[graph]; }
+      DiagramBase* operator[](const Graphs_2point& graph) { return _diagrams[graph]; }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,4 +46,4 @@ class DiagramSet3point : public DiagramSetBase
 
 } // namespace fnfast
 
-#endif // DIAGRAM_SET_3_POINT_HPP
+#endif // DIAGRAM_SET_2_POINT_SPT_HPP

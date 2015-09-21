@@ -24,7 +24,7 @@ namespace fnfast {
 
 //------------------------------------------------------------------------------
 Bispectrum::Bispectrum(Order order)
-: _order(order), _diagrams(DiagramSet3point(_order)), _UVcutoff(10.)
+: _order(order), _diagrams(DiagramSet3pointSPT(_order)), _UVcutoff(10.)
 {}
 
 //------------------------------------------------------------------------------

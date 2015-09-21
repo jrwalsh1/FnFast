@@ -13,7 +13,7 @@ GSLLIB=/Users/jwalsh/Desktop/Research/HEP/gsl/lib
 # executables
 all: test
 
-test: test.o ThreeVector.o SPTkernels.o EFTkernels.o Integration.o DiagramBase.o DiagramTree.o DiagramOneLoop.o DiagramTwoLoop.o DiagramSet2point.o DiagramSet3point.o DiagramSet4point.o Propagator.o LinearPowerSpectrumCAMB.o PowerSpectrum.o Bispectrum.o Covariance.o
+test: test.o ThreeVector.o SPTkernels.o EFTkernels.o Integration.o DiagramBase.o DiagramTree.o DiagramOneLoop.o DiagramTwoLoop.o DiagramSet2pointSPT.o DiagramSet3pointSPT.o DiagramSet4pointSPT.o DiagramSet2pointEFT.o DiagramSet3pointEFT.o DiagramSet4pointEFT.o Propagator.o LinearPowerSpectrumCAMB.o PowerSpectrum.o Bispectrum.o Covariance.o
 	mkdir -p bin
 	$(CXX) -o bin/$@ $^ $(CXXFLAGS) -L$(CUBA) -lcuba -L$(GSLLIB) -lgsl
 

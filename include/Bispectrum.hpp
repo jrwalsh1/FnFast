@@ -19,7 +19,7 @@
 #ifndef BISPECTRUM_HPP
 #define BISPECTRUM_HPP
 
-#include "DiagramSet3point.hpp"
+#include "DiagramSet3pointSPT.hpp"
 #include "KernelBase.hpp"
 #include "Integration.hpp"
 
@@ -48,7 +48,7 @@ class Bispectrum
 {
    private:
       Order _order;                       ///< order of the calculation
-      DiagramSet3point _diagrams;         ///< 3-point diagrams
+      DiagramSet3pointSPT _diagrams;      ///< 3-point diagrams
       double _UVcutoff;                   ///< UV cutoff for loop integrations
       int _seed;                          ///< random number seed for VEGAS
 
@@ -81,7 +81,7 @@ class Bispectrum
 
       /// access diagrams
       const DiagramSetBase* diagrams() const { return &_diagrams; }
-      DiagramBase* operator[](DiagramSet3point::Graphs_3point graph) { return _diagrams[graph]; }
+      DiagramBase* operator[](Graphs_3point graph) { return _diagrams[graph]; }
 
       /// set the loop momentum cutoff
       void set_qmax(double qmax) { _diagrams.set_qmax(qmax); }

@@ -19,7 +19,7 @@
 #ifndef COVARIANCE_HPP
 #define COVARIANCE_HPP
 
-#include "DiagramSet4point.hpp"
+#include "DiagramSet4pointSPT.hpp"
 #include "KernelBase.hpp"
 #include "Integration.hpp"
 
@@ -48,7 +48,7 @@ class Covariance
 {
    private:
       Order _order;                       ///< order of the calculation
-      DiagramSet4point _diagrams;         ///< 4-point diagrams
+      DiagramSet4pointSPT _diagrams;      ///< 4-point diagrams
       double _UVcutoff;                   ///< UV cutoff for loop integrations
       int _seed;                          ///< random number seed for VEGAS
 
@@ -81,7 +81,7 @@ class Covariance
 
       /// access diagrams
       const DiagramSetBase* diagrams() const { return &_diagrams; }
-      DiagramBase* operator[](DiagramSet4point::Graphs_4point graph) { return _diagrams[graph]; }
+      DiagramBase* operator[](Graphs_4point graph) { return _diagrams[graph]; }
 
       /// set the loop momentum cutoff
       void set_qmax(double qmax) { _diagrams.set_qmax(qmax); }
