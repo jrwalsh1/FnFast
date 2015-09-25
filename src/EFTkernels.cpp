@@ -189,7 +189,7 @@ double EFTkernels::_dot_product(std::vector<double> a, std::vector<double> b)
 }
 
 //------------------------------------------------------------------------------
-double EFTkernels::Fn(std::vector<ThreeVector>& p)
+double EFTkernels::Fn(const std::vector<ThreeVector>& p)
 {
     int n = p.size();
 
@@ -254,7 +254,7 @@ double EFTkernels::Fn(std::vector<ThreeVector>& p)
 }
 
 //------------------------------------------------------------------------------
-double EFTkernels::Gn(std::vector<ThreeVector>& p)
+double EFTkernels::Gn(const std::vector<ThreeVector>& p)
 {
     int n = p.size();
 
@@ -286,33 +286,35 @@ double EFTkernels::Gn(std::vector<ThreeVector>& p)
 }
 
 //------------------------------------------------------------------------------
-double EFTkernels::Fn_sym(std::vector<ThreeVector>& p)
+double EFTkernels::Fn_sym(const std::vector<ThreeVector>& p)
 {
    double value = 0;
    int nperm = 0; // count the permutations
    // use the next_permutation algorithm together with the comparison operator
    // in ThreeVector to generate permutations
-   std::sort(p.begin(),p.end());
+   std::vector<ThreeVector> pperm = p;
+   std::sort(pperm.begin(),pperm.end());
    do {
       nperm++;
-      value += Fn(p);
-   } while (std::next_permutation(p.begin(), p.end()));
+      value += Fn(pperm);
+   } while (std::next_permutation(pperm.begin(), pperm.end()));
 
    return value / nperm;
 }
 
 //------------------------------------------------------------------------------
-double EFTkernels::Gn_sym(std::vector<ThreeVector>& p)
+double EFTkernels::Gn_sym(const std::vector<ThreeVector>& p)
 {
    double value = 0;
    int nperm = 0; // count the permutations
    // use the next_permutation algorithm together with the comparison operator
    // in ThreeVector to generate permutations
-   std::sort(p.begin(),p.end());
+   std::vector<ThreeVector> pperm = p;
+   std::sort(pperm.begin(),pperm.end());
    do {
       nperm++;
-      value += Gn(p);
-   } while (std::next_permutation(p.begin(), p.end()));
+      value += Gn(pperm);
+   } while (std::next_permutation(pperm.begin(), pperm.end()));
 
    return value / nperm;
 }

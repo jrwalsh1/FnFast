@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <utility>
 
 #include "ThreeVector.hpp"
 #include "SPTkernels.hpp"
@@ -27,19 +28,75 @@ namespace fnfast {
 //------------------------------------------------------------------------------
 SPTkernels::SPTkernels()
 {
-   // precompute alpha, beta coefficients up to F7: this will be all that's ever needed
+   // precompute useful quantities for fast evaluation up to n = 7
+   // higher n should never be needed, but easy to add if desired
+   // ----------------------------------------
+   // precompute alpha, beta coefficients
    for (int c = 0; c <= 7; c++) {
       _cFalpha[c] = cF_alpha(c);
       _cFbeta[c] = cF_beta(c);
       _cGalpha[c] = cG_alpha(c);
       _cGbeta[c] = cG_beta(c);
-}
-   for (int i = 0; i < 7; i++) {
-      for (int j = 0; j < 7; j++) {
-         _alpha[i][j] = 0;
-         _beta[i][j] = 0;
+   }
+
+   // compute binomial coefficients
+   _binom = std::vector<std::vector<int> > (8);
+   for (int i = 0; i < 8; i++) {
+      // default fill all entries with 0
+      _binom[i] = std::vector<int> (i+1, 0);
+      for (int j = 0; j <= i; j++) {
+         // fill with actual values
+         _binom[i][j] = fact(i) / (fact(i - j) * fact(j));
       }
    }
+
+   // compute permutation subsets, cache
+   _permset = std::vector<std::vector<std::vector<std::vector<int> > > > (8);
+   // i counts the total number of indices
+   for (int i = 1; i < 8; i++) {
+      // default fill each top level
+      _permset[i] = std::vector<std::vector<std::vector<int> > > (i+1);
+      for (int j = 1; j <= i; j++) {
+         // fill with actual values
+         _permset[i][j] = generate_permset(j, i);
+      }
+   }
+
+   // compute subset pairs, cache
+   _subsetpairs = std::vector<std::vector<std::vector<std::vector<SubsetPair> > > > (8);
+   // i indexes the number of total indices
+   for (int i = 1; i < 8; i++) {
+      // default fill the top level
+      _subsetpairs[i] = std::vector<std::vector<std::vector<SubsetPair> > > (i+1);
+      // j counts the number of indices in the subset
+      for (int j = 1; j <= i; j++) {
+         // container for all subsets of the given subset from j, i
+         std::vector<std::vector<SubsetPair> > subsetpairs_ij;
+         // generate all subsets of j indices built from i indices
+         std::vector<std::vector<int> > perms_ij = generate_permset(j, i);
+         // for each index subset, find all subset pairs of that subset
+         // remember we need the hashing function from i indices
+         for (auto perm : perms_ij) {
+            std::vector<SubsetPair> perm_pairs = generate_pairedsubsets(perm, i);
+            subsetpairs_ij.push_back(perm_pairs);
+         }
+         _subsetpairs[i][j] = subsetpairs_ij;
+      }
+   }
+
+   // fill the Fn_sym and Gn_sym arrays
+   _Fn_sym = std::vector<std::vector<std::vector<double> > > (8);
+   // n is the total number of indices (n for the kernel we're calculating)
+   for (int n = 1; n < 8; n++) {
+      // default fill the top level
+      _Fn_sym[n] = std::vector<std::vector<double> > (n+1);
+      // k is the number of indices in the daughter kernel calculations
+      // the ones in the recursion relation
+      for (int k = 1; k <= n; k++) {
+         _Fn_sym[n][k] = std::vector<double> (_permset[n][k].size(), 0);
+      }
+   }
+   _Gn_sym = _Fn_sym;
 }
 
 //------------------------------------------------------------------------------
@@ -71,18 +128,18 @@ double SPTkernels::cG_beta(int n)
 }
 
 //------------------------------------------------------------------------------
-double SPTkernels::alpha(ThreeVector& p1, ThreeVector& p2)
+double SPTkernels::alpha(const ThreeVector& p1, const ThreeVector& p2)
 {
    // handle the IR limit with an explicit cutoff
    double eps = 1e-12;
    if (p1*p1 < eps) { return 0; }
 
    // otherwise
-   return ((p1 + p2)*p1) / (p1*p1);
+   return 1 + (p2*p1) / (p1*p1);
 }
 
 //------------------------------------------------------------------------------
-double SPTkernels::beta(ThreeVector& p1, ThreeVector& p2)
+double SPTkernels::beta(const ThreeVector& p1, const ThreeVector& p2)
 {
    // handle the IR limit with an explicit cutoff
    double eps = 1e-12;
@@ -93,138 +150,230 @@ double SPTkernels::beta(ThreeVector& p1, ThreeVector& p2)
 }
 
 //------------------------------------------------------------------------------
-double SPTkernels::Fn_sym(std::vector<ThreeVector>& p)
+double SPTkernels::Fn_sym(const std::vector<ThreeVector>& p)
 {
-   size_t n = p.size();
-   // handle the low multiplicity cases
-   if (n == 0) { return 0; }
-   if (n == 1) { return 1; }
-   if (n == 2) { return 0.5 * (_cFalpha[n] * (alpha(p[0], p[1]) + alpha(p[1], p[0])) + _cFbeta[n] * 2 * beta(p[0], p[1])); } // note beta symmetric
+   // calculates Fn_sym by calculating all lower multiplicity cases first
+   // and using those results to build the requested case
+   int n = p.size();
 
-   // stash the alpha and beta function values
-   // and set up the vector of index labels
-   size_t np = p.size();
-   std::vector<int> indices;
-   for (int i = 0; i < np; i++) {
-      indices.push_back(i);
-      for (size_t j = 0; j < i; j++) {
-         _alpha[i][j] = alpha(p[i], p[j]);
-         _alpha[j][i] = alpha(p[j], p[i]);
-         _beta[i][j] = beta(p[i], p[j]);
-         _beta[j][i] = _beta[i][j]; // beta is symmetric!
-      }
-   }
-
-   double value = 0;
-   int nperm = 0; // count the permutations
-   // use the next_permutation algorithm to loop through the permutations
-   std::sort(indices.begin(), indices.end());
-   do {
-      nperm++;
-      std::vector<ThreeVector> pperm;
-      for (size_t c = 0; c < np; c++) {
-         pperm.push_back(p[indices[c]]);
-      }
-      value += Fn(pperm, indices);
-   } while (std::next_permutation(indices.begin(), indices.end()));
-
-   return value / nperm;
-}
-
-//------------------------------------------------------------------------------
-double SPTkernels::Gn_sym(std::vector<ThreeVector>& p)
-{
-   size_t n = p.size();
-   // handle the low multiplicity cases
-   if (n == 0) { return 0; }
-   if (n == 1) { return 1; }
-   if (n == 2) { return 0.5 * (_cGalpha[n] * (alpha(p[0], p[1]) + alpha(p[1], p[0])) + _cGbeta[n] * 2 * beta(p[0], p[1])); } // note beta symmetric
-
-   // stash the alpha and beta function values
-   // and set up the vector of index labels
-   size_t np = p.size();
-   std::vector<int> indices;
-   for (int i = 0; i < np; i++) {
-      indices[i] = i;
-      for (size_t j = 0; j < i; j++) {
-         _alpha[i][j] = alpha(p[i], p[j]);
-         _alpha[j][i] = alpha(p[j], p[i]);
-         _beta[i][j] = beta(p[i], p[j]);
-         _beta[j][i] = _beta[i][j]; // beta is symmetric!
-      }
-   }
-
-   double value = 0;
-   int nperm = 0; // count the permutations
-   // use the next_permutation algorithm to loop through the permutations
-   std::sort(indices.begin(), indices.end());
-   do {
-      nperm++;
-      value += Gn(p, indices);
-   } while (std::next_permutation(indices.begin(), indices.end()));
-
-   return value / nperm;
-}
-
-//------------------------------------------------------------------------------
-double SPTkernels::Fn(std::vector<ThreeVector>& p, std::vector<int>& indices)
-{
-   size_t n = indices.size();
-   // handle the nonsense and trivial case
-   if (n == 0) { return 0; }
-   if (n == 1) { return 1; }
-
-   // handle the root case for the recursion
-   if (n == 2) { return _cFalpha[n] * _alpha[indices[0]][indices[1]] + _cFbeta[n] * _beta[indices[0]][indices[1]]; }
-
-   // now the nontrivial recursion cases
-   double Fnval = 0;
+   // need to do this in a specific order so that the higher multiplicity
+   // functions can use the lower multiplicity function results
+   // k represents the number of momenta in the set,
+   // e.g. for k = 3 we calculate F_3^sym (p1, p2, p3) + F_3^sym (p1, p2, p4) + ...
    for (int k = 1; k < n; k++) {
-      // split the vector list for the recursion
-      std::vector<ThreeVector> p_k(p.begin(), p.begin() + k);
-      std::vector<ThreeVector> p_nk(p.begin() + k, p.end());
-      // split the index list for the recursion
-      std::vector<int> indices_k(indices.begin(), indices.begin() + k);
-      std::vector<int> indices_nk(indices.begin() + k, indices.end());
-      // sum the subsets of momenta (start with p0 = 0)
-      ThreeVector p0;
-      ThreeVector pktot = std::accumulate(p_k.begin(), p_k.end(), p0);
-      ThreeVector pnktot = std::accumulate(p_nk.begin(), p_nk.end(), p0);
-      // add term to the sum
-      Fnval += Gn(p_k, indices_k) * (_cFalpha[n] * alpha(pktot, pnktot) * Fn(p_nk, indices_nk) + _cFbeta[n] * beta(pktot, pnktot) * Gn(p_nk, indices_nk));
+      // for every momentum permutation of k elements from the n,
+      // calculate the symmetrized Fn and Gn
+      for (int j = 0; j < _permset[n][k].size(); j++) {
+         _Fn_sym[n][k][j] = Fn_sym_build(p, _permset[n][k][j], j);
+         _Gn_sym[n][k][j] = Gn_sym_build(p, _permset[n][k][j], j);
+      }
    }
-   return Fnval;
-}
+   // now calculate the main result
+   double result = Fn_sym_build(p, _permset[n][n][0], 0);
+   _Fn_sym[n][n][0] = result;
 
+   return result;
+}
 
 //------------------------------------------------------------------------------
-double SPTkernels::Gn(std::vector<ThreeVector>& p, std::vector<int>& indices)
+double SPTkernels::Gn_sym(const std::vector<ThreeVector>& p)
 {
-   size_t n = indices.size();
-   // handle the nonsense and trivial case
-   if (n == 0) { return 0; }
-   if (n == 1) { return 1; }
+   // calculates Gn_sym by calculating all lower multiplicity cases first
+   // and using those results to build the requested case
+   int n = p.size();
 
-   // handle the root case for the recursion
-   if (n == 2) { return _cGalpha[n] * _alpha[indices[0]][indices[1]] + _cGbeta[n] * _beta[indices[0]][indices[1]]; }
-
-   // now the nontrivial recursion cases
-   double Gnval = 0;
+   // need to do this in a specific order so that the higher multiplicity
+   // functions can use the lower multiplicity function results
+   // k represents the number of momenta in the set,
+   // e.g. for k = 3 we calculate F_3^sym (p1, p2, p3) + F_3^sym (p1, p2, p4) + ...
    for (int k = 1; k < n; k++) {
-      // split the vector list for the recursion
-      std::vector<ThreeVector> p_k(p.begin(), p.begin() + k);
-      std::vector<ThreeVector> p_nk(p.begin() + k, p.end());
-      // split the index list for the recursion
-      std::vector<int> indices_k(indices.begin(), indices.begin() + k);
-      std::vector<int> indices_nk(indices.begin() + k, indices.end());
-      // sum the subsets of momenta (start with p0 = 0)
-      ThreeVector p0;
-      ThreeVector pktot = std::accumulate(p_k.begin(), p_k.end(), p0);
-      ThreeVector pnktot = std::accumulate(p_nk.begin(), p_nk.end(), p0);
-      // add term to the sum
-      Gnval += Gn(p_k, indices_k) * (_cGalpha[n] * alpha(pktot, pnktot) * Fn(p_nk, indices_nk) + _cGbeta[n] * beta(pktot, pnktot) * Gn(p_nk, indices_nk));
+      // for every momentum permutation of k elements from the n,
+      // calculate the symmetrized Fn and Gn
+      for (int j = 0; j < _permset[n][k].size(); j++) {
+         _Fn_sym[n][k][j] = Fn_sym_build(p, _permset[n][k][j], j);
+         _Gn_sym[n][k][j] = Gn_sym_build(p, _permset[n][k][j], j);
+      }
    }
-   return Gnval;
+   // now calculate the main result
+   double result = Gn_sym_build(p, _permset[n][n][0], 0);
+   _Gn_sym[n][n][0] = result;
+
+   return result;
 }
+
+//------------------------------------------------------------------------------
+double SPTkernels::Fn_sym_build(const std::vector<ThreeVector>& p, const std::vector<int> indices, int hashvalue)
+{
+   // calculates Fn_sym using the results of lower multiplicity calculations
+   int n = p.size();
+   int k = indices.size();
+
+   // handle the base cases
+   if (k == 1) { return 1; }
+   if (k == 2) { return 0.5 * (_cFalpha[2] * (alpha(p[indices[0] - 1], p[indices[1] - 1])
+                                             + alpha(p[indices[1] - 1], p[indices[0] - 1]))
+                              + _cFbeta[2] * 2 * beta(p[indices[0] - 1], p[indices[1] - 1]));
+               } // note beta symmetric
+
+   // now do the recursion case
+   double result = 0;
+   // need to sum over all subsets of the given index set
+   for (const auto& subsetpair : _subsetpairs[n][k][hashvalue]) {
+      int nA = subsetpair.subsetA.size();
+      int nB = subsetpair.subsetB.size();
+      ThreeVector pA;
+      for (const auto& index : subsetpair.subsetA ) { pA += p[index - 1]; }
+      ThreeVector pB;
+      for (const auto& index : subsetpair.subsetB ) { pB += p[index - 1]; }
+      double combfac = 1. / _binom[k][nA];
+      // atomic quantities
+      double FnA = _Fn_sym[n][nA][subsetpair.hashA];
+      double FnB = _Fn_sym[n][nB][subsetpair.hashB];
+      double GnA = _Gn_sym[n][nA][subsetpair.hashA];
+      double GnB = _Gn_sym[n][nB][subsetpair.hashB];
+      double alphaAB = alpha(pA, pB);
+      double alphaBA = alpha(pB, pA);
+      double betaval = beta(pA, pB); // note beta symmetric
+      // add subset result
+      result += combfac * GnA * (_cFalpha[k] * alphaAB * FnB + _cFbeta[k] * betaval * GnB);
+      result += combfac * GnB * (_cFalpha[k] * alphaBA * FnA + _cFbeta[k] * betaval * GnA);
+   }
+
+   return result;
+}
+
+//------------------------------------------------------------------------------
+double SPTkernels::Gn_sym_build(const std::vector<ThreeVector>& p, const std::vector<int> indices, int hashvalue)
+{
+   // calculates Fn_sym using the results of lower multiplicity calculations
+   int n = p.size();
+   int k = indices.size();
+
+   // handle the base cases
+   if (k == 1) { return 1; }
+   if (k == 2) { return 0.5 * (_cGalpha[2] * (alpha(p[indices[0] - 1], p[indices[1] - 1])
+                                             + alpha(p[indices[1] - 1], p[indices[0] - 1]))
+                              + _cGbeta[2] * 2 * beta(p[indices[0] - 1], p[indices[1] - 1]));
+               } // note beta symmetric
+
+   // now do the recursion case
+   double result = 0;
+   // need to sum over all subsets of the given index set
+   for (const auto& subsetpair : _subsetpairs[n][k][hashvalue]) {
+      int nA = subsetpair.subsetA.size();
+      int nB = subsetpair.subsetB.size();
+      ThreeVector pA;
+      for (const auto& index : subsetpair.subsetA ) { pA += p[index - 1]; }
+      ThreeVector pB;
+      for (const auto& index : subsetpair.subsetB ) { pB += p[index - 1]; }
+      double combfac = 1. / _binom[k][nA];
+      // atomic quantities
+      double FnA = _Fn_sym[n][nA][subsetpair.hashA];
+      double FnB = _Fn_sym[n][nB][subsetpair.hashB];
+      double GnA = _Gn_sym[n][nA][subsetpair.hashA];
+      double GnB = _Gn_sym[n][nB][subsetpair.hashB];
+      double alphaAB = alpha(pA, pB);
+      double alphaBA = alpha(pB, pA);
+      double betaval = beta(pA, pB); // note beta symmetric
+      // add subset result
+      result += combfac * GnA * (_cGalpha[k] * alphaAB * FnB + _cGbeta[k] * betaval * GnB);
+      result += combfac * GnB * (_cGalpha[k] * alphaBA * FnA + _cGbeta[k] * betaval * GnA);
+   }
+
+   return result;
+}
+
+//------------------------------------------------------------------------------
+std::vector<std::vector<int> > SPTkernels::generate_permset(int k, int n)
+{
+   std::vector<std::vector<int> > permset;
+   int index = 1;
+   int maxindex = n - k + 1;
+   // seed the permutation set with the first index
+   for (int i = index; i <= maxindex; i++) {
+      permset.push_back(std::vector<int> {i});
+   }
+   index++;
+   maxindex++;
+   // loop over spots in the permset up to k
+   while (index <= k) {
+      std::vector<std::vector<int> > permset_iter;
+      // loop over existing vectors
+      for (auto elem : permset) {
+         int minindex = elem.back() + 1;
+         for (int i = minindex; i <= maxindex; i++) {
+            permset_iter.push_back(elem);
+            permset_iter.back().push_back(i);
+         }
+      }
+      // move onto the next spot
+      permset = std::move(permset_iter);
+      index++;
+      maxindex++;
+   }
+   return permset;
+}
+
+//------------------------------------------------------------------------------
+std::vector<SPTkernels::SubsetPair> SPTkernels::generate_pairedsubsets(const std::vector<int>& indices, int nmax)
+{
+   int n = indices.size();
+   // output container
+   std::vector<SubsetPair> subsets;
+   // there are 2^{n-1} - 1 total pairs of subsets
+   // since each index is in one set or the other (and we ignore the full/empty case)
+   int totpairs = int_pow(2, n-1) - 1;
+   subsets.reserve(totpairs);
+   // construct the subsets explicity using the binary representation of
+   for (int i = 1; i <= totpairs; i++) {
+      std::vector<int> subsetA;
+      std::vector<int> subsetB;
+      for (int j = 0; j < n; j++) {
+         // look at the j^th bit of the pair number
+         // 1: subset A, 0: subset B
+         if ((i & (1 << j)) != 0) {
+            subsetA.push_back(indices[j]);
+         } else {
+            subsetB.push_back(indices[j]);
+         }
+      }
+      // hash the subsets
+      int hashA = hash_perm(subsetA, nmax);
+      int hashB = hash_perm(subsetB, nmax);
+      SubsetPair subsetpair(subsetA, hashA, subsetB, hashB);
+      subsets.push_back(subsetpair);
+   }
+   return subsets;
+}
+
+//------------------------------------------------------------------------------
+int SPTkernels::hash_perm(const std::vector<int>& indices, int nmax)
+{
+   int nslots = indices.size();
+   // trivial cases
+   if (nslots == 0) { return 0; }
+   if (nslots == 1) { return indices[0] - 1; }
+   // function to find the number of the index subset in a lexicographic ordering
+   // serves as a monotone minimal perfect hash
+   // example: 2-index subset out of 4 indices
+   // order: [1,2], [1,3], [1,4], [2,3], [2,4], [3,4]
+   int navail = nmax;
+   int minindex = 1;
+   int pos = 0;
+   int value = 0;
+   // step through the index list
+   while (pos < indices.size()) {
+      // compute the number of skips
+      int nskip = indices[pos] - minindex;
+      value += _binom[navail][nslots] - _binom[navail - nskip][nslots];
+      // step forward in the vector
+      minindex = indices[pos] + 1;
+      navail = nmax - minindex + 1;
+      nslots--;
+      pos++;
+   }
+   return value;
+}
+
 
 } // namespace fnfast

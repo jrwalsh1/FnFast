@@ -37,7 +37,7 @@ int main()
    CV.set_qmax(12.);
    CV.set_seed(37);
 
-   double qmag = 0.01;
+   double qmag = 0.8;
    double qcostheta = 0.9;
    double qphi = 0;
    ThreeVector q(qmag * sqrt(1 - qcostheta*qcostheta) * cos(qphi), qmag * sqrt(1 - qcostheta*qcostheta) * sin(qphi), qmag * qcostheta);
@@ -48,6 +48,7 @@ int main()
    double k2mag = k2.magnitude();
    double theta12 = acos(k1*k2 / (k1.magnitude() * k2.magnitude()));
 
+/*
    std::cout << "---------- computing 1-loop power spectrum ----------" << std::endl;
    SPTkernels* kernelsSPT = new SPTkernels();
    LabelMap<Vertex, KernelBase*> kernels_SPT {{Vertex::v1, kernelsSPT}, {Vertex::v2, kernelsSPT}};
@@ -55,7 +56,7 @@ int main()
    std::cout << "1 loop SPT PS result = " << PSresult.result << std::endl;
    std::cout << "press any key to continue" << std::endl;
    std::cin.get();
-
+*/
 /*
    std::cout << "------------ computing 1-loop bispectrum ------------" << std::endl;
    SPTkernels* kernelsSPT = new SPTkernels();
@@ -67,11 +68,12 @@ int main()
    std::cout << "press any key to continue" << std::endl;
    std::cin.get();
 */
+
    std::cout << "------------ computing 1-loop covariance ------------" << std::endl;
-   //SPTkernels* kernelsSPT = new SPTkernels();
+   SPTkernels* kernelsSPT = new SPTkernels();
    LabelMap<Vertex, KernelBase*> kernels_SPT_CV {{Vertex::v1, kernelsSPT}, {Vertex::v2, kernelsSPT}, {Vertex::v3, kernelsSPT}, {Vertex::v4, kernelsSPT}};
-   IntegralResult CVtree = CV.tree(k1mag, k2mag, kernels_SPT_CV, &PL);
-   std::cout << "tree SPT CV result = " << CVtree.result << std::endl;
+   //IntegralResult CVtree = CV.tree(k1mag, k2mag, kernels_SPT_CV, &PL);
+   //std::cout << "tree SPT CV result = " << CVtree.result << std::endl;
    IntegralResult CVresult = CV.oneLoop(k1mag, k2mag, kernels_SPT_CV, &PL);
    std::cout << "1 loop SPT CV result = " << CVresult.result << std::endl;
    std::cout << "press any key to continue" << std::endl;

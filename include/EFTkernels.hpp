@@ -90,14 +90,14 @@ class EFTkernels : public KernelBase {
         double cG_2(int n);
 
 
-        double alpha(ThreeVector& p1, ThreeVector& p2) {return _sptkernels.alpha(p1,p2);}      ///< kernel function alpha
-        double beta(ThreeVector& p1, ThreeVector& p2) {return _sptkernels.beta(p1,p2);}        ///< kernel function alpha
+        double alpha(const ThreeVector& p1, const ThreeVector& p2) {return _sptkernels.alpha(p1,p2);}      ///< kernel function alpha
+        double beta(const ThreeVector& p1, const ThreeVector& p2) {return _sptkernels.beta(p1,p2);}        ///< kernel function alpha
 
-        double Fn(std::vector<ThreeVector>& p);                  ///< EFT kernel Fn (q1, ..., qn)
-        double Gn(std::vector<ThreeVector>& p);                  ///< EFT kernel Gn (q1, ..., qn)
+        double Fn(const std::vector<ThreeVector>& p);                  ///< EFT kernel Fn (q1, ..., qn)
+        double Gn(const std::vector<ThreeVector>& p);                  ///< EFT kernel Gn (q1, ..., qn)
 
-         double Fn_sym(std::vector<ThreeVector>& p);                ///< symmetrized EFT kernel Fn (q1, ..., qn)
-         double Gn_sym(std::vector<ThreeVector>& p);                ///< symmetrized EFT kernel Gn (q1, ..., qn)
+         double Fn_sym(const std::vector<ThreeVector>& p);                ///< symmetrized EFT kernel Fn (q1, ..., qn)
+         double Gn_sym(const std::vector<ThreeVector>& p);                ///< symmetrized EFT kernel Gn (q1, ..., qn)
 
     private:
         EFTcoefficients* _coefficients;

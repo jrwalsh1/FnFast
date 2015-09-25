@@ -40,8 +40,8 @@ namespace fnfast {
 class KernelBase
 {
    public:
-      virtual double Fn_sym(std::vector<ThreeVector>& p) = 0;    ///< symmetrized kernel Fn
-      virtual double Gn_sym(std::vector<ThreeVector>& p) = 0;    ///< symmetrized kernel Gn
+      virtual double Fn_sym(const std::vector<ThreeVector>& p) = 0;    ///< symmetrized kernel Fn
+      virtual double Gn_sym(const std::vector<ThreeVector>& p) = 0;    ///< symmetrized kernel Gn
 };
 
 } // namespace fnfast
