@@ -22,9 +22,10 @@
 #include <vector>
 #include <map>
 
-#include "Momentum.hpp"
+#include "LabelMap.hpp"
+#include "ThreeVector.hpp"
 
-using namespace std;
+namespace fnfast {
 
 //------------------------------------------------------------------------------
 /**
@@ -32,9 +33,9 @@ using namespace std;
  *
  * \brief class for propagators
  *
- * Propagator(vector<pair<MomentumLabel, double> > components)
+ * Propagator(vector<pair<Momentum, double> > components)
  *
- * Container that is an abstract representation of a linear combination 
+ * Container that is an abstract representation of a linear combination
  * of loop and external momenta.  A method is provided to input actual
  * 3-momenta and obtain a ThreeVector of the momentum of the propagator
  * Instantiated with a vector of pairs, where:
@@ -48,40 +49,70 @@ using namespace std;
 
 class Propagator
 {
+   public:
+      /// label determining the sign of the momentum in a propagator
+      enum class LabelFlow : int {
+         kMinus = -1,
+         kNull = 0,
+         kPlus = 1
+      };
+
    private:
-      unordered_map<Momenta::MomentumLabel, double> _components;        ///< components of the momenta and their scale factors
+      LabelMap<Momentum, LabelFlow> _components;     ///< components of the momenta and their scale factors
 
    public:
       /// constructor
-      Propagator(unordered_map<Momenta::MomentumLabel, double> components);
+      Propagator(LabelMap<Momentum, LabelFlow> components);
       /// destructor
       virtual ~Propagator() {}
 
       /// accessors
-      unordered_map<Momenta::MomentumLabel, double> components() { return _components; }
+      LabelMap<Momentum, LabelFlow> components() const { return _components; }
 
       /// get the momentum given values for the loop, external momenta
-      ThreeVector p(DiagramMomenta mom);
+      ThreeVector p(LabelMap<Momentum, ThreeVector> mom) const;
+
+      /// get the list of labels with coefficients != kNull in the propagator
+      std::vector<Momentum> labels() const;
 
       /// check if a given label is present in the propagator
-      bool hasLabel(Momenta::MomentumLabel label);
+      bool hasLabel(Momentum label) const;
 
       /// check if the propagator is null (has any nonzero contributions)
-      bool isNull();
+      bool isNull() const;
 
-      /// reverses the momentum in the propagator
-      Propagator reverse();
+      /// returns a propagator with the momentum reversed
+      Propagator reverse() const;
 
       /*
        * return a momentum object from the current instance where we
        * solve for the momentum of label given the total momentum = 0
        * e.g. if we have the momentum -q + k2 + k3, then solveNull(q) = k2 + k3
        */
-      Propagator IRpole(Momenta::MomentumLabel label);
+      Propagator IRpole(Momentum label) const;
+
+      /// Propagator stream insertion operator
+      friend std::ostream& operator<<(std::ostream& out, const Propagator& prop);
+
+   private:
+      /// helper function to reverse sign of a propagator coefficient
+      static LabelFlow reverse_flow(LabelFlow sign);
+
+   protected:
+      /// Streams a string to \a out.
+      std::ostream& print(std::ostream& out) const;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 // Inline Declarations
 ////////////////////////////////////////////////////////////////////////////////
+
+//------------------------------------------------------------------------------
+inline std::ostream& operator<<(std::ostream& out, const Propagator& prop)
+{
+   return prop.print(out);
+}
+
+} // namespace fnfast
 
 #endif // PROPAGATOR_HPP

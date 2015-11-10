@@ -22,7 +22,7 @@
 #include "ThreeVector.hpp"
 #include <cmath>
 
-using namespace std;
+namespace fnfast {
 
 //------------------------------------------------------------------------------
 /**
@@ -62,5 +62,7 @@ class WindowFunctionTopHat: public WindowFunctionBase
 ////////////////////////////////////////////////////////////////////////////////
 // Inline Declarations
 ////////////////////////////////////////////////////////////////////////////////
+
+} // namespace fnfast
 
 #endif // WINDOW_FUNCTION_TOPHAT_HPP

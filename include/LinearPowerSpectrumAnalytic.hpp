@@ -23,7 +23,7 @@
 
 #include "LinearPowerSpectrumBase.hpp"
 
-using namespace std;
+namespace fnfast {
 
 //------------------------------------------------------------------------------
 /**
@@ -48,11 +48,13 @@ class LinearPowerSpectrumAnalytic : public LinearPowerSpectrumBase
       virtual ~LinearPowerSpectrumAnalytic() {}
 
       /// returns the linear power spectrum
-      double operator()(double x) { return pow(x, _n); }
+      double operator()(double x) { return std::pow(x, _n); }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 // Inline Declarations
 ////////////////////////////////////////////////////////////////////////////////
+
+} // namespace fnfast
 
 #endif // LINEAR_POWER_SPECTRUM_ANALYTIC_HPP

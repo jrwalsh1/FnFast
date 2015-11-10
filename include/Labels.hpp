@@ -13,7 +13,7 @@
 //    Please respect the academic usage guidelines in the GUIDELINES file.
 //
 // Description:
-//    Definition of Order, MomentumLabel constants
+//    Definition of Order, Momentum, Vertex constants
 //------------------------------------------------------------------------------
 
 #ifndef LABELS_HPP
@@ -22,62 +22,58 @@
 #include <vector>
 #include <functional>
 
-using namespace std;
+namespace fnfast {
 
 //------------------------------------------------------------------------------
 /**
- * \enum Order
+ * \enum class Order
  *
  * \brief Defines constants to label the order of a diagram / calculation.
  *
- * One of kTree or kOneLoop.
+ * One of kTree, kOneLoop, kTwoLoop.
  */
 //------------------------------------------------------------------------------
-enum Order
+enum class Order
 {
-   kTree  = 0,
-   kOneLoop = 1
+   kTree,
+   kOneLoop,
+   kTwoLoop
 };
 
 //------------------------------------------------------------------------------
 /**
- * \struct Vertices
+ * \enum class Vertex
  *
- * \brief Defines constants to label the vertices and a vector of all values
+ * \brief Defines constants to label the vertices
  *
  * Current labels are v1, v2, v3, v4.
  * If desired, more slots for vertices may be added.
  */
 //------------------------------------------------------------------------------
-struct Vertices
+enum class Vertex : int
 {
-   enum VertexLabel
-   {
-      v1 = 1,
-      v2 = 2,
-      v3 = 3,
-      v4 = 4
-   };
-
-   static const vector<VertexLabel> vertexlabels;
+   v1 = 1,
+   v2 = 2,
+   v3 = 3,
+   v4 = 4
 };
 
 //------------------------------------------------------------------------------
 /**
  * \struct VertexPair
  *
- * \brief A container for a pair of VertexLabels
+ * \brief A container for a pair of Vertex labels
  *
  * Defines equality operator for use in maps, comparisons
  */
 //------------------------------------------------------------------------------
 struct VertexPair
 {
-   Vertices::VertexLabel vA;     ///< label A
-   Vertices::VertexLabel vB;     ///< label B
+   Vertex vA;     ///< label A
+   Vertex vB;     ///< label B
 
    /// constructor
-   VertexPair(Vertices::VertexLabel vxA, Vertices::VertexLabel vxB) : vA(vxA), vB(vxB) {}
+   VertexPair(Vertex vxA, Vertex vxB) : vA(vxA), vB(vxB) {}
 
    /// equality operator
    bool operator==(const VertexPair& rhs) const {
@@ -87,9 +83,9 @@ struct VertexPair
 
    /// comparison operator
    bool operator<(const VertexPair& rhs) const {
-      if (min(vA, vB) < min(rhs.vA, rhs.vB)) {
+      if (std::min(vA, vB) < std::min(rhs.vA, rhs.vB)) {
          return true;
-      } else if ((min(vA, vB) == min(rhs.vA, rhs.vB)) && (max(vA, vB) < max(rhs.vA, rhs.vB))) {
+      } else if ((std::min(vA, vB) == std::min(rhs.vA, rhs.vB)) && (std::max(vA, vB) < std::max(rhs.vA, rhs.vB))) {
          return true;
       }
       return false;
@@ -98,63 +94,251 @@ struct VertexPair
 
 //------------------------------------------------------------------------------
 /**
- * \struct MomentumLabels
+ * \enum class VertexType
  *
- * \brief Defines constants to label the momenta and a vector of all values
+ * \brief Defines dummy types for vertices
  *
- * Current labels are q (loop momentum), k1, k2, k3, k4 (external momenta).
+ * Current labels are type1, type2, type3, type4.
+ * If desired, more slots for vertex types may be added.
+ */
+//------------------------------------------------------------------------------
+enum class VertexType : int
+{
+   type1 = 1,
+   type2 = 2,
+   type3 = 3,
+   type4 = 4
+};
+
+//------------------------------------------------------------------------------
+/**
+ * \enum class KernelType
+ *
+ * \brief Defines types for kernels in N-point functions, delta or theta
+ *
+ * labels are delta, theta
+ */
+//------------------------------------------------------------------------------
+enum class KernelType : int
+{
+   delta,
+   theta
+};
+
+//------------------------------------------------------------------------------
+/**
+ * \struct VertexObjectPair
+ *
+ * \brief A container for a pair of complete vertex objects
+ *
+ * Includes the vertex label, vertex type, and kernel type
+ * for both vertices in the pair
+ */
+//------------------------------------------------------------------------------
+struct VertexObjectPair
+{
+   Vertex vertexA;            ///< vertex label for A
+   Vertex vertexB;            ///< vertex label for B
+   VertexType vertexAtype;    ///< vertex type for A
+   VertexType vertexBtype;    ///< vertex type for B
+   KernelType kernelAtype;    ///< kernel type for A
+   KernelType kernelBtype;    ///< kernel type for B
+
+   /// constructor
+   VertexObjectPair(Vertex vxA, Vertex vxB, VertexType vxAtype, VertexType vxBtype, KernelType kAtype, KernelType kBtype)
+   : vertexA(vxA), vertexB(vxB), vertexAtype(vxAtype), vertexBtype(vxBtype), kernelAtype(kAtype), kernelBtype(kBtype) {}
+
+   /// equality operator
+   bool operator==(const VertexObjectPair& rhs) const {
+      if ((((vertexA == rhs.vertexA) && (vertexB == rhs.vertexB)) || ((vertexA == rhs.vertexB) && (vertexB == rhs.vertexA)))
+            && (vertexAtype == rhs.vertexAtype) && (vertexBtype == rhs.vertexBtype)
+            && (kernelAtype == rhs.kernelAtype) && (kernelBtype == rhs.kernelBtype))
+               { return true; }
+      else { return false; }
+   }
+
+   /// comparison operator: duplicate operator< for the underlying VertexPair
+   bool operator<(const VertexObjectPair& rhs) const {
+      VertexPair vxpair(vertexA, vertexB);
+      VertexPair vxpairRHS(rhs.vertexA, rhs.vertexB);
+      return (vxpair < vxpairRHS);
+   }
+};
+
+//------------------------------------------------------------------------------
+/**
+ * \enum class Momentum
+ *
+ * \brief Defines constants to label the momenta
+ *
+ * Current labels are q, q2 (loop momenta), k1, k2, k3, k4 (external momenta).
+ * q2 should only be used in two-loop diagrams (as the 2nd loop momentum),
+ * q should be used as the loop momentum in one-loop diagrams.
  * If desired, more slots for loop and external momenta may be added.
  */
 //------------------------------------------------------------------------------
-struct Momenta{
-   enum MomentumLabel
-   {
-      q  = 0,
-      k1 = 1,
-      k2 = 2,
-      k3 = 3,
-      k4 = 4
-   };
-
-   static const vector<MomentumLabel> momentumlabels;
+enum class Momentum : int
+{
+   q2 = -1,
+   q = 0,
+   k1 = 1,
+   k2 = 2,
+   k3 = 3,
+   k4 = 4
 };
 
+//------------------------------------------------------------------------------
+/**
+ * \enum class Graphs_2point
+ *
+ * \brief Defines constants to label 2-point diagrams
+ *
+ * Defines constants to label 2-point diagrams
+ */
+//------------------------------------------------------------------------------
+enum class Graphs_2point : int {
+   // ---------- SPT graph labels ----------
+   // tree
+   P11,
+   // one loop
+   P31,
+   P22,
+   // two loop
+   P51,
+   P42,
+   P33a,
+   P33b,
+   // ---------- EFT graph labels ----------
+   // one loop counterterms
+   P31x,
+   // two loop counterterms
+   P51x,
+   P42x,
+   P33ax
+};
+
+//------------------------------------------------------------------------------
+/**
+ * \enum class Graphs_3point
+ *
+ * \brief Defines constants to label 3-point diagrams
+ *
+ * Defines constants to label 3-point diagrams
+ */
+//------------------------------------------------------------------------------
+enum class Graphs_3point : int {
+   // ---------- SPT graph labels ----------
+   // tree
+   B211,
+   // one loop
+   B411,
+   B321a,
+   B321b,
+   B222,
+   // ---------- EFT graph labels ----------
+   B411x,
+   B321ax
+};
+
+//------------------------------------------------------------------------------
+/**
+ * \enum class Graphs_4point
+ *
+ * \brief Defines constants to label 4-point diagrams
+ *
+ * Defines constants to label 4-point diagrams
+ */
+//------------------------------------------------------------------------------
+enum class Graphs_4point : int {
+   // ---------- SPT graph labels ----------
+   // tree
+   T3111,
+   T2211,
+   // one loop
+   T5111,
+   T4211a,
+   T4211b,
+   T3311a,
+   T3311b,
+   T3221a,
+   T3221b,
+   T3221c,
+   T2222,
+   // ---------- EFT graph labels ----------
+   T5111x,
+   T4211ax,
+   T3311ax,
+   T3221ax
+};
+
+} // namespace fnfast
+
 /// hash functions for label objects
-namespace std
+//------------------------------------------------------------------------------
+/// hash function for Vertex
+template <>
+struct std::hash<fnfast::Vertex>
 {
-   /// hash function for VertexLabel
-   template <>
-   struct hash<Vertices::VertexLabel>
+   size_t operator()(const fnfast::Vertex &v) const
    {
-      size_t operator()(const Vertices::VertexLabel &v) const
-      {
-         // Compute individual hash values for VertexLabel
-         return ((hash<int>()(v)) >> 1);
-      }
-   };
+      // Compute individual hash values for Vertex
+      return ((std::hash<int>()(static_cast<int>(v))) >> 1);
+   }
+};
 
-   /// hash function for VertexPair
-   template <>
-   struct hash<VertexPair>
+/// hash function for VertexPair
+template <>
+struct std::hash<fnfast::VertexPair>
+{
+   size_t operator()(const fnfast::VertexPair& vp) const
    {
-      size_t operator()(const VertexPair& vp) const
-      {
-         // Compute individual hash values for two data members and combine them using XOR and bit shifting
-         return ((hash<int>()(vp.vA) ^ (hash<int>()(vp.vB) << 1)) >> 1);
-      }
-   };
+      // Compute individual hash values for two data members and combine them using XOR and bit shifting
+      return ((std::hash<int>()(static_cast<int>(vp.vA)) ^ (std::hash<int>()(static_cast<int>(vp.vB)) << 1)) >> 1);
+   }
+};
 
-   /// hash function for MomentumLabel
-   template <>
-   struct hash<Momenta::MomentumLabel>
+/// hash function for Momentum
+template <>
+struct std::hash<fnfast::Momentum>
+{
+   size_t operator()(const fnfast::Momentum& k) const
    {
-      size_t operator()(const Momenta::MomentumLabel& k) const
-      {
-         // Compute individual hash values for MomentumLabel
-         return ((hash<int>()(k)) >> 1);
-      }
-   };
-}
+      // Compute individual hash values for Momentum
+      return ((std::hash<int>()(static_cast<int>(k))) >> 1);
+   }
+};
 
+/// hash function for Graphs_2point
+template <>
+struct std::hash<fnfast::Graphs_2point>
+{
+   size_t operator()(const fnfast::Graphs_2point& k) const
+   {
+      // Compute individual hash values for Graphs_2point
+      return ((std::hash<int>()(static_cast<int>(k))) >> 1);
+   }
+};
+
+/// hash function for Graphs_3point
+template <>
+struct std::hash<fnfast::Graphs_3point>
+{
+   size_t operator()(const fnfast::Graphs_3point& k) const
+   {
+      // Compute individual hash values for Graphs_2point
+      return ((std::hash<int>()(static_cast<int>(k))) >> 1);
+   }
+};
+
+/// hash function for Graphs_4point
+template <>
+struct std::hash<fnfast::Graphs_4point>
+{
+   size_t operator()(const fnfast::Graphs_4point& k) const
+   {
+      // Compute individual hash values for Graphs_2point
+      return ((std::hash<int>()(static_cast<int>(k))) >> 1);
+   }
+};
 
 #endif // LABELS_HPP
