@@ -7,7 +7,7 @@
 // Copyright:
 //    Copyright (C) 2015  LBL
 //
-//    This file is part of the EFTofLSS library. EFTofLSS is distributed under the
+//    This file is part of the FnFast library. FnFast is distributed under the
 //    terms of the GNU General Public License version 3 (GPLv3), see the COPYING
 //    file that comes with this distribution for details.
 //    Please respect the academic usage guidelines in the GUIDELINES file.
@@ -52,9 +52,9 @@ class Propagator
    public:
       /// label determining the sign of the momentum in a propagator
       enum class LabelFlow : int {
-         kMinus = -1,
-         kNull = 0,
-         kPlus = 1
+         Minus = -1,
+         Null = 0,
+         Plus = 1
       };
 
    private:
@@ -72,7 +72,7 @@ class Propagator
       /// get the momentum given values for the loop, external momenta
       ThreeVector p(LabelMap<Momentum, ThreeVector> mom) const;
 
-      /// get the list of labels with coefficients != kNull in the propagator
+      /// get the list of labels with coefficients != Null in the propagator
       std::vector<Momentum> labels() const;
 
       /// check if a given label is present in the propagator

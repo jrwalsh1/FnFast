@@ -7,7 +7,7 @@
 // Copyright:
 //    Copyright (C) 2015  LBL
 //
-//    This file is part of the EFTofLSS library. EFTofLSS is distributed under the
+//    This file is part of the FnFast library. FnFast is distributed under the
 //    terms of the GNU General Public License version 3 (GPLv3), see the COPYING
 //    file that comes with this distribution for details.
 //    Please respect the academic usage guidelines in the GUIDELINES file.
@@ -35,7 +35,7 @@ DiagramSet2pointSPT::DiagramSet2pointSPT(Order order, LabelMap<Vertex, KernelTyp
    // set up the diagrams, starting with the tree level
    // P11
    // propagators
-   Propagator prop_P11_k2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::kPlus}});
+   Propagator prop_P11_k2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::Plus}});
    // lines
    Line line_P11_12(Vertex::v1, Vertex::v2, prop_P11_k2);
    std::vector<Line> lines_P11 {line_P11_12};
@@ -47,11 +47,11 @@ DiagramSet2pointSPT::DiagramSet2pointSPT(Order order, LabelMap<Vertex, KernelTyp
    _diagrams = LabelMap<Graphs_2point, DiagramBase*> {{Graphs_2point::P11, P11}};
 
    // add the one loop graphs (if requested)
-   if ((_order == Order::kOneLoop) || (_order == Order::kTwoLoop)) {
+   if ((_order == Order::OneLoop) || (_order == Order::TwoLoop)) {
       // P31
       // propagators
-      Propagator prop_P31_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kPlus}});
-      Propagator prop_P31_k2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::kPlus}});
+      Propagator prop_P31_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Plus}});
+      Propagator prop_P31_k2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::Plus}});
       // lines
       Line line_P31_11(Vertex::v1, Vertex::v1, prop_P31_q);
       Line line_P31_12(Vertex::v1, Vertex::v2, prop_P31_k2);
@@ -61,8 +61,8 @@ DiagramSet2pointSPT::DiagramSet2pointSPT(Order order, LabelMap<Vertex, KernelTyp
 
       // P22
       // propagators
-      Propagator prop_P22_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kPlus}});
-      Propagator prop_P22_qk2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kMinus}, {Momentum::k2, Propagator::LabelFlow::kPlus}});
+      Propagator prop_P22_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Plus}});
+      Propagator prop_P22_qk2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Minus}, {Momentum::k2, Propagator::LabelFlow::Plus}});
       // lines
       Line line_P22_12a(Vertex::v1, Vertex::v2, prop_P22_q);
       Line line_P22_12b(Vertex::v1, Vertex::v2, prop_P22_qk2);
@@ -75,12 +75,12 @@ DiagramSet2pointSPT::DiagramSet2pointSPT(Order order, LabelMap<Vertex, KernelTyp
       _diagrams = LabelMap<Graphs_2point, DiagramBase*> {{Graphs_2point::P11, P11}, {Graphs_2point::P31, P31}, {Graphs_2point::P22, P22}};
 
       // add the two loop graphs (if requested)
-      if (_order == Order::kTwoLoop) {
+      if (_order == Order::TwoLoop) {
          // P51
          // propagators
-         Propagator prop_P51_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kPlus}});
-         Propagator prop_P51_q2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q2, Propagator::LabelFlow::kPlus}});
-         Propagator prop_P51_k2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::kPlus}});
+         Propagator prop_P51_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Plus}});
+         Propagator prop_P51_q2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q2, Propagator::LabelFlow::Plus}});
+         Propagator prop_P51_k2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::Plus}});
          // lines
          Line line_P51_11a(Vertex::v1, Vertex::v1, prop_P51_q);
          Line line_P51_11b(Vertex::v1, Vertex::v1, prop_P51_q2);
@@ -91,9 +91,9 @@ DiagramSet2pointSPT::DiagramSet2pointSPT(Order order, LabelMap<Vertex, KernelTyp
 
          // P42
          // propagators
-         Propagator prop_P42_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kPlus}});
-         Propagator prop_P42_q2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q2, Propagator::LabelFlow::kPlus}});
-         Propagator prop_P42_qk2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kMinus}, {Momentum::k2, Propagator::LabelFlow::kPlus}});
+         Propagator prop_P42_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Plus}});
+         Propagator prop_P42_q2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q2, Propagator::LabelFlow::Plus}});
+         Propagator prop_P42_qk2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Minus}, {Momentum::k2, Propagator::LabelFlow::Plus}});
          // lines
          Line line_P42_11(Vertex::v1, Vertex::v1, prop_P42_q2);
          Line line_P42_12a(Vertex::v1, Vertex::v2, prop_P42_q);
@@ -104,9 +104,9 @@ DiagramSet2pointSPT::DiagramSet2pointSPT(Order order, LabelMap<Vertex, KernelTyp
 
          // P33a
          // propagators
-         Propagator prop_P33a_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kPlus}});
-         Propagator prop_P33a_q2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q2, Propagator::LabelFlow::kPlus}});
-         Propagator prop_P33a_k2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::kPlus}});
+         Propagator prop_P33a_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Plus}});
+         Propagator prop_P33a_q2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q2, Propagator::LabelFlow::Plus}});
+         Propagator prop_P33a_k2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::Plus}});
          // lines
          Line line_P33a_11(Vertex::v1, Vertex::v1, prop_P33a_q);
          Line line_P33a_22(Vertex::v2, Vertex::v2, prop_P33a_q2);
@@ -117,9 +117,9 @@ DiagramSet2pointSPT::DiagramSet2pointSPT(Order order, LabelMap<Vertex, KernelTyp
 
          // P33b
          // propagators
-         Propagator prop_P33b_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kPlus}});
-         Propagator prop_P33b_q2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q2, Propagator::LabelFlow::kPlus}});
-         Propagator prop_P33b_qq2k2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kMinus}, {Momentum::q2, Propagator::LabelFlow::kMinus}, {Momentum::k2, Propagator::LabelFlow::kPlus}});
+         Propagator prop_P33b_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Plus}});
+         Propagator prop_P33b_q2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q2, Propagator::LabelFlow::Plus}});
+         Propagator prop_P33b_qq2k2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Minus}, {Momentum::q2, Propagator::LabelFlow::Minus}, {Momentum::k2, Propagator::LabelFlow::Plus}});
          // lines
          Line line_P33b_12a(Vertex::v1, Vertex::v2, prop_P33b_q);
          Line line_P33b_12b(Vertex::v1, Vertex::v2, prop_P33b_q2);

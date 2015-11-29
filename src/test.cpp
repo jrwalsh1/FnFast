@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-// test bed for EFTofLSS library
+// test bed for FnFast library
 //------------------------------------------------------------------------------
 
 #include <cmath>
@@ -27,13 +27,13 @@ int main()
    LinearPowerSpectrumAnalytic PL(1);
    LinearPowerSpectrumCAMB PLcamb("data/LIdata.txt");
 
-   PowerSpectrum PS(Order::kOneLoop);
+   PowerSpectrum PS(Order::OneLoop);
    PS.set_qmax(12.);
    PS.set_seed(37);
-   Bispectrum BS(Order::kOneLoop);
+   Bispectrum BS(Order::OneLoop);
    BS.set_qmax(12.);
    BS.set_seed(37);
-   Covariance CV(Order::kOneLoop);
+   Covariance CV(Order::OneLoop);
    CV.set_qmax(12.);
    CV.set_seed(37);
 
@@ -57,7 +57,7 @@ int main()
    std::cout << "press any key to continue" << std::endl;
    std::cin.get();
 */
-/*
+
    std::cout << "------------ computing 1-loop bispectrum ------------" << std::endl;
    SPTkernels* kernelsSPT = new SPTkernels();
    LabelMap<Vertex, KernelBase*> kernels_SPT_BS {{Vertex::v1, kernelsSPT}, {Vertex::v2, kernelsSPT}, {Vertex::v3, kernelsSPT}};
@@ -67,10 +67,9 @@ int main()
    std::cout << "1 loop SPT BS result = " << BSresult.result << std::endl;
    std::cout << "press any key to continue" << std::endl;
    std::cin.get();
-*/
 
    std::cout << "------------ computing 1-loop covariance ------------" << std::endl;
-   SPTkernels* kernelsSPT = new SPTkernels();
+//   SPTkernels* kernelsSPT = new SPTkernels();
    LabelMap<Vertex, KernelBase*> kernels_SPT_CV {{Vertex::v1, kernelsSPT}, {Vertex::v2, kernelsSPT}, {Vertex::v3, kernelsSPT}, {Vertex::v4, kernelsSPT}};
    //IntegralResult CVtree = CV.tree(k1mag, k2mag, kernels_SPT_CV, &PL);
    //std::cout << "tree SPT CV result = " << CVtree.result << std::endl;

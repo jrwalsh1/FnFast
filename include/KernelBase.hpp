@@ -7,7 +7,7 @@
 // Copyright:
 //    Copyright (C) 2015  LBL
 //
-//    This file is part of the EFTofLSS library. EFTofLSS is distributed under the
+//    This file is part of the FnFast library. FnFast is distributed under the
 //    terms of the GNU General Public License version 3 (GPLv3), see the COPYING
 //    file that comes with this distribution for details.
 //    Please respect the academic usage guidelines in the GUIDELINES file.
@@ -31,7 +31,7 @@ namespace fnfast {
 /**
  * \class KernelBase
  *
- * \brief Defines the base class for recusive kernels (SPT, EFTofLSS, etc.).
+ * \brief Defines the base class for recusive kernels (SPT, FnFast, etc.).
  *
  * Defines the interface functions shared between kernels.
  * The symmetrization over kernels is defined in the base class.

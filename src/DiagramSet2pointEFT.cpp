@@ -7,7 +7,7 @@
 // Copyright:
 //    Copyright (C) 2015  LBL
 //
-//    This file is part of the EFTofLSS library. EFTofLSS is distributed under the
+//    This file is part of the FnFast library. FnFast is distributed under the
 //    terms of the GNU General Public License version 3 (GPLv3), see the COPYING
 //    file that comes with this distribution for details.
 //    Please respect the academic usage guidelines in the GUIDELINES file.
@@ -35,7 +35,7 @@ DiagramSet2pointEFT::DiagramSet2pointEFT(Order order, LabelMap<Vertex, KernelTyp
    // set up the diagrams, starting with the tree level
    // P31x
    // propagators
-   Propagator prop_P31x_k2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::kPlus}});
+   Propagator prop_P31x_k2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::Plus}});
    // lines
    Line line_P31x_12(Vertex::v1, Vertex::v2, prop_P31x_k2);
    std::vector<Line> lines_P31x {line_P31x_12};

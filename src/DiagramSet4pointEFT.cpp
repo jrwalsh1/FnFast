@@ -7,7 +7,7 @@
 // Copyright:
 //    Copyright (C) 2015  LBL
 //
-//    This file is part of the EFTofLSS library. EFTofLSS is distributed under the
+//    This file is part of the FnFast library. FnFast is distributed under the
 //    terms of the GNU General Public License version 3 (GPLv3), see the COPYING
 //    file that comes with this distribution for details.
 //    Please respect the academic usage guidelines in the GUIDELINES file.
@@ -35,9 +35,9 @@ DiagramSet4pointEFT::DiagramSet4pointEFT(Order order, LabelMap<Vertex, KernelTyp
    // set up the diagrams, starting with the tree level
    // T5111x
    // propagators
-   Propagator prop_T5111x_k2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::kPlus}});
-   Propagator prop_T5111x_k3(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::kPlus}});
-   Propagator prop_T5111x_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::kPlus}});
+   Propagator prop_T5111x_k2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::Plus}});
+   Propagator prop_T5111x_k3(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::Plus}});
+   Propagator prop_T5111x_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::Plus}});
    // lines
    Line line_T5111x_12(Vertex::v1, Vertex::v2, prop_T5111x_k2);
    Line line_T5111x_13(Vertex::v1, Vertex::v3, prop_T5111x_k3);
@@ -48,9 +48,9 @@ DiagramSet4pointEFT::DiagramSet4pointEFT(Order order, LabelMap<Vertex, KernelTyp
 
    // T4211ax
    // propagators
-   Propagator prop_T4211ax_k23(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::kPlus}, {Momentum::k3, Propagator::LabelFlow::kPlus}});
-   Propagator prop_T4211ax_k3(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::kPlus}});
-   Propagator prop_T4211ax_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::kPlus}});
+   Propagator prop_T4211ax_k23(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::Plus}, {Momentum::k3, Propagator::LabelFlow::Plus}});
+   Propagator prop_T4211ax_k3(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::Plus}});
+   Propagator prop_T4211ax_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::Plus}});
    // lines
    Line line_T4211ax_12(Vertex::v1, Vertex::v2, prop_T4211ax_k23);
    Line line_T4211ax_23(Vertex::v2, Vertex::v3, prop_T4211ax_k3);
@@ -61,9 +61,9 @@ DiagramSet4pointEFT::DiagramSet4pointEFT(Order order, LabelMap<Vertex, KernelTyp
 
    // T3311ax
    // propagators
-   Propagator prop_T3311ax_k234(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::kPlus}, {Momentum::k3, Propagator::LabelFlow::kPlus}, {Momentum::k4, Propagator::LabelFlow::kPlus}});
-   Propagator prop_T3311ax_k3(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::kPlus}});
-   Propagator prop_T3311ax_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::kPlus}});
+   Propagator prop_T3311ax_k234(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::Plus}, {Momentum::k3, Propagator::LabelFlow::Plus}, {Momentum::k4, Propagator::LabelFlow::Plus}});
+   Propagator prop_T3311ax_k3(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::Plus}});
+   Propagator prop_T3311ax_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::Plus}});
    // lines
    Line line_T3311ax_12(Vertex::v1, Vertex::v2, prop_T3311ax_k234);
    Line line_T3311ax_23(Vertex::v2, Vertex::v3, prop_T3311ax_k3);
@@ -74,9 +74,9 @@ DiagramSet4pointEFT::DiagramSet4pointEFT(Order order, LabelMap<Vertex, KernelTyp
 
    // T3221ax
    // propagators
-   Propagator prop_T3221ax_k234(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::kPlus}, {Momentum::k3, Propagator::LabelFlow::kPlus}, {Momentum::k4, Propagator::LabelFlow::kPlus}});
-   Propagator prop_T3221ax_k34(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::kPlus}, {Momentum::k4, Propagator::LabelFlow::kPlus}});
-   Propagator prop_T3221ax_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::kPlus}});
+   Propagator prop_T3221ax_k234(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::Plus}, {Momentum::k3, Propagator::LabelFlow::Plus}, {Momentum::k4, Propagator::LabelFlow::Plus}});
+   Propagator prop_T3221ax_k34(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::Plus}, {Momentum::k4, Propagator::LabelFlow::Plus}});
+   Propagator prop_T3221ax_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::Plus}});
    // lines
    Line line_T3221ax_12(Vertex::v1, Vertex::v2, prop_T3221ax_k234);
    Line line_T3221ax_23(Vertex::v2, Vertex::v3, prop_T3221ax_k34);

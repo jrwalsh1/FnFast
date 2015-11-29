@@ -7,7 +7,7 @@
 // Copyright:
 //    Copyright (C) 2015  LBL
 //
-//    This file is part of the EFTofLSS library. EFTofLSS is distributed under the
+//    This file is part of the FnFast library. FnFast is distributed under the
 //    terms of the GNU General Public License version 3 (GPLv3), see the COPYING
 //    file that comes with this distribution for details.
 //    Please respect the academic usage guidelines in the GUIDELINES file.
@@ -26,7 +26,7 @@ namespace fnfast {
 //------------------------------------------------------------------------------
 DiagramTree::DiagramTree(std::vector<Line> lines) : DiagramBase(lines)
 {
-   _order = Order::kTree;
+   _order = Order::Tree;
    // check to ensure that the diagram is really tree level (no loop momentum)
    bool isLoop = false;
    for (auto line : _lines) {
@@ -40,7 +40,7 @@ DiagramTree::DiagramTree(std::vector<Line> lines) : DiagramBase(lines)
 //------------------------------------------------------------------------------
 DiagramTree::DiagramTree(std::vector<Line> lines, LabelMap<Vertex, VertexType> vertextypes) : DiagramBase(lines, vertextypes)
 {
-   _order = Order::kTree;
+   _order = Order::Tree;
    // check to ensure that the diagram is really tree level (no loop momentum)
    bool isLoop = false;
    for (auto line : _lines) {
@@ -54,7 +54,7 @@ DiagramTree::DiagramTree(std::vector<Line> lines, LabelMap<Vertex, VertexType> v
 //------------------------------------------------------------------------------
 DiagramTree::DiagramTree(std::vector<Line> lines, LabelMap<Vertex, VertexType> vertextypes, LabelMap<Vertex, KernelType> kerneltypes) : DiagramBase(lines, vertextypes, kerneltypes)
 {
-   _order = Order::kTree;
+   _order = Order::Tree;
    // check to ensure that the diagram is really tree level (no loop momentum)
    bool isLoop = false;
    for (auto line : _lines) {

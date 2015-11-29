@@ -2,18 +2,19 @@
 /// \file ThreeVector.cpp
 //
 // Author(s):
-//    Frank Tackmann
+//    Jon Walsh
 //
 // Copyright:
-//    Copyright (C) 2012 MIT, Frank Tackmann
+//    Copyright (C) 2015  LBL
 //
-//    This file is part of the Geneva MC framework. Geneva is distributed under
-//    the terms of the GNU General Public License version 3 (GPLv3), see the
-//    COPYING file that comes with this distribution for details.
+//    This file is part of the FnFast library. FnFast is distributed under the
+//    terms of the GNU General Public License version 3 (GPLv3), see the COPYING
+//    file that comes with this distribution for details.
 //    Please respect the academic usage guidelines in the GUIDELINES file.
 //
 // Description:
-//    Implementation of class ThreeVector
+//    Definition of class ThreeVector
+//    Modified version of the ThreeVector class from the Geneva MC framework.
 //------------------------------------------------------------------------------
 
 #include "ThreeVector.hpp"

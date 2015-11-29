@@ -7,7 +7,7 @@
 // Copyright:
 //    Copyright (C) 2015  LBL
 //
-//    This file is part of the EFTofLSS library. EFTofLSS is distributed under the
+//    This file is part of the FnFast library. FnFast is distributed under the
 //    terms of the GNU General Public License version 3 (GPLv3), see the COPYING
 //    file that comes with this distribution for details.
 //    Please respect the academic usage guidelines in the GUIDELINES file.
@@ -60,7 +60,7 @@ struct VEGASintegrator
    int nbatch;                ///< batch size for PS point sampling
 
    /// constructor
-   VEGASintegrator(int numdim, double err = 1e-3, int neval = 250000, int numstart = 1000, int numincrease = 1000, int numbatch = 1000)
+   VEGASintegrator(int numdim, double err = 1e-3, int neval = 500000, int numstart = 1000, int numincrease = 1000, int numbatch = 1000)
    : ndim(numdim), epsrel(err), maxeval(neval), nstart(numstart), nincrease(numincrease), nbatch(numbatch) {}
 
    /// integration function

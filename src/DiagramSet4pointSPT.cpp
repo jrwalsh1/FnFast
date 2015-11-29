@@ -7,7 +7,7 @@
 // Copyright:
 //    Copyright (C) 2015  LBL
 //
-//    This file is part of the EFTofLSS library. EFTofLSS is distributed under the
+//    This file is part of the FnFast library. FnFast is distributed under the
 //    terms of the GNU General Public License version 3 (GPLv3), see the COPYING
 //    file that comes with this distribution for details.
 //    Please respect the academic usage guidelines in the GUIDELINES file.
@@ -35,9 +35,9 @@ DiagramSet4pointSPT::DiagramSet4pointSPT(Order order, LabelMap<Vertex, KernelTyp
    // set up the diagrams, starting with the tree level
    // T3111
    // propagators
-   Propagator prop_T3111_k2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::kPlus}});
-   Propagator prop_T3111_k3(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::kPlus}});
-   Propagator prop_T3111_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::kPlus}});
+   Propagator prop_T3111_k2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::Plus}});
+   Propagator prop_T3111_k3(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::Plus}});
+   Propagator prop_T3111_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::Plus}});
    // lines
    Line line_T3111_12(Vertex::v1, Vertex::v2, prop_T3111_k2);
    Line line_T3111_13(Vertex::v1, Vertex::v3, prop_T3111_k3);
@@ -48,9 +48,9 @@ DiagramSet4pointSPT::DiagramSet4pointSPT(Order order, LabelMap<Vertex, KernelTyp
 
    // T2211
    // propagators
-   Propagator prop_T2211_k23(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::kPlus}, {Momentum::k3, Propagator::LabelFlow::kPlus}});
-   Propagator prop_T2211_k3(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::kPlus}});
-   Propagator prop_T2211_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::kPlus}});
+   Propagator prop_T2211_k23(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::Plus}, {Momentum::k3, Propagator::LabelFlow::Plus}});
+   Propagator prop_T2211_k3(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::Plus}});
+   Propagator prop_T2211_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::Plus}});
    // lines
    Line line_T2211_12(Vertex::v1, Vertex::v2, prop_T2211_k23);
    Line line_T2211_23(Vertex::v2, Vertex::v3, prop_T2211_k3);
@@ -63,13 +63,13 @@ DiagramSet4pointSPT::DiagramSet4pointSPT(Order order, LabelMap<Vertex, KernelTyp
    _tree = {T3111, T2211};
    _diagrams = LabelMap<Graphs_4point, DiagramBase*> {{Graphs_4point::T3111, T3111}, {Graphs_4point::T2211, T2211}};
 
-   if (_order == Order::kOneLoop) {
+   if (_order == Order::OneLoop) {
       // T5111
       // propagators
-      Propagator prop_T5111_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kPlus}});
-      Propagator prop_T5111_k2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::kPlus}});
-      Propagator prop_T5111_k3(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::kPlus}});
-      Propagator prop_T5111_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::kPlus}});
+      Propagator prop_T5111_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Plus}});
+      Propagator prop_T5111_k2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::Plus}});
+      Propagator prop_T5111_k3(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::Plus}});
+      Propagator prop_T5111_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::Plus}});
       // lines
       Line line_T5111_11(Vertex::v1, Vertex::v1, prop_T5111_q);
       Line line_T5111_12(Vertex::v1, Vertex::v2, prop_T5111_k2);
@@ -81,10 +81,10 @@ DiagramSet4pointSPT::DiagramSet4pointSPT(Order order, LabelMap<Vertex, KernelTyp
 
       // T4211a
       // propagators
-      Propagator prop_T4211a_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kPlus}});
-      Propagator prop_T4211a_k23(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::kPlus}, {Momentum::k3, Propagator::LabelFlow::kPlus}});
-      Propagator prop_T4211a_k3(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::kPlus}});
-      Propagator prop_T4211a_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::kPlus}});
+      Propagator prop_T4211a_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Plus}});
+      Propagator prop_T4211a_k23(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::Plus}, {Momentum::k3, Propagator::LabelFlow::Plus}});
+      Propagator prop_T4211a_k3(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::Plus}});
+      Propagator prop_T4211a_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::Plus}});
       // lines
       Line line_T4211a_11(Vertex::v1, Vertex::v1, prop_T4211a_q);
       Line line_T4211a_12(Vertex::v1, Vertex::v2, prop_T4211a_k23);
@@ -96,10 +96,10 @@ DiagramSet4pointSPT::DiagramSet4pointSPT(Order order, LabelMap<Vertex, KernelTyp
 
       // T4211b
       // propagators
-      Propagator prop_T4211b_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kPlus}});
-      Propagator prop_T4211b_qk2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kMinus}, {Momentum::k2, Propagator::LabelFlow::kPlus}});
-      Propagator prop_T4211b_k3(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::kPlus}});
-      Propagator prop_T4211b_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::kPlus}});
+      Propagator prop_T4211b_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Plus}});
+      Propagator prop_T4211b_qk2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Minus}, {Momentum::k2, Propagator::LabelFlow::Plus}});
+      Propagator prop_T4211b_k3(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::Plus}});
+      Propagator prop_T4211b_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::Plus}});
       // lines
       Line line_T4211b_12a(Vertex::v1, Vertex::v2, prop_T4211b_q);
       Line line_T4211b_12b(Vertex::v1, Vertex::v2, prop_T4211b_qk2);
@@ -111,10 +111,10 @@ DiagramSet4pointSPT::DiagramSet4pointSPT(Order order, LabelMap<Vertex, KernelTyp
 
       // T3311a
       // propagators
-      Propagator prop_T3311a_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kPlus}});
-      Propagator prop_T3311a_k234(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::kPlus}, {Momentum::k3, Propagator::LabelFlow::kPlus}, {Momentum::k4, Propagator::LabelFlow::kPlus}});
-      Propagator prop_T3311a_k3(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::kPlus}});
-      Propagator prop_T3311a_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::kPlus}});
+      Propagator prop_T3311a_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Plus}});
+      Propagator prop_T3311a_k234(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::Plus}, {Momentum::k3, Propagator::LabelFlow::Plus}, {Momentum::k4, Propagator::LabelFlow::Plus}});
+      Propagator prop_T3311a_k3(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::Plus}});
+      Propagator prop_T3311a_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::Plus}});
       // lines
       Line line_T3311a_11(Vertex::v1, Vertex::v1, prop_T3311a_q);
       Line line_T3311a_12(Vertex::v1, Vertex::v2, prop_T3311a_k234);
@@ -126,10 +126,10 @@ DiagramSet4pointSPT::DiagramSet4pointSPT(Order order, LabelMap<Vertex, KernelTyp
 
       // T3311b
       // propagators
-      Propagator prop_T3311b_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kPlus}});
-      Propagator prop_T3311b_qk23(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kMinus}, {Momentum::k2, Propagator::LabelFlow::kPlus}, {Momentum::k3, Propagator::LabelFlow::kPlus}});
-      Propagator prop_T3311b_k3(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::kPlus}});
-      Propagator prop_T3311b_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::kPlus}});
+      Propagator prop_T3311b_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Plus}});
+      Propagator prop_T3311b_qk23(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Minus}, {Momentum::k2, Propagator::LabelFlow::Plus}, {Momentum::k3, Propagator::LabelFlow::Plus}});
+      Propagator prop_T3311b_k3(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::Plus}});
+      Propagator prop_T3311b_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::Plus}});
       // lines
       Line line_T3311b_12a(Vertex::v1, Vertex::v2, prop_T3311b_q);
       Line line_T3311b_12b(Vertex::v1, Vertex::v2, prop_T3311b_qk23);
@@ -141,10 +141,10 @@ DiagramSet4pointSPT::DiagramSet4pointSPT(Order order, LabelMap<Vertex, KernelTyp
 
       // T3221a
       // propagators
-      Propagator prop_T3221a_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kPlus}});
-      Propagator prop_T3221a_k234(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::kPlus}, {Momentum::k3, Propagator::LabelFlow::kPlus}, {Momentum::k4, Propagator::LabelFlow::kPlus}});
-      Propagator prop_T3221a_k34(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::kPlus}, {Momentum::k4, Propagator::LabelFlow::kPlus}});
-      Propagator prop_T3221a_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::kPlus}});
+      Propagator prop_T3221a_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Plus}});
+      Propagator prop_T3221a_k234(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::Plus}, {Momentum::k3, Propagator::LabelFlow::Plus}, {Momentum::k4, Propagator::LabelFlow::Plus}});
+      Propagator prop_T3221a_k34(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::Plus}, {Momentum::k4, Propagator::LabelFlow::Plus}});
+      Propagator prop_T3221a_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::Plus}});
       // lines
       Line line_T3221a_11(Vertex::v1, Vertex::v1, prop_T3221a_q);
       Line line_T3221a_12(Vertex::v1, Vertex::v2, prop_T3221a_k234);
@@ -156,10 +156,10 @@ DiagramSet4pointSPT::DiagramSet4pointSPT(Order order, LabelMap<Vertex, KernelTyp
 
       // T3221b
       // propagators
-      Propagator prop_T3221b_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kPlus}});
-      Propagator prop_T3221b_qk2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kMinus}, {Momentum::k2, Propagator::LabelFlow::kPlus}});
-      Propagator prop_T3221b_k34(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::kPlus}, {Momentum::k4, Propagator::LabelFlow::kPlus}});
-      Propagator prop_T3221b_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::kPlus}});
+      Propagator prop_T3221b_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Plus}});
+      Propagator prop_T3221b_qk2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Minus}, {Momentum::k2, Propagator::LabelFlow::Plus}});
+      Propagator prop_T3221b_k34(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::Plus}, {Momentum::k4, Propagator::LabelFlow::Plus}});
+      Propagator prop_T3221b_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::Plus}});
       // lines
       Line line_T3221b_12a(Vertex::v1, Vertex::v2, prop_T3221b_q);
       Line line_T3221b_12b(Vertex::v1, Vertex::v2, prop_T3221b_qk2);
@@ -171,10 +171,10 @@ DiagramSet4pointSPT::DiagramSet4pointSPT(Order order, LabelMap<Vertex, KernelTyp
 
       // T3221c
       // propagators
-      Propagator prop_T3221c_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kPlus}});
-      Propagator prop_T3221c_qk2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kPlus}, {Momentum::k2, Propagator::LabelFlow::kMinus}});
-      Propagator prop_T3221c_qk23(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kMinus}, {Momentum::k2, Propagator::LabelFlow::kPlus}, {Momentum::k3, Propagator::LabelFlow::kPlus}});
-      Propagator prop_T3221c_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::kPlus}});
+      Propagator prop_T3221c_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Plus}});
+      Propagator prop_T3221c_qk2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Plus}, {Momentum::k2, Propagator::LabelFlow::Minus}});
+      Propagator prop_T3221c_qk23(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Minus}, {Momentum::k2, Propagator::LabelFlow::Plus}, {Momentum::k3, Propagator::LabelFlow::Plus}});
+      Propagator prop_T3221c_k4(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k4, Propagator::LabelFlow::Plus}});
       // lines
       Line line_T3221c_12(Vertex::v1, Vertex::v2, prop_T3221c_q);
       Line line_T3221c_23(Vertex::v2, Vertex::v3, prop_T3221c_qk2);
@@ -186,10 +186,10 @@ DiagramSet4pointSPT::DiagramSet4pointSPT(Order order, LabelMap<Vertex, KernelTyp
 
       // T2222
       // propagators
-      Propagator prop_T2222_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kPlus}});
-      Propagator prop_T2222_qk2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kPlus}, {Momentum::k2, Propagator::LabelFlow::kMinus}});
-      Propagator prop_T2222_qk23(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kPlus}, {Momentum::k2, Propagator::LabelFlow::kMinus}, {Momentum::k3, Propagator::LabelFlow::kMinus}});
-      Propagator prop_T2222_qk234(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::kMinus}, {Momentum::k2, Propagator::LabelFlow::kPlus}, {Momentum::k3, Propagator::LabelFlow::kPlus}, {Momentum::k4, Propagator::LabelFlow::kPlus}});
+      Propagator prop_T2222_q(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Plus}});
+      Propagator prop_T2222_qk2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Plus}, {Momentum::k2, Propagator::LabelFlow::Minus}});
+      Propagator prop_T2222_qk23(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Plus}, {Momentum::k2, Propagator::LabelFlow::Minus}, {Momentum::k3, Propagator::LabelFlow::Minus}});
+      Propagator prop_T2222_qk234(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::q, Propagator::LabelFlow::Minus}, {Momentum::k2, Propagator::LabelFlow::Plus}, {Momentum::k3, Propagator::LabelFlow::Plus}, {Momentum::k4, Propagator::LabelFlow::Plus}});
       // lines
       Line line_T2222_12(Vertex::v1, Vertex::v2, prop_T2222_q);
       Line line_T2222_23(Vertex::v2, Vertex::v3, prop_T2222_qk2);

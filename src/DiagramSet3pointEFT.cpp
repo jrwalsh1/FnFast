@@ -7,7 +7,7 @@
 // Copyright:
 //    Copyright (C) 2015  LBL
 //
-//    This file is part of the EFTofLSS library. EFTofLSS is distributed under the
+//    This file is part of the FnFast library. FnFast is distributed under the
 //    terms of the GNU General Public License version 3 (GPLv3), see the COPYING
 //    file that comes with this distribution for details.
 //    Please respect the academic usage guidelines in the GUIDELINES file.
@@ -35,8 +35,8 @@ DiagramSet3pointEFT::DiagramSet3pointEFT(Order order, LabelMap<Vertex, KernelTyp
    // set up the diagrams, starting with the tree level
    // B411x
    // propagators
-   Propagator prop_B411x_k2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::kPlus}});
-   Propagator prop_B411x_k3(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::kPlus}});
+   Propagator prop_B411x_k2(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::Plus}});
+   Propagator prop_B411x_k3(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::Plus}});
    // lines
    Line line_B411x_12(Vertex::v1, Vertex::v2, prop_B411x_k2);
    Line line_B411x_13(Vertex::v1, Vertex::v3, prop_B411x_k3);
@@ -46,8 +46,8 @@ DiagramSet3pointEFT::DiagramSet3pointEFT(Order order, LabelMap<Vertex, KernelTyp
 
    // B321ax
    // propagators
-   Propagator prop_B321ax_k23(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::kPlus}, {Momentum::k3, Propagator::LabelFlow::kPlus}});
-   Propagator prop_B321ax_k3(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::kPlus}});
+   Propagator prop_B321ax_k23(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k2, Propagator::LabelFlow::Plus}, {Momentum::k3, Propagator::LabelFlow::Plus}});
+   Propagator prop_B321ax_k3(LabelMap<Momentum, Propagator::LabelFlow> {{Momentum::k3, Propagator::LabelFlow::Plus}});
    // lines
    Line line_B321ax_12(Vertex::v1, Vertex::v2, prop_B321ax_k23);
    Line line_B321ax_23(Vertex::v2, Vertex::v3, prop_B321ax_k3);

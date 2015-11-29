@@ -7,7 +7,7 @@
 // Copyright:
 //    Copyright (C) 2015  LBL
 //
-//    This file is part of the EFTofLSS library. EFTofLSS is distributed under the
+//    This file is part of the FnFast library. FnFast is distributed under the
 //    terms of the GNU General Public License version 3 (GPLv3), see the COPYING
 //    file that comes with this distribution for details.
 //    Please respect the academic usage guidelines in the GUIDELINES file.
@@ -26,7 +26,7 @@ namespace fnfast {
 //------------------------------------------------------------------------------
 DiagramTwoLoop::DiagramTwoLoop(std::vector<Line> lines) : DiagramBase(lines), _qmax(std::numeric_limits<double>::infinity())
 {
-   _order = Order::kTwoLoop;
+   _order = Order::TwoLoop;
    // check to ensure that the diagram is really two loop
    bool is2Loop = false;
    // find the nontrivial poles
@@ -35,7 +35,7 @@ DiagramTwoLoop::DiagramTwoLoop(std::vector<Line> lines) : DiagramBase(lines), _q
       // if so, it has an IR pole that must be regulated if it is away from 0
       if (line.propagator.hasLabel(Momentum::q)) {
          is2Loop = true;
-         _order = Order::kOneLoop;
+         _order = Order::OneLoop;
          Propagator pole = line.propagator.IRpole(Momentum::q);
          if (!pole.isNull()) {
             _IRpoles.push_back(pole);
@@ -48,7 +48,7 @@ DiagramTwoLoop::DiagramTwoLoop(std::vector<Line> lines) : DiagramBase(lines), _q
 //------------------------------------------------------------------------------
 DiagramTwoLoop::DiagramTwoLoop(std::vector<Line> lines, LabelMap<Vertex, VertexType> vertextypes) : DiagramBase(lines, vertextypes), _qmax(std::numeric_limits<double>::infinity())
 {
-   _order = Order::kTwoLoop;
+   _order = Order::TwoLoop;
    // check to ensure that the diagram is really two loop
    bool is2Loop = false;
    // find the nontrivial poles
@@ -57,7 +57,7 @@ DiagramTwoLoop::DiagramTwoLoop(std::vector<Line> lines, LabelMap<Vertex, VertexT
       // if so, it has an IR pole that must be regulated if it is away from 0
       if (line.propagator.hasLabel(Momentum::q)) {
          is2Loop = true;
-         _order = Order::kOneLoop;
+         _order = Order::OneLoop;
          Propagator pole = line.propagator.IRpole(Momentum::q);
          if (!pole.isNull()) {
             _IRpoles.push_back(pole);
@@ -70,7 +70,7 @@ DiagramTwoLoop::DiagramTwoLoop(std::vector<Line> lines, LabelMap<Vertex, VertexT
 //------------------------------------------------------------------------------
 DiagramTwoLoop::DiagramTwoLoop(std::vector<Line> lines, LabelMap<Vertex, VertexType> vertextypes, LabelMap<Vertex, KernelType> kerneltypes) : DiagramBase(lines, vertextypes, kerneltypes), _qmax(std::numeric_limits<double>::infinity())
 {
-   _order = Order::kTwoLoop;
+   _order = Order::TwoLoop;
    // check to ensure that the diagram is really two loop
    bool is2Loop = false;
    // find the nontrivial poles
@@ -79,7 +79,7 @@ DiagramTwoLoop::DiagramTwoLoop(std::vector<Line> lines, LabelMap<Vertex, VertexT
       // if so, it has an IR pole that must be regulated if it is away from 0
       if (line.propagator.hasLabel(Momentum::q)) {
          is2Loop = true;
-         _order = Order::kOneLoop;
+         _order = Order::OneLoop;
          Propagator pole = line.propagator.IRpole(Momentum::q);
          if (!pole.isNull()) {
             _IRpoles.push_back(pole);

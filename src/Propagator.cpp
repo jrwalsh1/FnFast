@@ -7,7 +7,7 @@
 // Copyright:
 //    Copyright (C) 2015  LBL
 //
-//    This file is part of the EFTofLSS library. EFTofLSS is distributed under the
+//    This file is part of the FnFast library. FnFast is distributed under the
 //    terms of the GNU General Public License version 3 (GPLv3), see the COPYING
 //    file that comes with this distribution for details.
 //    Please respect the academic usage guidelines in the GUIDELINES file.
@@ -44,9 +44,9 @@ ThreeVector Propagator::p(LabelMap<Momentum, ThreeVector> mom) const
 std::vector<Momentum> Propagator::labels() const
 {
    std::vector<Momentum> labels;
-   // add label if its coefficient is not kNull
+   // add label if its coefficient is not Null
    for (auto const& label : _components.labels()) {
-      if (_components[label] != LabelFlow::kNull) {
+      if (_components[label] != LabelFlow::Null) {
          labels.push_back(label);
       }
    }
@@ -64,7 +64,7 @@ bool Propagator::isNull() const
 {
    // return true if any label has nonzero coefficient
    for (auto const& label : _components.labels()) {
-      if (_components[label] != LabelFlow::kNull) { return false; }
+      if (_components[label] != LabelFlow::Null) { return false; }
    }
 
    return true;
@@ -96,14 +96,14 @@ Propagator Propagator::IRpole(Momentum label) const
    // now the case where the label is present
    LabelFlow pole_flow = _components[label];
    // if the component has flow = 0, we also return a null propagator
-   if (pole_flow == LabelFlow::kNull) {
+   if (pole_flow == LabelFlow::Null) {
       std::cout << "Propagator::IRpole : component of propagator has flow 0!" << std::endl;
       return Propagator(LabelMap<Momentum, LabelFlow>(pole));
    }
    // otherwise solve for the pole (effectively scale all factors by -1 / fac)
    for (auto const& proplabel : _components.labels()) {
       if (proplabel != label) {
-         if (pole_flow == LabelFlow::kMinus) {
+         if (pole_flow == LabelFlow::Minus) {
             pole[proplabel] = _components[proplabel];
          } else {
             pole[proplabel] = reverse_flow(_components[proplabel]);
@@ -116,9 +116,9 @@ Propagator Propagator::IRpole(Momentum label) const
 
 //------------------------------------------------------------------------------
 Propagator::LabelFlow Propagator::reverse_flow(Propagator::LabelFlow sign) {
-   return (sign == LabelFlow::kMinus) ? LabelFlow::kPlus  :
-          (sign == LabelFlow::kPlus)  ? LabelFlow::kMinus :
-                                        LabelFlow::kNull;
+   return (sign == LabelFlow::Minus) ? LabelFlow::Plus  :
+          (sign == LabelFlow::Plus)  ? LabelFlow::Minus :
+                                        LabelFlow::Null;
 }
 
 //------------------------------------------------------------------------------
@@ -127,8 +127,8 @@ std::ostream& Propagator::print(std::ostream& out) const
    std::stringstream ss;
    ss << "propagator: ";
    for (auto const& label : _components.labels()) {
-      std::string sign = (_components[label] == LabelFlow::kPlus) ? " + k" :
-                         (_components[label] == LabelFlow::kMinus) ? " - k" :
+      std::string sign = (_components[label] == LabelFlow::Plus) ? " + k" :
+                         (_components[label] == LabelFlow::Minus) ? " - k" :
                                                                      " 0 k";
       ss << sign << static_cast<int>(label);
    }
