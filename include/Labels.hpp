@@ -273,6 +273,8 @@ enum class Graphs_4point : int {
 
 } // namespace fnfast
 
+namespace std {
+
 /// hash functions for label objects
 //------------------------------------------------------------------------------
 /// hash function for Vertex
@@ -340,5 +342,7 @@ struct std::hash<fnfast::Graphs_4point>
       return ((std::hash<int>()(static_cast<int>(k))) >> 1);
    }
 };
+
+}
 
 #endif // LABELS_HPP
