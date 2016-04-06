@@ -279,70 +279,70 @@ namespace std {
 //------------------------------------------------------------------------------
 /// hash function for Vertex
 template <>
-struct std::hash<fnfast::Vertex>
+struct hash<fnfast::Vertex>
 {
    size_t operator()(const fnfast::Vertex &v) const
    {
       // Compute individual hash values for Vertex
-      return ((std::hash<int>()(static_cast<int>(v))) >> 1);
+      return ((hash<int>()(static_cast<int>(v))) >> 1);
    }
 };
 
 /// hash function for VertexPair
 template <>
-struct std::hash<fnfast::VertexPair>
+struct hash<fnfast::VertexPair>
 {
    size_t operator()(const fnfast::VertexPair& vp) const
    {
       // Compute individual hash values for two data members and combine them using XOR and bit shifting
-      return ((std::hash<int>()(static_cast<int>(vp.vA)) ^ (std::hash<int>()(static_cast<int>(vp.vB)) << 1)) >> 1);
+      return ((hash<int>()(static_cast<int>(vp.vA)) ^ (hash<int>()(static_cast<int>(vp.vB)) << 1)) >> 1);
    }
 };
 
 /// hash function for Momentum
 template <>
-struct std::hash<fnfast::Momentum>
+struct hash<fnfast::Momentum>
 {
    size_t operator()(const fnfast::Momentum& k) const
    {
       // Compute individual hash values for Momentum
-      return ((std::hash<int>()(static_cast<int>(k))) >> 1);
+      return ((hash<int>()(static_cast<int>(k))) >> 1);
    }
 };
 
 /// hash function for Graphs_2point
 template <>
-struct std::hash<fnfast::Graphs_2point>
+struct hash<fnfast::Graphs_2point>
 {
    size_t operator()(const fnfast::Graphs_2point& k) const
    {
       // Compute individual hash values for Graphs_2point
-      return ((std::hash<int>()(static_cast<int>(k))) >> 1);
+      return ((hash<int>()(static_cast<int>(k))) >> 1);
    }
 };
 
 /// hash function for Graphs_3point
 template <>
-struct std::hash<fnfast::Graphs_3point>
+struct hash<fnfast::Graphs_3point>
 {
    size_t operator()(const fnfast::Graphs_3point& k) const
    {
       // Compute individual hash values for Graphs_2point
-      return ((std::hash<int>()(static_cast<int>(k))) >> 1);
+      return ((hash<int>()(static_cast<int>(k))) >> 1);
    }
 };
 
 /// hash function for Graphs_4point
 template <>
-struct std::hash<fnfast::Graphs_4point>
+struct hash<fnfast::Graphs_4point>
 {
    size_t operator()(const fnfast::Graphs_4point& k) const
    {
       // Compute individual hash values for Graphs_2point
-      return ((std::hash<int>()(static_cast<int>(k))) >> 1);
+      return ((hash<int>()(static_cast<int>(k))) >> 1);
    }
 };
 
-}
+} // namespace std
 
 #endif // LABELS_HPP
