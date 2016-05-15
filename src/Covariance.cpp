@@ -23,8 +23,9 @@
 namespace fnfast {
 
 //------------------------------------------------------------------------------
+/*DAN*/
 Covariance::Covariance(Order order)
-: _order(order), _diagrams(DiagramSet4pointSPT(_order)), _UVcutoff(10.)
+: _order(order), _diagrams(DiagramSet4pointSPT(_order)), _EFTdiagrams(DiagramSet4pointEFT(_EFTorder(_order))), _UVcutoff(10.)
 {}
 
 //------------------------------------------------------------------------------
@@ -90,6 +91,43 @@ IntegralResult Covariance::oneLoop(double k, double kprime, const LabelMap<Verte
    VEGASintegrator vegas(phasespace.ndim);
 
    return vegas.integrate(oneLoop_integrand, &phasespace);
+}
+   
+   
+   
+//------------------------------------------------------------------------------
+/*DAN*/
+IntegralResult Covariance::treeEFT(double k, double kprime, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
+{
+   // integration method
+   PhaseSpace phasespace(k, kprime, _UVcutoff, &kernels, PL, this);
+   phasespace.ndim = 1;
+      
+   // VEGAS integration via cuba
+   VEGASintegrator vegas(phasespace.ndim);
+      
+   return vegas.integrate(treeEFT_integrand, &phasespace);
+}
+//------------------------------------------------------------------------------
+/*DAN*/
+int Covariance::treeEFT_integrand(const int *ndim, const double xx[], const int *ncomp, double ff[], void *userdata)
+{
+   // get the integrator
+   PhaseSpace* phasespace = static_cast<PhaseSpace*>(userdata);
+      
+   // generate the PS point
+   std::vector<double> xpts;
+   for (int i = 0; i < phasespace->ndim; i++) {
+      xpts.push_back(xx[i]);
+   }
+   std::pair<double, LabelMap<Momentum, ThreeVector>* const> PSpoint = phasespace->generate_point_tree(xpts);
+      
+   // calculate the integrand
+   double integrand = PSpoint.first * (phasespace->covariance->EFTdiagrams()->value_tree(*(PSpoint.second), *(phasespace->kernels), phasespace->PL));
+      
+   ff[0] = integrand;
+      
+   return 0;
 }
 
 //------------------------------------------------------------------------------

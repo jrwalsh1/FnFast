@@ -20,6 +20,7 @@
 #define COVARIANCE_HPP
 
 #include "DiagramSet4pointSPT.hpp"
+#include "DiagramSet4pointEFT.hpp"
 #include "KernelBase.hpp"
 #include "Integration.hpp"
 
@@ -49,6 +50,7 @@ class Covariance
    private:
       Order _order;                       ///< order of the calculation
       DiagramSet4pointSPT _diagrams;      ///< 4-point diagrams
+      DiagramSet4pointEFT _EFTdiagrams;   ///< 4-point EFT diagrams /*DAN*/
       double _UVcutoff;                   ///< UV cutoff for loop integrations
       int _seed;                          ///< random number seed for VEGAS
 
@@ -72,6 +74,14 @@ class Covariance
          std::pair<double, LabelMap<Momentum, ThreeVector>* const> generate_point_tree(std::vector<double> xpts);
          std::pair<double, LabelMap<Momentum, ThreeVector>* const> generate_point_oneLoop(std::vector<double> xpts);
       };
+   
+      /// calculate EFT order
+      /*DAN*/
+      Order _EFTorder(Order sptOrder) {
+         Order EFTorder = Order::kTree;
+         if(sptOrder == Order::kTwoLoop) EFTorder = Order::kOneLoop;
+         return EFTorder;
+      }
 
    public:
       /// constructor
@@ -81,8 +91,14 @@ class Covariance
 
       /// access diagrams
       const DiagramSetBase* diagrams() const { return &_diagrams; }
-      DiagramBase* operator[](Graphs_4point graph) { return _diagrams[graph]; }
-
+      /*DAN*/
+      const DiagramSetBase* EFTdiagrams() const { return &_EFTdiagrams; }
+      /*DAN*/
+      DiagramBase* operator[](Graphs_4point graph) {
+         if(graph==Graphs_4point::T5111x || graph==Graphs_4point::T4211ax || graph==Graphs_4point::T3311ax || graph==Graphs_4point::T3221ax) return _EFTdiagrams[graph];
+         else return _diagrams[graph];
+      }
+   
       /// set the loop momentum cutoff
       void set_qmax(double qmax) { _diagrams.set_qmax(qmax); }
 
@@ -94,12 +110,19 @@ class Covariance
       IntegralResult tree(double k, double kprime, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
       /// one loop integrated over q, theta
       IntegralResult oneLoop(double k, double kprime, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
+   
+      /// EFT tree level, same order as SPT one loop
+      /*DAN*/
+      IntegralResult treeEFT(double k, double kprime, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
 
    private:
       /// one loop integrand
       static int tree_integrand(const int *ndim, const double xx[], const int *ncomp, double ff[], void *userdata);
       /// one loop integrand
       static int oneLoop_integrand(const int *ndim, const double xx[], const int *ncomp, double ff[], void *userdata);
+      /// tree EFT integrand
+      /*DAN*/
+      static int treeEFT_integrand(const int *ndim, const double xx[], const int *ncomp, double ff[], void *userdata);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

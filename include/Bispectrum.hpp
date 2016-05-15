@@ -20,6 +20,7 @@
 #define BISPECTRUM_HPP
 
 #include "DiagramSet3pointSPT.hpp"
+#include "DiagramSet3pointEFT.hpp"
 #include "KernelBase.hpp"
 #include "Integration.hpp"
 
@@ -49,6 +50,7 @@ class Bispectrum
    private:
       Order _order;                       ///< order of the calculation
       DiagramSet3pointSPT _diagrams;      ///< 3-point diagrams
+      DiagramSet3pointEFT _EFTdiagrams;   ///< 3-point EFT diagrams /*DAN*/
       double _UVcutoff;                   ///< UV cutoff for loop integrations
       int _seed;                          ///< random number seed for VEGAS
 
@@ -72,6 +74,15 @@ class Bispectrum
          /// sample phase space; return the point along with the jacobian
          std::pair<double, LabelMap<Momentum, ThreeVector>* const> generate_point_oneLoop(std::vector<double> xpts);
       };
+   
+      /// calculate EFT order
+      /*DAN*/
+      Order _EFTorder(Order sptOrder) {
+         Order EFTorder = Order::kTree;
+         if(sptOrder == Order::kTwoLoop) EFTorder = Order::kOneLoop;
+         return EFTorder;
+      }
+
 
    public:
       /// constructor
@@ -81,7 +92,13 @@ class Bispectrum
 
       /// access diagrams
       const DiagramSetBase* diagrams() const { return &_diagrams; }
-      DiagramBase* operator[](Graphs_3point graph) { return _diagrams[graph]; }
+      /*DAN*/
+      const DiagramSetBase* EFTdiagrams() const { return &_EFTdiagrams; }
+      /*DAN*/
+      DiagramBase* operator[](Graphs_3point graph) {
+         if(graph==Graphs_3point::B411x || graph==Graphs_3point::B321ax) return _EFTdiagrams[graph];
+         else return _diagrams[graph];
+      }
 
       /// set the loop momentum cutoff
       void set_qmax(double qmax) { _diagrams.set_qmax(qmax); }
@@ -94,6 +111,11 @@ class Bispectrum
       double tree(double k1, double k2, double theta12, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
       /// one loop integrated over q
       IntegralResult oneLoop(double k1, double k2, double theta12, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
+   
+   
+      /// EFT tree level, same order as SPT one loop
+      /*DAN*/
+      double treeEFT(double k1, double k2, double theta12, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const;
 
    private:
       /// one loop integrand

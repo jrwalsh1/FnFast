@@ -32,6 +32,11 @@ DiagramSet4pointEFT::DiagramSet4pointEFT(Order order, LabelMap<Vertex, KernelTyp
    // set the vertex and kernel types
    _vertextypes = LabelMap<Vertex, VertexType>({{Vertex::v1, VertexType::type1}, {Vertex::v2, VertexType::type2}, {Vertex::v3, VertexType::type2}, {Vertex::v4, VertexType::type2}});
 
+   // get perms from SPT diagram
+   /*DAN*/
+   DiagramSet4pointSPT SPTdiagrams(Order::kOneLoop);
+   std::vector<LabelMap<Momentum, Momentum> > perms;
+   
    // set up the diagrams, starting with the tree level
    // T5111x
    // propagators
@@ -45,6 +50,10 @@ DiagramSet4pointEFT::DiagramSet4pointEFT(Order order, LabelMap<Vertex, KernelTyp
    std::vector<Line> lines_T5111x {line_T5111x_12, line_T5111x_13, line_T5111x_14};
    // define the diagram
    DiagramTree* T5111x = new DiagramTree(lines_T5111x, _vertextypes, _kerneltypes);
+   /*DAN*/
+   perms = SPTdiagrams[Graphs_4point::T5111]->get_perms();
+   T5111x->set_perms(perms);
+   
 
    // T4211ax
    // propagators
@@ -58,6 +67,9 @@ DiagramSet4pointEFT::DiagramSet4pointEFT(Order order, LabelMap<Vertex, KernelTyp
    std::vector<Line> lines_T4211ax {line_T4211ax_12, line_T4211ax_23, line_T4211ax_14};
    // define the diagram
    DiagramTree* T4211ax = new DiagramTree(lines_T4211ax, _vertextypes, _kerneltypes);
+   /*DAN*/
+   perms = SPTdiagrams[Graphs_4point::T4211a]->get_perms();
+   T4211ax->set_perms(perms);
 
    // T3311ax
    // propagators
@@ -71,6 +83,9 @@ DiagramSet4pointEFT::DiagramSet4pointEFT(Order order, LabelMap<Vertex, KernelTyp
    std::vector<Line> lines_T3311ax {line_T3311ax_12, line_T3311ax_23, line_T3311ax_24};
    // define the diagram
    DiagramTree* T3311ax = new DiagramTree(lines_T3311ax, _vertextypes, _kerneltypes);
+   /*DAN*/
+   perms = SPTdiagrams[Graphs_4point::T3311a]->get_perms();
+   T3311ax->set_perms(perms);
 
    // T3221ax
    // propagators
@@ -84,6 +99,9 @@ DiagramSet4pointEFT::DiagramSet4pointEFT(Order order, LabelMap<Vertex, KernelTyp
    std::vector<Line> lines_T3221ax {line_T3221ax_12, line_T3221ax_23, line_T3221ax_34};
    // define the diagram
    DiagramTree* T3221ax = new DiagramTree(lines_T3221ax, _vertextypes, _kerneltypes);
+   /*DAN*/
+   perms = SPTdiagrams[Graphs_4point::T3221a]->get_perms();
+   T3221ax->set_perms(perms);
 
    // define the tree diagrams
    _tree = {T5111x, T4211ax, T3311ax, T3221ax};

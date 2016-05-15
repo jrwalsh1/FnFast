@@ -20,6 +20,7 @@
 #define DIAGRAM_SET_4_POINT_EFT_HPP
 
 #include "DiagramSetBase.hpp"
+#include "DiagramSet4PointSPT.hpp"
 
 namespace fnfast {
 

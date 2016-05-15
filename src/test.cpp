@@ -11,6 +11,7 @@
 #include <stdexcept>
 
 #include "SPTkernels.hpp"
+#include "EFTkernels.hpp"
 #include "ThreeVector.hpp"
 #include "PowerSpectrum.hpp"
 #include "Bispectrum.hpp"
@@ -57,6 +58,23 @@ int main()
    std::cout << "press any key to continue" << std::endl;
    std::cin.get();
 */
+
+/*
+    std::cout << "------------ computing 1-loop EFT power spectrum ------------" << std::endl;
+    SPTkernels* kernelsSPT = new SPTkernels();
+    LabelMap<Vertex, KernelBase*> kernels_SPT {{Vertex::v1, kernelsSPT}, {Vertex::v2, kernelsSPT}};
+
+    EFTcoefficients coeffs; //All coefficients are initialized to zero
+    std::cout<<coeffs.description()<<std::endl; //Description of EFT operators/coefficients
+    coeffs[EFTcoefficients::cs]= 10; //Set a value for speed of sound
+    EFTkernels* kernelsEFT = new EFTkernels(coeffs);
+    LabelMap<Vertex, KernelBase*> kernels_EFT {{Vertex::v1, kernelsEFT}, {Vertex::v2, kernelsSPT}};
+    double PSresultEFT = PS.treeEFT(k1mag, kernels_EFT, &PL);
+    std::cout << "EFT PS result = " << PSresultEFT << std::endl;
+    std::cout << "press any key to continue" << std::endl;
+    std::cin.get();
+*/
+
 /*
    std::cout << "------------ computing 1-loop bispectrum ------------" << std::endl;
    SPTkernels* kernelsSPT = new SPTkernels();
@@ -69,6 +87,28 @@ int main()
    std::cin.get();
 */
 
+
+   std::cout << "------------ computing 1-loop EFT bispectrum ------------" << std::endl;
+   SPTkernels* kernelsSPT = new SPTkernels();
+   LabelMap<Vertex, KernelBase*> kernels_SPT_BS {{Vertex::v1, kernelsSPT}, {Vertex::v2, kernelsSPT}, {Vertex::v3, kernelsSPT}};
+
+   EFTcoefficients coeffs; //All coefficients are initialized to zero by default
+   std::cout<<coeffs.description()<<std::endl; //Description of EFT operators/coefficients
+   coeffs[EFTcoefficients::cs]= 10;   //Set a value for speed of sound
+   coeffs[EFTcoefficients::c1]= -2;   //Set a value for NLO coefficients
+   coeffs[EFTcoefficients::c2]= 1.2;  //Set a value for NLO coefficients
+   coeffs[EFTcoefficients::c3]= -0.5; //Set a value for NLO coefficients
+   coeffs[EFTcoefficients::t2]= 5;    //Set a value for NLO coefficients
+   coeffs[EFTcoefficients::t3]= 12;   //Set a value for NLO coefficients
+   EFTkernels* kernelsEFT = new EFTkernels(coeffs);
+   LabelMap<Vertex, KernelBase*> kernels_EFT_BS {{Vertex::v1, kernelsEFT}, {Vertex::v2, kernelsSPT}, {Vertex::v3, kernelsSPT}};
+   double BSresultEFT = BS.treeEFT(k1mag, k2mag, theta12, kernels_EFT_BS, &PL);
+   std::cout << "EFT BS result = " << BSresultEFT << std::endl;
+   std::cout << "press any key to continue" << std::endl;
+   std::cin.get();
+
+
+/*
    std::cout << "------------ computing 1-loop covariance ------------" << std::endl;
    SPTkernels* kernelsSPT = new SPTkernels();
    LabelMap<Vertex, KernelBase*> kernels_SPT_CV {{Vertex::v1, kernelsSPT}, {Vertex::v2, kernelsSPT}, {Vertex::v3, kernelsSPT}, {Vertex::v4, kernelsSPT}};
@@ -78,6 +118,35 @@ int main()
    std::cout << "1 loop SPT CV result = " << CVresult.result << std::endl;
    std::cout << "press any key to continue" << std::endl;
    std::cin.get();
+*/
+
+/*
+   std::cout << "------------ computing 1-loop EFT covariance ------------" << std::endl;
+   SPTkernels* kernelsSPT = new SPTkernels();
+   LabelMap<Vertex, KernelBase*> kernels_SPT_CV {{Vertex::v1, kernelsSPT}, {Vertex::v2, kernelsSPT}, {Vertex::v3, kernelsSPT}, {Vertex::v4, kernelsSPT}};
+   EFTcoefficients coeffs; //All coefficients are initialized to zero by default
+   std::cout<<coeffs.description()<<std::endl; //Description of EFT operators/coefficients
+   coeffs[EFTcoefficients::cs]= 10;   //Set a value for speed of sound
+   coeffs[EFTcoefficients::c1]= -2;   //Set a value for NLO coefficients
+   coeffs[EFTcoefficients::c2]= 1.2;  //Set a value for NLO coefficients
+   coeffs[EFTcoefficients::c3]= -0.5; //Set a value for NLO coefficients
+   coeffs[EFTcoefficients::t2]= 5;    //Set a value for NLO coefficients
+   coeffs[EFTcoefficients::t3]= 12;   //Set a value for NLO coefficients
+   coeffs[EFTcoefficients::d1]= 1;    //Set a value for NNLO coefficients
+   coeffs[EFTcoefficients::d2]= 2;    //Set a value for NNLO coefficients
+   coeffs[EFTcoefficients::d3]= 3;    //Set a value for NNLO coefficients
+   coeffs[EFTcoefficients::d4]= 4;    //Set a value for NNLO coefficients
+   coeffs[EFTcoefficients::d5]= 5;    //Set a value for NNLO coefficients
+   coeffs[EFTcoefficients::d6]= 6;    //Set a value for NNLO coefficients
+   coeffs[EFTcoefficients::d7]= 7;    //Set a value for NNLO coefficients
+   EFTkernels* kernelsEFT = new EFTkernels(coeffs);
+   LabelMap<Vertex, KernelBase*> kernels_EFT_CV {{Vertex::v1, kernelsEFT}, {Vertex::v2, kernelsSPT}, {Vertex::v3, kernelsSPT},{Vertex::v4, kernelsSPT}};
+   IntegralResult CVresultEFT = CV.treeEFT(k1mag, k2mag, kernels_EFT_CV, &PL);
+   std::cout << "EFT CV result = " << CVresultEFT.result << std::endl;
+   std::cout << "press any key to continue" << std::endl;
+   std::cin.get();
+*/
+
 
    return 0;
 } // end of main program

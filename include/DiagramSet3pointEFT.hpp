@@ -20,6 +20,7 @@
 #define DIAGRAM_SET_3_POINT_EFT_HPP
 
 #include "DiagramSetBase.hpp"
+#include "DiagramSet3pointSPT.hpp"
 
 namespace fnfast {
 

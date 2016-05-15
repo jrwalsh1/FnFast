@@ -23,8 +23,9 @@
 namespace fnfast {
 
 //------------------------------------------------------------------------------
+/*DAN*/
 Bispectrum::Bispectrum(Order order)
-: _order(order), _diagrams(DiagramSet3pointSPT(_order)), _UVcutoff(10.)
+: _order(order), _diagrams(DiagramSet3pointSPT(_order)), _EFTdiagrams(DiagramSet3pointEFT(_EFTorder(_order))), _UVcutoff(10.)
 {}
 
 //------------------------------------------------------------------------------
@@ -49,6 +50,19 @@ IntegralResult Bispectrum::oneLoop(double k1, double k2, double theta12, const L
    VEGASintegrator vegas(3);
 
    return vegas.integrate(oneLoop_integrand, &phasespace);
+}
+   
+//------------------------------------------------------------------------------
+/*DAN*/
+double Bispectrum::treeEFT(double k1, double k2, double theta12, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
+{
+   // set the external momenta
+   ThreeVector k1vec(0, 0, k1);
+   ThreeVector k2vec(k2 * sin(theta12), 0, k2 * cos(theta12));
+   ThreeVector k3vec = -k1vec - k2vec;
+   LabelMap<Momentum, ThreeVector> momenta {{Momentum::k1, k1vec}, {Momentum::k2, k2vec}, {Momentum::k3, k3vec}};
+      
+   return _EFTdiagrams.value_tree(momenta, kernels, PL);
 }
 
 //------------------------------------------------------------------------------

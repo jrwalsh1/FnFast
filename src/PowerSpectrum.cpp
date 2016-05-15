@@ -23,9 +23,8 @@
 namespace fnfast {
 
 //------------------------------------------------------------------------------
-PowerSpectrum::PowerSpectrum(Order order)
-: _order(order), _diagrams(DiagramSet2pointSPT(_order)), _UVcutoff(10.)
-{}
+/*DAN*/
+PowerSpectrum::PowerSpectrum(Order order) : _order(order), _diagrams(DiagramSet2pointSPT(_order)), _EFTdiagrams(DiagramSet2pointEFT(_EFTorder(_order))), _UVcutoff(10.) {}
 
 //------------------------------------------------------------------------------
 double PowerSpectrum::tree(double k, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
@@ -48,7 +47,18 @@ IntegralResult PowerSpectrum::oneLoop(double k, const LabelMap<Vertex, KernelBas
 
    return vegas.integrate(oneLoop_integrand, &phasespace);
 }
-
+   
+//------------------------------------------------------------------------------
+/*DAN*/
+double PowerSpectrum::treeEFT(double k, const LabelMap<Vertex, KernelBase*>& kernels, LinearPowerSpectrumBase* PL) const
+{
+   // set the external momenta
+   ThreeVector k2(0, 0, k);
+   LabelMap<Momentum, ThreeVector> momenta {{Momentum::k1, -k2}, {Momentum::k2, k2}};
+      
+   return _EFTdiagrams.value_tree(momenta, kernels, PL);
+}
+   
 //------------------------------------------------------------------------------
 std::pair<double, LabelMap<Momentum, ThreeVector>* const> PowerSpectrum::LoopPhaseSpace::generate_point_oneLoop(std::vector<double> xpts)
 {

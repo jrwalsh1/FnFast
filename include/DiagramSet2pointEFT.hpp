@@ -20,6 +20,7 @@
 #define DIAGRAM_SET_2_POINT_EFT_HPP
 
 #include "DiagramSetBase.hpp"
+#include "DiagramSet2pointSPT.hpp"
 
 namespace fnfast {
 

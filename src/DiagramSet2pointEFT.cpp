@@ -32,6 +32,11 @@ DiagramSet2pointEFT::DiagramSet2pointEFT(Order order, LabelMap<Vertex, KernelTyp
    // set the vertex and kernel types
    _vertextypes = LabelMap<Vertex, VertexType>({{Vertex::v1, VertexType::type1}, {Vertex::v2, VertexType::type2}});
 
+   // get perms from SPT diagram
+   /*DAN*/
+   DiagramSet2pointSPT SPTdiagrams(Order::kOneLoop);
+   std::vector<LabelMap<Momentum, Momentum> > perms;
+   
    // set up the diagrams, starting with the tree level
    // P31x
    // propagators
@@ -41,6 +46,9 @@ DiagramSet2pointEFT::DiagramSet2pointEFT(Order order, LabelMap<Vertex, KernelTyp
    std::vector<Line> lines_P31x {line_P31x_12};
    // define the diagram
    DiagramTree* P31x = new DiagramTree(lines_P31x, _vertextypes, _kerneltypes);
+   /*DAN*/
+   perms = SPTdiagrams[Graphs_2point::P31]->get_perms();
+   P31x->set_perms(perms);
 
    // define the tree diagrams
    _tree = {P31x};

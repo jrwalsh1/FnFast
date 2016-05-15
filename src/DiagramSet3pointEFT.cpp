@@ -31,6 +31,11 @@ DiagramSet3pointEFT::DiagramSet3pointEFT(Order order, LabelMap<Vertex, KernelTyp
 
    // set the vertex and kernel types
    _vertextypes = LabelMap<Vertex, VertexType>({{Vertex::v1, VertexType::type1}, {Vertex::v2, VertexType::type2}, {Vertex::v3, VertexType::type2}});
+   
+   // get perms from SPT diagram
+   /*DAN*/
+   DiagramSet3pointSPT SPTdiagrams(Order::kOneLoop);
+   std::vector<LabelMap<Momentum, Momentum> > perms;
 
    // set up the diagrams, starting with the tree level
    // B411x
@@ -43,6 +48,9 @@ DiagramSet3pointEFT::DiagramSet3pointEFT(Order order, LabelMap<Vertex, KernelTyp
    std::vector<Line> lines_B411x {line_B411x_12, line_B411x_13};
    // define the diagram
    DiagramTree* B411x = new DiagramTree(lines_B411x, _vertextypes, _kerneltypes);
+   /*DAN*/
+   perms = SPTdiagrams[Graphs_3point::B411]->get_perms();
+   B411x->set_perms(perms);
 
    // B321ax
    // propagators
@@ -54,6 +62,9 @@ DiagramSet3pointEFT::DiagramSet3pointEFT(Order order, LabelMap<Vertex, KernelTyp
    std::vector<Line> lines_B321ax {line_B321ax_12, line_B321ax_23};
    // define the diagram
    DiagramTree* B321ax = new DiagramTree(lines_B321ax, _vertextypes, _kerneltypes);
+   /*DAN*/
+   perms = SPTdiagrams[Graphs_3point::B321a]->get_perms();
+   B321ax->set_perms(perms);
 
    // define the tree diagrams
    _tree = {B411x, B321ax};

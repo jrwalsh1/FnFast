@@ -28,263 +28,254 @@ namespace fnfast {
 //------------------------------------------------------------------------------
 //EFT coefficients
 //------------------------------------------------------------------------------
+
 std::string EFTcoefficients::description()
 {
     std::stringstream stream;
 
-    stream << "There are 14 coefficients in total. Call description(coefficient name) for details."<<std::endl
-    <<"LO:   2 coefficients  -> cs,ch"<<std::endl
-    <<"NLO:  9 coefficients  -> c1,c2,c3,c4,c5,c6,ch1,ch2,ch3"<<std::endl
-    <<"NNLO: 3 coefficients  -> d1,d2,d3";
-
-    return stream.str();
-}
-
-//------------------------------------------------------------------------------
-std::string EFTcoefficients::description(EFTcoefficients::Labels label)
-{
-    std::string str = "Coefficient of ";
-
-    switch(label){
-
-        case EFTcoefficients::cs:
-            str+= "k^2 x delta in Euler equation (speed of sound)";
-            break;
-        case EFTcoefficients::ch:
-            str+= "k^2 x delta in continuity equation (heat capacity)";
-            break;
-        case EFTcoefficients::c1:
-            str+= "k^2 x delta^2 in Euler equation (k=k1+k2)";
-            break;
-        case EFTcoefficients::c2:
-            str+= "k^2(-1/3+(k1.k2)^2/(k1^2k2^2)) x delta^2 in Euler equation (k=k1+k2)";
-            break;
-        case EFTcoefficients::c3:
-            str+= "-k^2/6+(k1.k2)/2(k.k1/k1^2) x delta^2 + perms in Euler equation (k=k1+k2)";
-            break;
-        case EFTcoefficients::c4:
-            str+= "k^2 x delta x theta in Euler equation (k=k1+k2)";
-            break;
-        case EFTcoefficients::c5:
-            str+= "k^2(-1/3+(k1.k2)^2/(k1^2k2^2)) x delta x theta in Euler equation (k=k1+k2)";
-            break;
-        case EFTcoefficients::c6:
-            str+= "-k^2/6+(k1.k2)/2(k.k1/k1^2) x delta x theta + perms in Euler equation (k=k1+k2)";
-            break;
-        case EFTcoefficients::ch1:
-            str+= "k^2 x delta^2 in continuity equation (k=k1+k2)";
-            break;
-        case EFTcoefficients::ch2:
-            str+= "k^2(-1/3+(k1.k2)^2/(k1^2k2^2)) x delta^2 in continuity equation (k=k1+k2)";
-            break;
-        case EFTcoefficients::ch3:
-            str+= "-k^2/6+(k1.k2)/2(k.k1/k1^2) x delta^2 + perms in continuity equation (k=k1+k2)";
-            break;
-        case EFTcoefficients::d1:
-            str+= "(k.k1)^2(k2.k3)^2/(k1^2k2^2k3^2) x delta^3 + perms in Euler equation (k=k1+k2+k3)";
-            break;
-        case EFTcoefficients::d2:
-            str+= "(k.k1)(k.k2)(k1.k3)(k2.k3)/(k1^2k2^2k3^2) x delta^3 + perms in Euler equation (k=k1+k2+k3)";
-            break;
-        case EFTcoefficients::d3:
-            str+= "(k.k1)^2/k1^2 x delta^3 + perms in Euler equation (k=k1+k2+k3)";
-            break;
-    }
-    return str;
+   stream << "*******************************************"<<std::endl
+   << "FnFast includes leading effective operators (i.e. scaling as k^2/k_NL^2) and up to three-field order."<<std::endl
+   << "Refer to arXiv:1512.07630 for the basis used here and details about the construction of the EFT operators."<<std::endl
+   << "F1^tilde, F2^tilde, and F3^tilde have one, three, and nine independent operators (including one coming from time non-locality). The time-local operators are chosen as those corresponding to c_s, c^{DeltaDelta}_{1,2,3}, c^{ThetaTheta}_{2,3}, and c^{DeltaDeltaDelta}_{1...6}."<< std::endl
+   << "For simplicity, we have renamed here c_s -> cs, c^{DeltaDelta}_{1,2,3} -> c_{1,2,3}, c^{ThetaTheta}_{2,3} -> t_{2,3} and c^{DeltaDeltaDelta}_{1...6} -> d_{1...6}."<<std::endl
+   << "In addition, the operator from the time-non-local expansion has been chosen as e3_^ij(k1,k2)*(k1+k2)*k3/k3^2 and its coefficient is named d7."<<std::endl
+   << "*******************************************";
+   return stream.str();
 }
 
 //------------------------------------------------------------------------------
 //EFT kernels
 //------------------------------------------------------------------------------
-double EFTkernels::cF_1(int n)
+   
+//Recursion coefficients
+double EFTkernels::cF_E(int n)
+{
+    return (-2.) / (2 * n * n + 9 * n + 7);
+}
+
+double EFTkernels::cG_E(int n)
+{
+    return (-2*n - 4.) / (2 * n * n + 9 * n + 7);
+}
+   
+double EFTkernels::cF_C(int n)
 {
     return (2*n + 5.) / (2 * n * n + 9 * n + 7);
 }
 
-//------------------------------------------------------------------------------
-double EFTkernels::cF_2(int n)
+double EFTkernels::cG_C(int n)
 {
-    return (-2.) / (2 * n * n + 9 * n + 7);
+    return 3. / (2 * n * n + 9 * n + 7);
+}
 
+//Vorticity EOM kernels
+ThreeVector EFTkernels::alphaOmega(const ThreeVector& p1, const ThreeVector& p2)
+{
+   double eps = 1e-12;
+   ThreeVector kernel(0.,0.,0.);
+   
+   if(p1*p1 > eps) kernel = crossProduct(p2,p1) / (p1*p1);
+   
+   return kernel;
+}
+   
+ThreeVector EFTkernels::betaOmega(const ThreeVector& p1, const ThreeVector& p2)
+{
+   double eps = 1e-12;
+   ThreeVector kernel(0.,0.,0.);
+   
+   if(p1*p1 > eps && p2*p2 > eps) kernel = (p2*p2 + 2*p1*p2) / ((p1*p1)*(p2*p2)) * crossProduct(p1,p2);
+      
+   return kernel;
 }
 
 //------------------------------------------------------------------------------
-double EFTkernels::cG_1(int n)
-{
-    return (3.) / (2 * n * n + 9 * n + 7);
-}
-
+//Build Ftilde, Gtilde kernels in three steps. At each order:
+//1. Write shapes = k_i * tau_ij.
+//2. Write tau = 1/(1+delta) * shapes.
+//3. Write Ftilde, Gtilde kernels.
 //------------------------------------------------------------------------------
-double EFTkernels::cG_2(int n)
-{
-    return (-2*n - 4.) / (2 * n * n + 9 * n + 7);
-}
 
-//------------------------------------------------------------------------------
+//shapes = k_i * tau_ij
 //LO shapes
-std::vector<double> EFTkernels::_lo_shapes(ThreeVector p)
+std::vector<ThreeVector> EFTkernels::_LO_shapes(ThreeVector p)
 {
-    std::vector<double> shapes;
-    shapes.push_back(p*p);
-
-    return shapes;
+    return(std::vector<ThreeVector> {p});
 }
-
+   
+//------------------------------------------------------------------------------
 //NLO shapes
-std::vector<double> EFTkernels::_nlo_shapes(ThreeVector p1, ThreeVector p2)
+std::vector<ThreeVector> EFTkernels::_NLO_shapes(ThreeVector p1, ThreeVector p2)
 {
     double eps = 1e-12;
-    double shape1,shape2,shape3;
+    ThreeVector shape1(0.,0.,0.), shape2(0.,0.,0.), shape3(0.,0.,0.);
     ThreeVector p = p1+p2;
 
-    //Shape1 doesn't need IR regulation
-    shape1=p*p;
-
-    //Shape2
-    if(p1*p1 < eps || p2*p2 < eps) shape2 = 0;
-    else shape2=(p*p)*(-1./3+(p1*p2)*(p1*p2)/((p1*p1)*(p2*p2)));
-
-    //Shape3
-    if(p1*p1 < eps || p2*p2 < eps) shape3 = 0;
-    else shape3=-(p*p)/6+(p1*p2)/2*(p*p1/(p1*p1)+p*p2/(p2*p2));
-
-    std::vector<double> shapes={shape1,shape2,shape3};
-
-    return shapes;
-}
-
-//NNLO shapes
-std::vector<double> EFTkernels::_nnlo_shapes(ThreeVector p1, ThreeVector p2, ThreeVector p3)
-{
-    double eps = 1e-12;
-    double shape1,shape2,shape3;
-    ThreeVector p = p1+p2+p3;
-
     //Shape1
-    if(p1*p1 < eps || p2*p2 < eps || p3*p3 <eps) shape1=0;
-    else shape1=((p*p1)*(p*p1)*(p2*p3)*(p2*p3)+(p*p2)*(p*p2)*(p1*p3)*(p1*p3)+(p*p3)*(p*p3)*(p1*p2)*(p1*p2))/((p1*p1)*(p2*p2)*(p3*p3));
+    shape1=p;
 
     //Shape2
-    if(p1*p1 < eps || p2*p2 < eps || p3*p3 <eps) shape2=0;
-    else shape2=((p*p1)*(p*p2)*(p1*p3)*(p2*p3)+(p*p1)*(p*p3)*(p1*p2)*(p2*p3)+(p*p2)*(p*p3)*(p1*p2)*(p1*p3))/((p1*p1)*(p2*p2)*(p3*p3));
+    if(p1*p1 > eps) shape2 = p*p1 / (p1*p1)* p1;
 
     //Shape3
-    if(p1*p1 < eps || p2*p2 < eps || p3*p3 <eps) shape3=0;
-    else shape3=(p*p1)*(p*p1)/(p1*p1)+(p*p2)*(p*p2)/(p2*p2)+(p*p3)*(p*p3)/(p3*p3);
+    if(p1*p1 > eps && p2*p2 > eps) shape3 = (p*p1)*(p1*p2) / (2*(p1*p1)*(p2*p2)) * p2 + (p*p2)*(p1*p2) / (2*(p1*p1)*(p2*p2)) * p1;
 
-    std::vector<double> shapes = {shape1,shape2,shape3};
-
-    return shapes;
+    return(std::vector<ThreeVector> {shape1,shape2,shape3});
 }
-
+   
 //------------------------------------------------------------------------------
-
-double EFTkernels::_dot_product(std::vector<double> a, std::vector<double> b)
+//NNLO shapes
+std::vector<ThreeVector> EFTkernels::_NNLO_shapes(ThreeVector p1, ThreeVector p2, ThreeVector p3)
 {
-    double dot=0;
-    if(a.size() == b.size()){for(unsigned int i=0; i<a.size(); i++){dot+=a[i]*b[i];}}
-    else { throw std::invalid_argument( "Received invalid argument in dot product. Size of vectors does not match" );}
+   double eps = 1e-12;
+   ThreeVector shape1(0.,0.,0.), shape2(0.,0.,0.), shape3(0.,0.,0.), shape4(0.,0.,0.), shape5(0.,0.,0.), shape6(0.,0.,0.), shape7(0.,0.,0.);
+   ThreeVector p = p1+p2+p3;
 
-    return dot;
+   //Shape1, Shape2, Shape3
+   shape1 = p;
+   if(p1*p1 > eps) shape2 = p*p1 / (p1*p1)* p1;
+   if(p1*p1 > eps && p2*p2 > eps) shape3 = (p*p1)*(p1*p2) / (2*(p1*p1)*(p2*p2)) * p2 + (p*p2)*(p1*p2) / (2*(p1*p1)*(p2*p2)) * p1;
+
+   
+   //Shape4
+   if(p1*p1 > eps && p2*p2 > eps) shape4 = (p1*p2)*(p1*p2) / ((p1*p1)*(p2*p2)) * p;
+   
+   //Shape5
+   if(p1*p1 > eps && p2*p2 > eps && p3*p3 > eps) shape5 = (p2*p3)*(p2*p3)*(p*p1) / ((p1*p1)*(p2*p2)*(p3*p3)) * p1;
+   
+   //Shape6
+   if(p1*p1 > eps && p2*p2 > eps && p3*p3 > eps) shape6 = (p1*p3)*(p2*p3)*(p*p1) / (2*(p1*p1)*(p2*p2)*(p3*p3)) * p2 + (p1*p3)*(p2*p3)*(p*p2) / (2*(p1*p1)*(p2*p2)*(p3*p3)) * p1;
+   
+   //Shape7 (from time-non-local expansion)
+   if(p1*p1 > eps && p2*p2 > eps && p3*p3 > eps) shape7 = (p1+p2)*p3 / (p3*p3) * _NLO_shapes(p1,p2)[2];
+   
+   return(std::vector<ThreeVector> {shape1,shape2,shape3,shape4,shape5,shape6,shape7});
+}
+   
+//------------------------------------------------------------------------------
+//tau = 1/(1+delta) * shapes
+ThreeVector EFTkernels::_tau(const std::vector<ThreeVector>& p)
+{
+   int n = p.size();
+   ThreeVector tau(0.,0.,0.);
+   
+   double cs =  (*_coefficients)[EFTcoefficients::cs];
+   std::vector<double> c = {(*_coefficients)[EFTcoefficients::c1],(*_coefficients)[EFTcoefficients::c2],(*_coefficients)[EFTcoefficients::c3]};
+   std::vector<double> t = {0.,(*_coefficients)[EFTcoefficients::t2],(*_coefficients)[EFTcoefficients::t3]};
+   std::vector<double> d = {(*_coefficients)[EFTcoefficients::d1],(*_coefficients)[EFTcoefficients::d2],(*_coefficients)[EFTcoefficients::d3],(*_coefficients)[EFTcoefficients::d4],(*_coefficients)[EFTcoefficients::d5],(*_coefficients)[EFTcoefficients::d6],(*_coefficients)[EFTcoefficients::d7]};
+   
+   
+   //Handle trivial cases
+   if(n==0 || n>3) { return tau; }
+   
+   if(n==1) { ThreeVector p1 = p[0]; tau = cs*_LO_shapes(p1)[0]; }
+   
+   if(n==2) {
+      ThreeVector p1 = p[0];
+      ThreeVector p2 = p[1];
+      
+      std::vector<ThreeVector> P2={p2};
+
+      tau = cs*_sptkernels.Fn_sym({p1,p2})*_LO_shapes(p1+p2)[0]+_dot_product(c,_NLO_shapes(p1,p2))+_dot_product(t,_NLO_shapes(p1,p2))-_tau(P2);
+   }
+   
+   if(n==3) {
+      ThreeVector p1 = p[0];
+      ThreeVector p2 = p[1];
+      ThreeVector p3 = p[2];
+      
+      std::vector<ThreeVector> P23={p2,p3};
+      std::vector<ThreeVector> P3={p3};
+      
+      tau = cs*_sptkernels.Fn_sym({p1,p2,p3})*_LO_shapes(p1+p2+p3)[0]+_dot_product(c,_NLO_shapes(p1,p2+p3))*_sptkernels.Fn_sym({p2,p3})+_dot_product(c,_NLO_shapes(p1+p2,p3))*_sptkernels.Fn_sym({p1,p2})+_dot_product(t,_NLO_shapes(p1,p2+p3))*_sptkernels.Gn_sym({p2,p3})+_dot_product(t,_NLO_shapes(p1+p2,p3))*_sptkernels.Gn_sym({p1,p2})+_dot_product(d,_NNLO_shapes(p1,p2,p3))-_tau(P23)-_sptkernels.Fn_sym({p1,p2})*_tau(P3);
+   }
+   
+   return tau;
+}
+   
+//------------------------------------------------------------------------------
+//vorticity
+ThreeVector EFTkernels::_omega(const std::vector<ThreeVector>& p)
+{
+   int n = p.size();
+   ThreeVector omega(0.,0.,0.);
+   
+   //Handle trivial cases
+   if (n == 0 || n == 1) { return omega; }
+   if (n > 2) { std::cout<<"Vorticity is not available at the order specified"<<std::endl; return omega; }
+   
+   if (n == 2) { omega = 2. / 9 * crossProduct(p[0]+p[1],_tau(p)); }
+   
+   return omega;
 }
 
 //------------------------------------------------------------------------------
+//kernels
 double EFTkernels::Fn(const std::vector<ThreeVector>& p)
 {
     int n = p.size();
-
-    //Handle trivial cases
-    if (n == 0) { return 0; }
-    if (n > 3) { std::cout<<"There is no EFT kernel available at the order specified"<<std::endl; return 0; }
-
     double Fnval=0;
 
-    if (n==1) { Fnval= cF_2(1)*(*_coefficients)[EFTcoefficients::cs]*_lo_shapes(p[0])[0]+cF_1(1)*(*_coefficients)[EFTcoefficients::ch]*_lo_shapes(p[0])[0];}
+    //Handle trivial cases
+    if (n == 0) { return Fnval; }
+    if (n > 3) { std::cout<<"There is no EFT kernel available at the order specified"<<std::endl; return Fnval; }
+
+    if (n==1) { Fnval = cF_E(1) * (p[0]*_tau(p)) ;}
 
     if (n==2) {
-
-        std::vector<double> c_vals_2={(*_coefficients)[EFTcoefficients::c1]-(*_coefficients)[EFTcoefficients::c4],(*_coefficients)[EFTcoefficients::c2]-(*_coefficients)[EFTcoefficients::c5],(*_coefficients)[EFTcoefficients::c3]-(*_coefficients)[EFTcoefficients::c6]};
-        std::vector<double> ch_vals_2={(*_coefficients)[EFTcoefficients::ch1],(*_coefficients)[EFTcoefficients::ch2],(*_coefficients)[EFTcoefficients::ch3]};
-
-        std::vector<ThreeVector> p0={p[0]};
-        std::vector<ThreeVector> p1={p[1]};
-        std::vector<ThreeVector> p01={p[0],p[1]};
-
-
-        Fnval= cF_1(2)*alpha(p[0],p[1])*(Gn(p0)+Fn(p1))-cF_2(2)*beta(p[0],p[1])*(Gn(p0)+Gn(p1))
-        +cF_2(2)*(*_coefficients)[EFTcoefficients::cs]*_lo_shapes(p[0]+p[1])[0]*_sptkernels.Fn_sym(p01)
-        +cF_1(2)*(*_coefficients)[EFTcoefficients::ch]*_lo_shapes(p[0]+p[1])[0]*_sptkernels.Fn_sym(p01)
-        +cF_2(2)*_dot_product(c_vals_2,_nlo_shapes(p[0],p[1]))
-        +cF_1(2)*_dot_product(ch_vals_2,_nlo_shapes(p[0],p[1]));
+       
+       std::vector<ThreeVector> P1={p[0]};
+       std::vector<ThreeVector> P2={p[1]};
+       
+       Fnval = cF_C(2) * alpha(p[0],p[1]) * (Gn_sym(P1) + Fn_sym(P2)) - cF_E(2) * beta(p[0],p[1]) * (Gn_sym(P1) + Gn_sym(P2)) + cF_E(2) * (p[0]+p[1])*_tau(p);
     }
-
 
     if (n==3) {
+       
+       std::vector<ThreeVector> P1={p[0]};
+       std::vector<ThreeVector> P23={p[1],p[2]};
+       std::vector<ThreeVector> P12={p[0],p[1]};
+       std::vector<ThreeVector> P3={p[2]};
 
-        std::vector<double> cdelta_vals_3={(*_coefficients)[EFTcoefficients::c1],(*_coefficients)[EFTcoefficients::c2],(*_coefficients)[EFTcoefficients::c3]};
-        std::vector<double> ctheta_vals_3={(*_coefficients)[EFTcoefficients::c4],(*_coefficients)[EFTcoefficients::c5],(*_coefficients)[EFTcoefficients::c6]};
-        std::vector<double> ch_vals_3={(*_coefficients)[EFTcoefficients::ch1],(*_coefficients)[EFTcoefficients::ch2],(*_coefficients)[EFTcoefficients::ch3]};
-        std::vector<double> d_vals_3={(*_coefficients)[EFTcoefficients::d1],(*_coefficients)[EFTcoefficients::d2],(*_coefficients)[EFTcoefficients::d3]};
-
-        std::vector<ThreeVector> p0={p[0]};
-        std::vector<ThreeVector> p1={p[1]};
-        std::vector<ThreeVector> p2={p[2]};
-        std::vector<ThreeVector> p01={p[0],p[1]};
-        std::vector<ThreeVector> p12={p[1],p[2]};
-        std::vector<ThreeVector> p012={p[0],p[1],p[2]};
-
-        ThreeVector p_01 = p[0] + p[1];
-        ThreeVector p_12 = p[1] + p[2];
-        Fnval= cF_1(3)*alpha(p[0],p_12)*(Gn(p0)*_sptkernels.Fn_sym(p12)+Fn(p12))
-        +cF_1(3)*alpha(p_01,p[2])*(Gn(p01)+_sptkernels.Gn_sym(p01)*Fn(p2))
-        -cF_2(3)*beta(p[0],p_12)*(Gn(p0)*_sptkernels.Gn_sym(p12)+Gn(p12))
-        -cF_2(3)*beta(p_01,p[2])*(Gn(p01)+_sptkernels.Gn_sym(p01)*Gn(p2))
-        +cF_2(3)*(*_coefficients)[EFTcoefficients::cs]*_lo_shapes(p[0]+p[1]+p[2])[0]*_sptkernels.Fn_sym(p012)
-        +cF_1(3)*(*_coefficients)[EFTcoefficients::ch]*_lo_shapes(p[0]+p[1]+p[2])[0]*_sptkernels.Fn_sym(p012)
-        +cF_2(3)*_dot_product(cdelta_vals_3,_nlo_shapes(p[0],p[1]+p[2]))*_sptkernels.Fn_sym(p12)
-        -cF_2(3)*_dot_product(ctheta_vals_3,_nlo_shapes(p[0],p[1]+p[2]))*_sptkernels.Gn_sym(p12)
-        +cF_2(3)*_dot_product(cdelta_vals_3,_nlo_shapes(p[0]+p[1],p[2]))*_sptkernels.Fn_sym(p01)
-        -cF_2(3)*_dot_product(ctheta_vals_3,_nlo_shapes(p[0]+p[1],p[2]))*_sptkernels.Fn_sym(p01)
-        +cF_1(3)*_dot_product(ch_vals_3,_nlo_shapes(p[0],p[1]+p[2]))*_sptkernels.Fn_sym(p12)
-        +cF_1(3)*_dot_product(ch_vals_3,_nlo_shapes(p[0]+p[1],p[2]))*_sptkernels.Fn_sym(p01)
-        +cF_2(3)*_dot_product(d_vals_3,_nnlo_shapes(p[0],p[1],p[2]));
+       Fnval = cF_C(3) * alpha(p[0],p[1]+p[2]) * (Gn_sym(P1)*_sptkernels.Fn_sym(P23) + Fn_sym(P23)) + cF_C(3) * alpha(p[0]+p[1],p[2]) * (Fn_sym(P3)*_sptkernels.Gn_sym(P12) + Gn_sym(P12)) - cF_E(3) * beta(p[0],p[1]+p[2]) * (Gn_sym(P1)*_sptkernels.Gn_sym(P23) + Gn_sym(P23)) - cF_E(3) * beta(p[0]+p[1],p[2]) * (Gn_sym(P3)*_sptkernels.Gn_sym(P12) + Gn_sym(P12)) + cF_E(3) * (p[0]+p[1]+p[2])*_tau(p) + cF_C(3) * alphaOmega(p[0]+p[1],p[2]) * _omega(P12) + cF_E(3) * betaOmega(p[0]+p[1],p[2]) * _omega(P12);
     }
-
+       
     return Fnval;
 }
-
+   
 //------------------------------------------------------------------------------
 double EFTkernels::Gn(const std::vector<ThreeVector>& p)
 {
-    int n = p.size();
-
-    //Handle trivial cases
-    if (n == 0) { return 0; }
-    if (n > 2) { std::cout<<"There is no EFT kernel available at the order specified"<<std::endl; return 0; }
-
-    double Gnval=0;
-
-    if (n==1) { Gnval= cG_2(1)*(*_coefficients)[EFTcoefficients::cs]*_lo_shapes(p[0])[0]+cG_1(1)*(*_coefficients)[EFTcoefficients::ch]*_lo_shapes(p[0])[0];}
-
-    if (n==2) {
-
-        std::vector<double> c_vals_2={(*_coefficients)[EFTcoefficients::c1]-(*_coefficients)[EFTcoefficients::c4],(*_coefficients)[EFTcoefficients::c2]-(*_coefficients)[EFTcoefficients::c5],(*_coefficients)[EFTcoefficients::c3]-(*_coefficients)[EFTcoefficients::c6]};
-        std::vector<double> ch_vals_2={(*_coefficients)[EFTcoefficients::ch1],(*_coefficients)[EFTcoefficients::ch2],(*_coefficients)[EFTcoefficients::ch3]};
-
-        std::vector<ThreeVector> p0={p[0]};
-        std::vector<ThreeVector> p1={p[1]};
-        std::vector<ThreeVector> p01={p[0],p[1]};
-
-        Gnval= cG_1(2)*alpha(p[0],p[1])*(Gn(p0)+Fn(p1))-cG_2(2)*beta(p[0],p[1])*(Gn(p0)+Gn(p1))
-        +cG_2(2)*(*_coefficients)[EFTcoefficients::cs]*_lo_shapes(p[0]+p[1])[0]*_sptkernels.Fn_sym(p01)
-        +cG_1(2)*(*_coefficients)[EFTcoefficients::ch]*_lo_shapes(p[0]+p[1])[0]*_sptkernels.Fn_sym(p01)
-        +cG_2(2)*_dot_product(c_vals_2,_nlo_shapes(p[0],p[1]))
-        +cG_1(2)*_dot_product(ch_vals_2,_nlo_shapes(p[0],p[1]));
-    }
-
+   int n = p.size();
+   double Gnval=0;
+      
+   //Handle trivial cases
+   if (n == 0) { return Gnval; }
+   if (n > 3) { std::cout<<"There is no EFT kernel available at the order specified"<<std::endl; return Gnval; }
+   
+   if (n==1) { Gnval = cG_E(1) * (p[0]*_tau(p)) ;}
+      
+   if (n==2) {
+         
+      std::vector<ThreeVector> P1={p[0]};
+      std::vector<ThreeVector> P2={p[1]};
+         
+      Gnval = cG_C(2) * alpha(p[0],p[1]) * (Gn_sym(P1) + Fn_sym(P2)) - cG_E(2) * beta(p[0],p[1]) * (Gn_sym(P1) + Gn_sym(P2)) + cG_E(2) * (p[0]+p[1])*_tau(p);
+   }
+      
+   if (n==3) {
+         
+      std::vector<ThreeVector> P1={p[0]};
+      std::vector<ThreeVector> P23={p[1],p[2]};
+      std::vector<ThreeVector> P12={p[0],p[1]};
+      std::vector<ThreeVector> P3={p[2]};
+         
+      Gnval = cG_C(3) * alpha(p[0],p[1]+p[2]) * (Gn_sym(P1)*_sptkernels.Fn_sym(P23) + Fn_sym(P23)) + cG_C(3) * alpha(p[0]+p[1],p[2]) * (Fn_sym(P3)*_sptkernels.Gn_sym(P12) + Gn_sym(P12)) - cG_E(3) * beta(p[0],p[1]+p[2]) * (Gn_sym(P1)*_sptkernels.Gn_sym(P23) + Gn_sym(P23)) - cG_E(3) * beta(p[0]+p[1],p[2]) * (Gn_sym(P3)*_sptkernels.Gn_sym(P12) + Gn_sym(P12)) + cG_E(3) * (p[0]+p[1]+p[2])*_tau(p) + cG_C(3) * alphaOmega(p[0]+p[1],p[2]) * _omega(P12) + cG_E(3) * betaOmega(p[0]+p[1],p[2]) * _omega(P12);
+   }
+      
    return Gnval;
 }
-
+   
 //------------------------------------------------------------------------------
 double EFTkernels::Fn_sym(const std::vector<ThreeVector>& p)
 {
@@ -317,6 +308,18 @@ double EFTkernels::Gn_sym(const std::vector<ThreeVector>& p)
    } while (std::next_permutation(pperm.begin(), pperm.end()));
 
    return value / nperm;
+}
+   
+//------------------------------------------------------------------------------
+//Helper function
+   
+ThreeVector EFTkernels::_dot_product(std::vector<double> a, std::vector<ThreeVector> b)
+{
+   ThreeVector dot(0.,0.,0.);
+   if(a.size() == b.size()){for(unsigned int i=0; i<a.size(); i++){dot+=a[i]*b[i];}}
+   else { throw std::invalid_argument( "Received invalid argument in dot product. Size of vectors does not match" );}
+      
+   return dot;
 }
 
 } // namespace fnfast
