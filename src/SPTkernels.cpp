@@ -163,7 +163,7 @@ double SPTkernels::Fn_sym(const std::vector<ThreeVector>& p)
    for (int k = 1; k < n; k++) {
       // for every momentum permutation of k elements from the n,
       // calculate the symmetrized Fn and Gn
-      for (int j = 0; j < _permset[n][k].size(); j++) {
+      for (size_t j = 0; j < _permset[n][k].size(); j++) {
          _Fn_sym[n][k][j] = Fn_sym_build(p, _permset[n][k][j], j);
          _Gn_sym[n][k][j] = Gn_sym_build(p, _permset[n][k][j], j);
       }
@@ -189,7 +189,7 @@ double SPTkernels::Gn_sym(const std::vector<ThreeVector>& p)
    for (int k = 1; k < n; k++) {
       // for every momentum permutation of k elements from the n,
       // calculate the symmetrized Fn and Gn
-      for (int j = 0; j < _permset[n][k].size(); j++) {
+      for (size_t j = 0; j < _permset[n][k].size(); j++) {
          _Fn_sym[n][k][j] = Fn_sym_build(p, _permset[n][k][j], j);
          _Gn_sym[n][k][j] = Gn_sym_build(p, _permset[n][k][j], j);
       }
@@ -359,7 +359,7 @@ int SPTkernels::hash_perm(const std::vector<int>& indices, int nmax)
    // order: [1,2], [1,3], [1,4], [2,3], [2,4], [3,4]
    int navail = nmax;
    int minindex = 1;
-   int pos = 0;
+   size_t pos = 0;
    int value = 0;
    // step through the index list
    while (pos < indices.size()) {

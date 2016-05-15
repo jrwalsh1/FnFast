@@ -18,6 +18,7 @@
 
 #include <iostream>
 #include <limits>
+#include <algorithm>
 
 #include "DiagramBase.hpp"
 
