@@ -48,7 +48,7 @@ class EFTcoefficients {
         virtual ~EFTcoefficients(){}
 
         //Labels for counterterm coefficients
-        enum Labels {cs,c1,c2,c3,t2,t3,d1,d2,d3,d4,d5,d6,d7};
+        enum Labels {cs,c1,c2,c3,t2,t3,d1,d2,d3,d4,d5,d6};
 
         //Input/read values
         double& operator[](EFTcoefficients::Labels label) {return _coeff_value[label];}
@@ -65,8 +65,8 @@ class EFTcoefficients {
     private:
         std::map<EFTcoefficients::Labels, double> _coeff_value;
 
-        std::vector<EFTcoefficients::Labels> _labels = {cs,c1,c2,c3,t2,t3,d1,d2,d3,d4,d5,d6,d7};
-        std::vector<std::string> _labels_names = {"cs","c1","c2","c3","t2","t3","d1","d2","d3","d4","d5","d6","d7"};
+        std::vector<EFTcoefficients::Labels> _labels = {cs,c1,c2,c3,t2,t3,d1,d2,d3,d4,d5,d6};
+        std::vector<std::string> _labels_names = {"cs","c1","c2","c3","t2","t3","d1","d2","d3","d4","d5","d6"};
 };
 
 //------------------------------------------------------------------------------

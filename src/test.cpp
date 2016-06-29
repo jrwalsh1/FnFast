@@ -49,15 +49,15 @@ int main()
    double k2mag = k2.magnitude();
    double theta12 = acos(k1*k2 / (k1.magnitude() * k2.magnitude()));
 
-/*
+
    std::cout << "---------- computing 1-loop power spectrum ----------" << std::endl;
    SPTkernels* kernelsSPT = new SPTkernels();
    LabelMap<Vertex, KernelBase*> kernels_SPT {{Vertex::v1, kernelsSPT}, {Vertex::v2, kernelsSPT}};
-   IntegralResult PSresult = PS.oneLoop(k1mag, kernels_SPT, &PL);
+   IntegralResult PSresult = PS.oneLoop(0.1, kernels_SPT, &PLcamb);
    std::cout << "1 loop SPT PS result = " << PSresult.result << std::endl;
    std::cout << "press any key to continue" << std::endl;
    std::cin.get();
-*/
+
 
 /*
     std::cout << "------------ computing 1-loop EFT power spectrum ------------" << std::endl;
@@ -87,7 +87,7 @@ int main()
    std::cin.get();
 */
 
-
+/*
    std::cout << "------------ computing 1-loop EFT bispectrum ------------" << std::endl;
    SPTkernels* kernelsSPT = new SPTkernels();
    LabelMap<Vertex, KernelBase*> kernels_SPT_BS {{Vertex::v1, kernelsSPT}, {Vertex::v2, kernelsSPT}, {Vertex::v3, kernelsSPT}};
@@ -106,7 +106,7 @@ int main()
    std::cout << "EFT BS result = " << BSresultEFT << std::endl;
    std::cout << "press any key to continue" << std::endl;
    std::cin.get();
-
+*/
 
 /*
    std::cout << "------------ computing 1-loop covariance ------------" << std::endl;
@@ -138,7 +138,6 @@ int main()
    coeffs[EFTcoefficients::d4]= 4;    //Set a value for NNLO coefficients
    coeffs[EFTcoefficients::d5]= 5;    //Set a value for NNLO coefficients
    coeffs[EFTcoefficients::d6]= 6;    //Set a value for NNLO coefficients
-   coeffs[EFTcoefficients::d7]= 7;    //Set a value for NNLO coefficients
    EFTkernels* kernelsEFT = new EFTkernels(coeffs);
    LabelMap<Vertex, KernelBase*> kernels_EFT_CV {{Vertex::v1, kernelsEFT}, {Vertex::v2, kernelsSPT}, {Vertex::v3, kernelsSPT},{Vertex::v4, kernelsSPT}};
    IntegralResult CVresultEFT = CV.treeEFT(k1mag, k2mag, kernels_EFT_CV, &PL);

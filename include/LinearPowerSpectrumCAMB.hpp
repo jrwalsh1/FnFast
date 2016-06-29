@@ -51,6 +51,8 @@ class LinearPowerSpectrumCAMB : public LinearPowerSpectrumBase
       gsl_interp_accel* _accel_ptr;                  ///< interpolation objects in gsl
       gsl_spline* _spline_ptr;                       ///< interpolation objects in gsl
       double _c0_low, _c1_low, _c0_high, _c1_high;   ///< fit parameters to define high and low k patches
+      double _kmin;                                  ///< IR cutoff
+
 
    public:
       /// constructors
@@ -61,6 +63,10 @@ class LinearPowerSpectrumCAMB : public LinearPowerSpectrumBase
           gsl_spline_free(_spline_ptr);
           gsl_interp_accel_free(_accel_ptr);
       }
+   
+      /// cuts off the power spectrum at kmin
+      void set_kmin(double kmin) { _kmin=kmin; }
+
 
       /// returns the linear power spectrum
       double operator()(double x);

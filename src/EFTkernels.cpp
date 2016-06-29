@@ -36,9 +36,8 @@ std::string EFTcoefficients::description()
    stream << "*******************************************"<<std::endl
    << "FnFast includes leading effective operators (i.e. scaling as k^2/k_NL^2) and up to three-field order."<<std::endl
    << "Refer to arXiv:1512.07630 for the basis used here and details about the construction of the EFT operators."<<std::endl
-   << "F1^tilde, F2^tilde, and F3^tilde have one, three, and nine independent operators (including one coming from time non-locality). The time-local operators are chosen as those corresponding to c_s, c^{DeltaDelta}_{1,2,3}, c^{ThetaTheta}_{2,3}, and c^{DeltaDeltaDelta}_{1...6}."<< std::endl
+   << "F1^tilde, F2^tilde, and F3^tilde have one, three, and eight independent operators. The operators are chosen as those corresponding to c_s, c^{DeltaDelta}_{1,2,3}, c^{ThetaTheta}_{2,3}, and c^{DeltaDeltaDelta}_{1...6}."<< std::endl
    << "For simplicity, we have renamed here c_s -> cs, c^{DeltaDelta}_{1,2,3} -> c_{1,2,3}, c^{ThetaTheta}_{2,3} -> t_{2,3} and c^{DeltaDeltaDelta}_{1...6} -> d_{1...6}."<<std::endl
-   << "In addition, the operator from the time-non-local expansion has been chosen as e3_^ij(k1,k2)*(k1+k2)*k3/k3^2 and its coefficient is named d7."<<std::endl
    << "*******************************************";
    return stream.str();
 }
@@ -146,10 +145,7 @@ std::vector<ThreeVector> EFTkernels::_NNLO_shapes(ThreeVector p1, ThreeVector p2
    //Shape6
    if(p1*p1 > eps && p2*p2 > eps && p3*p3 > eps) shape6 = (p1*p3)*(p2*p3)*(p*p1) / (2*(p1*p1)*(p2*p2)*(p3*p3)) * p2 + (p1*p3)*(p2*p3)*(p*p2) / (2*(p1*p1)*(p2*p2)*(p3*p3)) * p1;
    
-   //Shape7 (from time-non-local expansion)
-   if(p1*p1 > eps && p2*p2 > eps && p3*p3 > eps) shape7 = (p1+p2)*p3 / (p3*p3) * _NLO_shapes(p1,p2)[2];
-   
-   return(std::vector<ThreeVector> {shape1,shape2,shape3,shape4,shape5,shape6,shape7});
+   return(std::vector<ThreeVector> {shape1,shape2,shape3,shape4,shape5,shape6});
 }
    
 //------------------------------------------------------------------------------
@@ -162,7 +158,7 @@ ThreeVector EFTkernels::_tau(const std::vector<ThreeVector>& p)
    double cs =  (*_coefficients)[EFTcoefficients::cs];
    std::vector<double> c = {(*_coefficients)[EFTcoefficients::c1],(*_coefficients)[EFTcoefficients::c2],(*_coefficients)[EFTcoefficients::c3]};
    std::vector<double> t = {0.,(*_coefficients)[EFTcoefficients::t2],(*_coefficients)[EFTcoefficients::t3]};
-   std::vector<double> d = {(*_coefficients)[EFTcoefficients::d1],(*_coefficients)[EFTcoefficients::d2],(*_coefficients)[EFTcoefficients::d3],(*_coefficients)[EFTcoefficients::d4],(*_coefficients)[EFTcoefficients::d5],(*_coefficients)[EFTcoefficients::d6],(*_coefficients)[EFTcoefficients::d7]};
+   std::vector<double> d = {(*_coefficients)[EFTcoefficients::d1],(*_coefficients)[EFTcoefficients::d2],(*_coefficients)[EFTcoefficients::d3],(*_coefficients)[EFTcoefficients::d4],(*_coefficients)[EFTcoefficients::d5],(*_coefficients)[EFTcoefficients::d6]};
    
    
    //Handle trivial cases

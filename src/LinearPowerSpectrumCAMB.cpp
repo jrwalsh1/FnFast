@@ -29,7 +29,7 @@
 namespace fnfast {
 
 //------------------------------------------------------------------------------
-LinearPowerSpectrumCAMB::LinearPowerSpectrumCAMB(const std::string& input_file): _input_file(input_file), _accel_ptr(NULL), _spline_ptr(NULL)
+LinearPowerSpectrumCAMB::LinearPowerSpectrumCAMB(const std::string& input_file): _input_file(input_file), _accel_ptr(NULL), _spline_ptr(NULL), _kmin(0.)
 {
     std::ifstream file;
     file.open(_input_file);
@@ -40,14 +40,14 @@ LinearPowerSpectrumCAMB::LinearPowerSpectrumCAMB(const std::string& input_file):
 
         // Read file into vectors
         int npts = 0;
-        while(!file.eof()) {
-            double k,P;
-            file >> k >> P;
-            _kvec.push_back(k);
-            _Pvec.push_back(P);
-            npts++;
-        }
-
+        double k,P;
+       
+        while ( file >> k >> P ) {
+               _kvec.push_back(k);
+               _Pvec.push_back(P);
+               npts++;
+         }
+       
         // Define patches at low and high k
         // Use first and last 10 points to get tails behavior
         double k_low[10], P_low[10], k_high[10], P_high[10];
@@ -120,10 +120,14 @@ double LinearPowerSpectrumCAMB::operator()(double x)
 {
    double res = 0;
 
-   if( x >= 0 && x < _kvec_patches.front()) res = exp(_c0_low) * pow(x,_c1_low);  // Patch at low k
-   if( x >= _kvec_patches.front() && x < _kvec_patches.back()) res = gsl_spline_eval(_spline_ptr, x, _accel_ptr); // Interpolated function
+   double k0 = _kmin;
+   if(_kvec_patches.front() > _kmin) k0 = _kvec_patches.front();
+   
+   // if k<_kmin, P=0;
+   if( x > _kmin && x < k0) res = exp(_c0_low) * pow(x,_c1_low);  // Patch at low k
+   if( x > k0 && x < _kvec_patches.back()) res = gsl_spline_eval(_spline_ptr, x, _accel_ptr); // Interpolated function
    if( x >= _kvec_patches.back()) res = exp(_c0_high) * pow(x,_c1_high); // Patch at high k
-
+   
    return res;
 }
 
